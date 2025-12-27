@@ -1,0 +1,115 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getDb } from '@/lib/db';
+import { verifyWebhookSignature } from '@/lib/paddle';
+
+/**
+ * POST /api/paddle/webhook
+ * Handle Paddle webhook events
+ * 
+ * Events:
+ * - subscription.created
+ * - subscription.updated
+ * - subscription.canceled
+ * - transaction.completed
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.text();
+    const signature = request.headers.get('paddle-signature') || '';
+
+    // Verify webhook signature
+    const webhookSecret = process.env.PADDLE_WEBHOOK_SECRET || '';
+    if (!verifyWebhookSignature(body, signature, webhookSecret)) {
+      return NextResponse.json(
+        { error: 'Invalid signature' },
+        { status: 401 }
+      );
+    }
+
+    const event = JSON.parse(body);
+    const db = getDb();
+
+    // Handle different event types
+    switch (event.event_type) {
+      case 'subscription.created':
+      case 'subscription.updated':
+        await handleSubscriptionUpdate(event.data, db);
+        break;
+
+      case 'subscription.canceled':
+        await handleSubscriptionCanceled(event.data, db);
+        break;
+
+      case 'transaction.completed':
+        await handleTransactionCompleted(event.data, db);
+        break;
+
+      default:
+        console.log('Unhandled webhook event:', event.event_type);
+    }
+
+    return NextResponse.json({ received: true });
+  } catch (error) {
+    console.error('Error processing webhook:', error);
+    return NextResponse.json(
+      { error: 'Webhook processing failed' },
+      { status: 500 }
+    );
+  }
+}
+
+async function handleSubscriptionUpdate(data: any, db: any) {
+  const subscription = data;
+  const userId = subscription.custom_data?.user_id || subscription.customer_id;
+
+  if (!userId) {
+    console.error('No user ID in subscription data');
+    return;
+  }
+
+  // Determine plan type
+  let plan = 'monthly';
+  if (subscription.items?.[0]?.price_id === process.env.PADDLE_PRICE_ID_YEARLY) {
+    plan = 'yearly';
+  } else if (subscription.items?.[0]?.price_id === process.env.PADDLE_PRICE_ID_EARLY_BIRD) {
+    plan = 'early_bird';
+  }
+
+  await db.saveSubscription({
+    user_id: userId,
+    stripe_subscription_id: subscription.id,
+    stripe_customer_id: subscription.customer_id,
+    status: subscription.status === 'active' ? 'active' : 'canceled',
+    plan,
+    current_period_start: new Date(subscription.current_billing_period?.starts_at).getTime() / 1000,
+    current_period_end: new Date(subscription.current_billing_period?.ends_at).getTime() / 1000,
+    cancel_at_period_end: subscription.scheduled_change?.action === 'cancel',
+  });
+}
+
+async function handleSubscriptionCanceled(data: any, db: any) {
+  const subscription = data;
+  const existing = await db.getSubscriptionByStripeId(subscription.id);
+
+  if (existing) {
+    await db.saveSubscription({
+      id: existing.id,
+      user_id: existing.user_id,
+      stripe_subscription_id: subscription.id,
+      stripe_customer_id: subscription.customer_id,
+      status: 'canceled',
+      plan: existing.plan,
+      current_period_start: existing.current_period_start,
+      current_period_end: existing.current_period_end,
+      cancel_at_period_end: false,
+    });
+  }
+}
+
+async function handleTransactionCompleted(data: any, db: any) {
+  // Transaction completed - subscription should already be created
+  // Just log for now
+  console.log('Transaction completed:', data.id);
+}
+
+
