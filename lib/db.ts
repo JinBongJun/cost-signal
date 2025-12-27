@@ -3,12 +3,19 @@ import { promisify } from 'util';
 import path from 'path';
 import fs from 'fs';
 
-const DB_PATH = process.env.DATABASE_PATH || path.join(process.cwd(), 'data', 'cost-signal.db');
+// In Vercel serverless, use /tmp directory (writable)
+// In local development, use ./data directory
+const DB_PATH = process.env.DATABASE_PATH || 
+  (process.env.VERCEL ? 
+    path.join('/tmp', 'cost-signal.db') : 
+    path.join(process.cwd(), 'data', 'cost-signal.db'));
 
-// Ensure data directory exists
-const dbDir = path.dirname(DB_PATH);
-if (!fs.existsSync(dbDir)) {
-  fs.mkdirSync(dbDir, { recursive: true });
+// Ensure data directory exists (only for local development)
+if (!process.env.VERCEL) {
+  const dbDir = path.dirname(DB_PATH);
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+  }
 }
 
 export interface IndicatorData {
