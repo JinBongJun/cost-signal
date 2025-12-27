@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
-    const userId = randomUUID();
+    const userId = uuidv4();
     await db.createUser({
       id: userId,
       email,

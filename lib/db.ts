@@ -50,7 +50,7 @@ class Database {
   }
 
   private async init(): Promise<void> {
-    const run = promisify(this.db.run.bind(this.db));
+    const run = promisify(this.db.run.bind(this.db)) as (sql: string, params?: any[]) => Promise<any>;
 
     // Indicators table
     await run(`
@@ -181,7 +181,7 @@ class Database {
 
   async getLatestIndicator(type: 'gas' | 'cpi' | 'interest_rate' | 'unemployment'): Promise<IndicatorData | null> {
     await this.ensureInitialized();
-    const get = promisify(this.db.get.bind(this.db));
+    const get = promisify(this.db.get.bind(this.db)) as (sql: string, params?: any[]) => Promise<any>;
     const row = await get(
       `SELECT * FROM indicators WHERE indicator_type = ? ORDER BY week_start DESC LIMIT 1`,
       [type]
@@ -191,7 +191,7 @@ class Database {
 
   async getLatestWeeklySignal(): Promise<WeeklySignal | null> {
     await this.ensureInitialized();
-    const get = promisify(this.db.get.bind(this.db));
+    const get = promisify(this.db.get.bind(this.db)) as (sql: string, params?: any[]) => Promise<any>;
     const row = await get(
       `SELECT * FROM weekly_signals ORDER BY week_start DESC LIMIT 1`
     ) as WeeklySignal | undefined;
@@ -200,7 +200,7 @@ class Database {
 
   async getWeeklySignal(weekStart: string): Promise<WeeklySignal | null> {
     await this.ensureInitialized();
-    const get = promisify(this.db.get.bind(this.db));
+    const get = promisify(this.db.get.bind(this.db)) as (sql: string, params?: any[]) => Promise<any>;
     const row = await get(
       `SELECT * FROM weekly_signals WHERE week_start = ?`,
       [weekStart]
@@ -210,7 +210,7 @@ class Database {
 
   async getIndicatorsForWeek(weekStart: string): Promise<IndicatorData[]> {
     await this.ensureInitialized();
-    const all = promisify(this.db.all.bind(this.db));
+    const all = promisify(this.db.all.bind(this.db)) as (sql: string, params?: any[]) => Promise<any[]>;
     const rows = await all(
       `SELECT * FROM indicators WHERE week_start = ? ORDER BY indicator_type`,
       [weekStart]
@@ -220,7 +220,7 @@ class Database {
 
   async saveIndicator(data: Omit<IndicatorData, 'id' | 'created_at'>): Promise<void> {
     await this.ensureInitialized();
-    const run = promisify(this.db.run.bind(this.db));
+    const run = promisify(this.db.run.bind(this.db)) as (sql: string, params?: any[]) => Promise<any>;
     await run(
       `INSERT OR REPLACE INTO indicators (week_start, indicator_type, value, previous_value, change_percent, status)
        VALUES (?, ?, ?, ?, ?, ?)`,
@@ -230,7 +230,7 @@ class Database {
 
   async saveWeeklySignal(data: Omit<WeeklySignal, 'id' | 'created_at'>): Promise<void> {
     await this.ensureInitialized();
-    const run = promisify(this.db.run.bind(this.db));
+    const run = promisify(this.db.run.bind(this.db)) as (sql: string, params?: any[]) => Promise<any>;
     await run(
       `INSERT OR REPLACE INTO weekly_signals (week_start, overall_status, risk_count, explanation)
        VALUES (?, ?, ?, ?)`,
@@ -240,7 +240,7 @@ class Database {
 
   async getRecentIndicators(type: 'gas' | 'cpi' | 'interest_rate' | 'unemployment', weeks: number = 4): Promise<IndicatorData[]> {
     await this.ensureInitialized();
-    const all = promisify(this.db.all.bind(this.db));
+    const all = promisify(this.db.all.bind(this.db)) as (sql: string, params?: any[]) => Promise<any[]>;
     const rows = await all(
       `SELECT * FROM indicators WHERE indicator_type = ? ORDER BY week_start DESC LIMIT ?`,
       [type, weeks]
@@ -250,7 +250,7 @@ class Database {
 
   async getWeeklySignalsHistory(limit: number = 12): Promise<WeeklySignal[]> {
     await this.ensureInitialized();
-    const all = promisify(this.db.all.bind(this.db));
+    const all = promisify(this.db.all.bind(this.db)) as (sql: string, params?: any[]) => Promise<any[]>;
     const rows = await all(
       `SELECT * FROM weekly_signals ORDER BY week_start DESC LIMIT ?`,
       [limit]
@@ -260,7 +260,7 @@ class Database {
 
   async savePushSubscription(subscription: Omit<PushSubscription, 'id' | 'created_at'>): Promise<void> {
     await this.ensureInitialized();
-    const run = promisify(this.db.run.bind(this.db));
+    const run = promisify(this.db.run.bind(this.db)) as (sql: string, params?: any[]) => Promise<any>;
     await run(
       `INSERT OR REPLACE INTO push_subscriptions (endpoint, p256dh, auth, user_agent)
        VALUES (?, ?, ?, ?)`,
@@ -270,7 +270,7 @@ class Database {
 
   async getAllPushSubscriptions(): Promise<PushSubscription[]> {
     await this.ensureInitialized();
-    const all = promisify(this.db.all.bind(this.db));
+    const all = promisify(this.db.all.bind(this.db)) as (sql: string, params?: any[]) => Promise<any[]>;
     const rows = await all(
       `SELECT * FROM push_subscriptions`
     ) as PushSubscription[];
@@ -279,7 +279,7 @@ class Database {
 
   async deletePushSubscription(endpoint: string): Promise<void> {
     await this.ensureInitialized();
-    const run = promisify(this.db.run.bind(this.db));
+    const run = promisify(this.db.run.bind(this.db)) as (sql: string, params?: any[]) => Promise<any>;
     await run(
       `DELETE FROM push_subscriptions WHERE endpoint = ?`,
       [endpoint]
@@ -289,21 +289,21 @@ class Database {
   // User and subscription methods
   async getUserById(userId: string): Promise<any | null> {
     await this.ensureInitialized();
-    const get = promisify(this.db.get.bind(this.db));
+    const get = promisify(this.db.get.bind(this.db)) as (sql: string, params?: any[]) => Promise<any>;
     const row = await get(`SELECT * FROM users WHERE id = ?`, [userId]);
     return row || null;
   }
 
   async getUserByEmail(email: string): Promise<any | null> {
     await this.ensureInitialized();
-    const get = promisify(this.db.get.bind(this.db));
+    const get = promisify(this.db.get.bind(this.db)) as (sql: string, params?: any[]) => Promise<any>;
     const row = await get(`SELECT * FROM users WHERE email = ?`, [email]);
     return row || null;
   }
 
   async createUser(user: { id: string; email: string; name?: string; emailVerified?: Date; password?: string }): Promise<void> {
     await this.ensureInitialized();
-    const run = promisify(this.db.run.bind(this.db));
+    const run = promisify(this.db.run.bind(this.db)) as (sql: string, params?: any[]) => Promise<any>;
     await run(
       `INSERT INTO users (id, email, name, emailVerified, password) VALUES (?, ?, ?, ?, ?)`,
       [user.id, user.email, user.name || null, user.emailVerified ? user.emailVerified.getTime() : null, user.password || null]
@@ -312,7 +312,7 @@ class Database {
 
   async updateUser(userId: string, updates: { email?: string; name?: string; emailVerified?: Date }): Promise<void> {
     await this.ensureInitialized();
-    const run = promisify(this.db.run.bind(this.db));
+    const run = promisify(this.db.run.bind(this.db)) as (sql: string, params?: any[]) => Promise<any>;
     const fields: string[] = [];
     const values: any[] = [];
 
@@ -338,7 +338,7 @@ class Database {
 
   async getSubscriptionByUserId(userId: string): Promise<any | null> {
     await this.ensureInitialized();
-    const get = promisify(this.db.get.bind(this.db));
+    const get = promisify(this.db.get.bind(this.db)) as (sql: string, params?: any[]) => Promise<any>;
     const row = await get(
       `SELECT * FROM subscriptions WHERE user_id = ? AND status = 'active' ORDER BY created_at DESC LIMIT 1`,
       [userId]
@@ -348,7 +348,7 @@ class Database {
 
   async getSubscriptionByStripeId(stripeSubscriptionId: string): Promise<any | null> {
     await this.ensureInitialized();
-    const get = promisify(this.db.get.bind(this.db));
+    const get = promisify(this.db.get.bind(this.db)) as (sql: string, params?: any[]) => Promise<any>;
     const row = await get(
       `SELECT * FROM subscriptions WHERE stripe_subscription_id = ?`,
       [stripeSubscriptionId]
@@ -368,7 +368,7 @@ class Database {
     cancel_at_period_end?: boolean;
   }): Promise<void> {
     await this.ensureInitialized();
-    const run = promisify(this.db.run.bind(this.db));
+    const run = promisify(this.db.run.bind(this.db)) as (sql: string, params?: any[]) => Promise<any>;
     
     if (subscription.id) {
       // Update existing

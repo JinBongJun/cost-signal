@@ -122,3 +122,4 @@ export default function TermsPage() {
 3. ✅ 테스트 결제 진행
 4. ✅ 실제 서비스 시작!
 
+

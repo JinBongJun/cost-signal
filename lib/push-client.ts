@@ -42,7 +42,7 @@ export async function subscribeToPushNotifications(): Promise<PushSubscription |
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(
         process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ''
-      ),
+      ) as BufferSource,
     });
 
     // Send subscription to server
@@ -127,6 +127,7 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
   }
   return window.btoa(binary);
 }
+
 
 
 

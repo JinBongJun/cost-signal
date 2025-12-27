@@ -4,7 +4,7 @@
  */
 
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth-options';
 import { getDb } from './db';
 
 export async function getCurrentUser() {
@@ -46,7 +46,11 @@ export async function hasActiveSubscription(userId: string): Promise<boolean> {
 
 export async function requirePaidTier() {
   const user = await requireAuth();
-  const hasSubscription = await hasActiveSubscription(user.id);
+  const userId = (user as any).id;
+  if (!userId) {
+    throw new Error('User ID not found');
+  }
+  const hasSubscription = await hasActiveSubscription(userId);
   
   if (!hasSubscription) {
     throw new Error('Paid subscription required');
@@ -54,5 +58,6 @@ export async function requirePaidTier() {
   
   return user;
 }
+
 
 

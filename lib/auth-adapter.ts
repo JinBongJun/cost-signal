@@ -54,7 +54,7 @@ export function SQLiteAdapter(): Adapter {
     async updateUser(user: Partial<AdapterUser> & { id: string }) {
       await db.updateUser(user.id, {
         email: user.email,
-        name: user.name,
+        name: user.name || undefined,
         emailVerified: user.emailVerified || undefined,
       });
       const updated = await db.getUserById(user.id);
@@ -179,5 +179,6 @@ export function SQLiteAdapter(): Adapter {
     },
   };
 }
+
 
 

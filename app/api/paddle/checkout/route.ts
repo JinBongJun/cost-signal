@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth-options';
 import { createCheckoutSession } from '@/lib/paddle';
 
 /**
@@ -41,8 +41,15 @@ export async function POST(request: NextRequest) {
 
     // Create checkout session
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const userId = (session.user as any).id;
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'User ID not found' },
+        { status: 500 }
+      );
+    }
     const checkout = await createCheckoutSession(
-      session.user.id,
+      userId,
       priceId,
       `${baseUrl}/pricing/success`,
       `${baseUrl}/pricing`
@@ -64,5 +71,6 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
 
 

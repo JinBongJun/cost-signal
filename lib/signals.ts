@@ -29,7 +29,8 @@ export async function evaluateGasPrice(currentValue: number, previousValue: numb
     // Check if all 3 recent weeks show increases
     let consecutiveIncreases = 0;
     for (let i = 0; i < recent.length - 1; i++) {
-      if (recent[i].previous_value !== null && recent[i].value > recent[i].previous_value) {
+      const current = recent[i];
+      if (current && current.previous_value !== null && current.value > current.previous_value) {
         consecutiveIncreases++;
       }
     }
@@ -139,7 +140,7 @@ export async function evaluateUnemployment(currentValue: number, previousValue: 
  * - 1 risk indicator → 🟡 CAUTION
  * - 2+ risk indicators → 🔴 RISK
  */
-export function calculateOverallSignal(indicators: IndicatorData[]): { status: OverallStatus; riskCount: number } {
+export function calculateOverallSignal(indicators: Omit<IndicatorData, 'id' | 'created_at'>[]): { status: OverallStatus; riskCount: number } {
   const riskCount = indicators.filter(ind => ind.status === 'risk').length;
 
   if (riskCount === 0) {

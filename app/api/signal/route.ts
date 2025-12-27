@@ -22,7 +22,11 @@ export async function GET(request: NextRequest) {
     if (requestedTier === 'paid') {
       const user = await getCurrentUser();
       if (user) {
-        const hasSubscription = await hasActiveSubscription(user.id);
+        const userId = (user as any).id;
+        if (!userId) {
+          return NextResponse.json({ error: 'User ID not found' }, { status: 500 });
+        }
+        const hasSubscription = await hasActiveSubscription(userId);
         if (hasSubscription) {
           tier = 'paid';
         } else {

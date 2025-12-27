@@ -87,3 +87,4 @@ GitHub 저장소가 준비되면:
 - GitHub에서 Personal Access Token 생성 필요할 수 있음
 - Settings → Developer settings → Personal access tokens → Generate new token
 
+
