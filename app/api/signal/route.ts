@@ -51,6 +51,7 @@ export async function GET(request: NextRequest) {
     const signal = await db.getLatestWeeklySignal();
 
     if (!signal) {
+      console.error('No signal found in database');
       return NextResponse.json(
         { error: 'No signal data available yet' },
         { status: 404 }
