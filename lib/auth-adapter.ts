@@ -1,8 +1,8 @@
 /**
- * NextAuth adapter for SQLite
- * Cost optimization: Custom adapter to avoid additional dependencies
+ * NextAuth adapter for Supabase
  */
 
+import { supabase } from './supabase';
 import { getDb } from './db';
 import type { Adapter, AdapterUser, AdapterAccount, AdapterSession, VerificationToken } from 'next-auth/adapters';
 
@@ -46,9 +46,25 @@ export function SQLiteAdapter(): Adapter {
     },
 
     async getUserByAccount({ providerAccountId, provider }) {
-      // This would require a join, simplified for now
-      // In production, you'd want to implement this properly
-      return null;
+      const { data: account, error } = await supabase
+        .from('accounts')
+        .select('user_id')
+        .eq('provider', provider)
+        .eq('provider_account_id', providerAccountId)
+        .single();
+
+      if (error || !account) return null;
+
+      const user = await db.getUserById(account.user_id);
+      if (!user) return null;
+
+      return {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        emailVerified: user.emailVerified ? new Date(user.emailVerified) : null,
+        image: user.image,
+      } as AdapterUser;
     },
 
     async updateUser(user: Partial<AdapterUser> & { id: string }) {
@@ -69,47 +85,61 @@ export function SQLiteAdapter(): Adapter {
     },
 
     async linkAccount(account: AdapterAccount) {
-      // Implement account linking
-      const { promisify } = require('util');
-      const run = promisify(db['db'].run.bind(db['db']));
-      await run(
-        `INSERT INTO accounts (id, user_id, type, provider, provider_account_id, refresh_token, access_token, expires_at, token_type, scope, id_token, session_state)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          crypto.randomUUID(),
-          account.userId,
-          account.type,
-          account.provider,
-          account.providerAccountId,
-          account.refresh_token || null,
-          account.access_token || null,
-          account.expires_at || null,
-          account.token_type || null,
-          account.scope || null,
-          account.id_token || null,
-          account.session_state || null,
-        ]
-      );
+      const { error } = await supabase
+        .from('accounts')
+        .insert({
+          id: crypto.randomUUID(),
+          user_id: account.userId,
+          type: account.type,
+          provider: account.provider,
+          provider_account_id: account.providerAccountId,
+          refresh_token: account.refresh_token || null,
+          access_token: account.access_token || null,
+          expires_at: account.expires_at || null,
+          token_type: account.token_type || null,
+          scope: account.scope || null,
+          id_token: account.id_token || null,
+          session_state: account.session_state || null,
+        });
+
+      if (error) {
+        throw new Error(`Failed to link account: ${error.message}`);
+      }
       return account;
     },
 
     async createSession({ sessionToken, userId, expires }) {
-      const { promisify } = require('util');
-      const run = promisify(db['db'].run.bind(db['db']));
-      const id = crypto.randomUUID();
-      await run(
-        `INSERT INTO sessions (id, session_token, user_id, expires) VALUES (?, ?, ?, ?)`,
-        [id, sessionToken, userId, expires.getTime()]
-      );
+      const { error } = await supabase
+        .from('sessions')
+        .insert({
+          id: crypto.randomUUID(),
+          session_token: sessionToken,
+          user_id: userId,
+          expires: expires.getTime(),
+        });
+
+      if (error) {
+        throw new Error(`Failed to create session: ${error.message}`);
+      }
       return { sessionToken, userId, expires } as AdapterSession;
     },
 
     async getSessionAndUser(sessionToken: string) {
-      const { promisify } = require('util');
-      const get = promisify(db['db'].get.bind(db['db']));
-      const session = await get(`SELECT * FROM sessions WHERE session_token = ?`, [sessionToken]);
-      if (!session) return null;
-      
+      const { data: session, error: sessionError } = await supabase
+        .from('sessions')
+        .select('*')
+        .eq('session_token', sessionToken)
+        .single();
+
+      if (sessionError || !session) return null;
+
+      // Check if session is expired
+      if (new Date(session.expires) < new Date()) {
+        // Delete expired session
+        await supabase.from('sessions').delete().eq('session_token', sessionToken);
+        return null;
+      }
+
       const user = await db.getUserById(session.user_id);
       if (!user) return null;
 
@@ -130,14 +160,30 @@ export function SQLiteAdapter(): Adapter {
     },
 
     async updateSession({ sessionToken, ...data }) {
-      const { promisify } = require('util');
-      const run = promisify(db['db'].run.bind(db['db']));
+      const updateData: any = {};
       if (data.expires) {
-        await run(`UPDATE sessions SET expires = ? WHERE session_token = ?`, [data.expires.getTime(), sessionToken]);
+        updateData.expires = data.expires.getTime();
       }
-      const get = promisify(db['db'].get.bind(db['db']));
-      const session = await get(`SELECT * FROM sessions WHERE session_token = ?`, [sessionToken]);
-      if (!session) return null;
+
+      if (Object.keys(updateData).length > 0) {
+        const { error } = await supabase
+          .from('sessions')
+          .update(updateData)
+          .eq('session_token', sessionToken);
+
+        if (error) {
+          throw new Error(`Failed to update session: ${error.message}`);
+        }
+      }
+
+      const { data: session, error } = await supabase
+        .from('sessions')
+        .select('*')
+        .eq('session_token', sessionToken)
+        .single();
+
+      if (error || !session) return null;
+
       return {
         sessionToken: session.session_token,
         userId: session.user_id,
@@ -146,31 +192,48 @@ export function SQLiteAdapter(): Adapter {
     },
 
     async deleteSession(sessionToken: string) {
-      const { promisify } = require('util');
-      const run = promisify(db['db'].run.bind(db['db']));
-      await run(`DELETE FROM sessions WHERE session_token = ?`, [sessionToken]);
+      const { error } = await supabase
+        .from('sessions')
+        .delete()
+        .eq('session_token', sessionToken);
+
+      if (error) {
+        throw new Error(`Failed to delete session: ${error.message}`);
+      }
     },
 
     async createVerificationToken({ identifier, token, expires }) {
-      const { promisify } = require('util');
-      const run = promisify(db['db'].run.bind(db['db']));
-      await run(
-        `INSERT INTO verification_tokens (identifier, token, expires) VALUES (?, ?, ?)`,
-        [identifier, token, expires.getTime()]
-      );
+      const { error } = await supabase
+        .from('verification_tokens')
+        .insert({
+          identifier,
+          token,
+          expires: expires.getTime(),
+        });
+
+      if (error) {
+        throw new Error(`Failed to create verification token: ${error.message}`);
+      }
       return { identifier, token, expires };
     },
 
     async useVerificationToken({ identifier, token }) {
-      const { promisify } = require('util');
-      const get = promisify(db['db'].get.bind(db['db']));
-      const run = promisify(db['db'].run.bind(db['db']));
-      const vt = await get(
-        `SELECT * FROM verification_tokens WHERE identifier = ? AND token = ?`,
-        [identifier, token]
-      );
-      if (!vt) return null;
-      await run(`DELETE FROM verification_tokens WHERE identifier = ? AND token = ?`, [identifier, token]);
+      const { data: vt, error } = await supabase
+        .from('verification_tokens')
+        .select('*')
+        .eq('identifier', identifier)
+        .eq('token', token)
+        .single();
+
+      if (error || !vt) return null;
+
+      // Delete the token after use
+      await supabase
+        .from('verification_tokens')
+        .delete()
+        .eq('identifier', identifier)
+        .eq('token', token);
+
       return {
         identifier: vt.identifier,
         token: vt.token,
