@@ -133,11 +133,25 @@ export default function Home() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/signal?tier=${tier}`);
+      // Add minimum loading time for better UX
+      // This ensures users see the skeleton UI even on fast connections
+      const minLoadingTime = 800; // 800ms minimum
+      const startTime = Date.now();
+      
+      const response = await fetch(`/api/signal?tier=${tier}`, {
+        cache: 'no-store', // Prevent caching for testing
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch signal');
       }
       const data = await response.json();
+      
+      // Ensure minimum loading time for better UX
+      const elapsed = Date.now() - startTime;
+      if (elapsed < minLoadingTime) {
+        await new Promise(resolve => setTimeout(resolve, minLoadingTime - elapsed));
+      }
+      
       setSignal(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -234,8 +248,14 @@ export default function Home() {
     }
   }
 
+  // Show loading state if:
+  // 1. Initial data is loading
+  // 2. Session is still loading
+  // 3. Signal data is not available yet
+  const isLoading = loading || status === 'loading' || !signal;
+  
   // Skeleton Loading Component
-  if (loading) {
+  if (isLoading) {
     return (
       <main className="min-h-screen p-4 md:p-8">
         <div className="max-w-4xl mx-auto">
@@ -358,6 +378,21 @@ export default function Home() {
             </button>
           )}
         </div>
+
+        {/* Test Loading Button (Development only) */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mb-4 flex justify-center">
+            <button
+              onClick={() => {
+                setLoading(true);
+                setTimeout(() => fetchSignal(), 100);
+              }}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
+            >
+              🔄 Test Loading UI
+            </button>
+          </div>
+        )}
 
         {/* User Auth Status */}
         <div className="mb-6 flex justify-center items-center gap-4">
