@@ -69,7 +69,7 @@ export const authOptions: NextAuthOptions = {
             await db.createUser({
               id: userId,
               email: user.email!,
-              name: user.name || null,
+              name: user.name || undefined,
               emailVerified: new Date(),
             });
 
