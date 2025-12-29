@@ -17,9 +17,9 @@ export async function POST(request: NextRequest) {
     const body = await request.text();
     const signature = request.headers.get('paddle-signature') || '';
 
-    // Verify webhook signature
-    const webhookSecret = process.env.PADDLE_WEBHOOK_SECRET || '';
-    if (!verifyWebhookSignature(body, signature, webhookSecret)) {
+    // Verify webhook signature (uses PADDLE_WEBHOOK_SECRET from environment automatically)
+    if (!verifyWebhookSignature(body, signature)) {
+      console.error('Invalid webhook signature');
       return NextResponse.json(
         { error: 'Invalid signature' },
         { status: 401 }
@@ -111,6 +111,8 @@ async function handleTransactionCompleted(data: any, db: any) {
   // Just log for now
   console.log('Transaction completed:', data.id);
 }
+
+
 
 
 

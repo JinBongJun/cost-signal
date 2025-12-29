@@ -7,7 +7,7 @@ export interface IndicatorData {
   value: number;
   previous_value: number | null;
   change_percent: number | null;
-  status: 'ok' | 'risk';
+  status: 'ok' | 'caution' | 'risk';
   created_at: string;
 }
 

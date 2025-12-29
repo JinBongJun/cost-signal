@@ -19,7 +19,7 @@ interface Signal {
     value: number;
     previous_value: number | null;
     change_percent: number | null;
-    status: 'ok' | 'risk';
+    status: 'ok' | 'caution' | 'risk';
   }>;
 }
 
@@ -33,7 +33,7 @@ interface HistorySignal {
     value: number;
     previous_value: number | null;
     change_percent: number | null;
-    status: 'ok' | 'risk';
+    status: 'ok' | 'caution' | 'risk';
   }>;
 }
 
@@ -221,21 +221,56 @@ export default function Home() {
   }
 
   async function handleSubscribe() {
-    if ('serviceWorker' in navigator) {
+    try {
+      if (!('serviceWorker' in navigator)) {
+        alert('❌ Your browser does not support service workers. Please use a modern browser like Chrome, Firefox, or Edge.');
+        return;
+      }
+
+      if (!('Notification' in window)) {
+        alert('❌ Your browser does not support notifications.');
+        return;
+      }
+
+      // Check VAPID key
+      const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+      if (!vapidKey) {
+        console.error('VAPID public key not found');
+        alert('❌ Push notification configuration error. Please contact support.');
+        return;
+      }
+
       // Register service worker first
+      console.log('Registering service worker...');
+      let registration;
       try {
-        await navigator.serviceWorker.register('/sw.js');
+        registration = await navigator.serviceWorker.register('/sw.js');
+        console.log('Service Worker registered:', registration);
       } catch (error) {
         console.error('Service Worker registration failed:', error);
+        alert('❌ Failed to register service worker. Please refresh the page and try again.');
+        return;
       }
-    }
 
-    const subscription = await subscribeToPushNotifications();
-    if (subscription) {
-      setIsSubscribed(true);
-      alert('✅ Notifications enabled! You\'ll receive weekly economic signals every Monday.');
-    } else {
-      alert('Failed to enable notifications. Please check your browser notification settings.');
+      // Wait for service worker to be ready
+      await navigator.serviceWorker.ready;
+      console.log('Service Worker is ready');
+
+      // Subscribe to push notifications
+      console.log('Subscribing to push notifications...');
+      const subscription = await subscribeToPushNotifications();
+      
+      if (subscription) {
+        setIsSubscribed(true);
+        console.log('✅ Push notification subscription successful');
+        alert('✅ Notifications enabled! You\'ll receive weekly economic signals every Monday.');
+      } else {
+        console.error('Failed to subscribe to push notifications');
+        alert('❌ Failed to enable notifications. Please check your browser notification settings and try again.');
+      }
+    } catch (error) {
+      console.error('Error in handleSubscribe:', error);
+      alert(`❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
