@@ -117,8 +117,20 @@ export default function Home() {
 
   async function checkSubscriptionStatus() {
     if ('serviceWorker' in navigator) {
-      const subscribed = await isSubscribedToPushNotifications();
-      setIsSubscribed(subscribed);
+      try {
+        const subscribed = await isSubscribedToPushNotifications();
+        console.log('Current subscription status:', subscribed);
+        
+        // Also check notification permission
+        if ('Notification' in window) {
+          console.log('Notification permission:', Notification.permission);
+        }
+        
+        setIsSubscribed(subscribed);
+      } catch (error) {
+        console.error('Error checking subscription status:', error);
+        setIsSubscribed(false);
+      }
     }
   }
 
@@ -270,7 +282,23 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Error in handleSubscribe:', error);
-      alert(`❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
+      // Provide more specific error messages
+      let userMessage = '❌ Failed to enable notifications.';
+      if (errorMessage.includes('permission')) {
+        userMessage = '❌ 알림 권한이 필요합니다. 브라우저 설정에서 알림을 허용해주세요.';
+      } else if (errorMessage.includes('VAPID')) {
+        userMessage = '❌ 푸시 알림 설정 오류: VAPID 키가 없습니다. 관리자에게 문의하세요.';
+      } else if (errorMessage.includes('Service Worker')) {
+        userMessage = '❌ 브라우저가 Service Worker를 지원하지 않습니다. Chrome, Firefox, Edge를 사용해주세요.';
+      } else if (errorMessage.includes('push subscription')) {
+        userMessage = '❌ 푸시 구독 생성 실패. 브라우저 설정에서 알림을 허용하고 다시 시도해주세요.';
+      } else {
+        userMessage = `❌ 오류: ${errorMessage}`;
+      }
+      
+      alert(userMessage);
     }
   }
 
@@ -484,18 +512,30 @@ export default function Home() {
               🔔 Enable Weekly Notifications
             </button>
           ) : (
-            <button
-              onClick={handleUnsubscribe}
-              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2"
-            >
-              🔕 Disable Notifications
-            </button>
+            <div className="flex flex-col items-center gap-2">
+              <button
+                onClick={handleUnsubscribe}
+                className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2"
+              >
+                🔕 Disable Notifications
+              </button>
+              <div className="text-xs text-green-600 dark:text-green-400">
+                ✅ 알림이 활성화되어 있습니다
+              </div>
+            </div>
           )}
           
           {/* Notification Permission Help */}
           {!isSubscribed && (
             <div className="text-center text-xs text-gray-500 dark:text-gray-500 mt-1">
               <p>⚠️ 알림 팝업이 안 뜨면 브라우저 설정에서 알림을 허용해주세요</p>
+            </div>
+          )}
+          
+          {/* Debug Info (only in development) */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="text-xs text-gray-400 mt-2 text-center">
+              <p>Debug: isSubscribed={String(isSubscribed)}, Permission={typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'N/A'}</p>
             </div>
           )}
         </div>

@@ -52,41 +52,54 @@ export async function requestNotificationPermission(): Promise<boolean> {
 
 export async function subscribeToPushNotifications(): Promise<PushSubscription | null> {
   if (!('serviceWorker' in navigator)) {
-    console.log('Service Worker not supported');
-    return null;
+    const error = 'Service Worker not supported in this browser';
+    console.error(error);
+    throw new Error(error);
   }
 
   try {
     // Request notification permission
-    console.log('Requesting notification permission...');
+    console.log('Step 1: Requesting notification permission...');
     const hasPermission = await requestNotificationPermission();
     if (!hasPermission) {
-      console.error('Notification permission denied');
-      return null;
+      const error = 'Notification permission was not granted';
+      console.error(error);
+      throw new Error(error);
     }
-    console.log('Notification permission granted');
+    console.log('✅ Step 1: Notification permission granted');
 
-    // Register service worker
+    // Wait for service worker to be ready
+    console.log('Step 2: Waiting for service worker to be ready...');
     const registration = await navigator.serviceWorker.ready;
-    console.log('Service worker ready, subscribing to push...');
+    console.log('✅ Step 2: Service worker is ready');
 
     // Check VAPID key
+    console.log('Step 3: Checking VAPID key...');
     const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
     if (!vapidKey) {
-      console.error('VAPID public key not found in environment');
-      return null;
+      const error = 'VAPID public key not found in environment variables. Please check NEXT_PUBLIC_VAPID_PUBLIC_KEY in .env';
+      console.error(error);
+      throw new Error(error);
     }
-    console.log('VAPID key found, length:', vapidKey.length);
+    console.log('✅ Step 3: VAPID key found, length:', vapidKey.length);
 
     // Subscribe to push notifications
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(vapidKey) as BufferSource,
-    });
-    console.log('Push subscription created:', subscription.endpoint);
+    console.log('Step 4: Subscribing to push notifications...');
+    let subscription;
+    try {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidKey) as BufferSource,
+      });
+      console.log('✅ Step 4: Push subscription created:', subscription.endpoint);
+    } catch (subscribeError) {
+      const error = `Failed to create push subscription: ${subscribeError instanceof Error ? subscribeError.message : 'Unknown error'}`;
+      console.error('❌ Step 4:', error);
+      throw new Error(error);
+    }
 
     // Send subscription to server
-    console.log('Sending subscription to server...');
+    console.log('Step 5: Sending subscription to server...');
     const response = await fetch('/api/push/subscribe', {
       method: 'POST',
       headers: {
@@ -103,15 +116,17 @@ export async function subscribeToPushNotifications(): Promise<PushSubscription |
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Failed to save subscription:', response.status, errorText);
-      throw new Error(`Failed to save subscription: ${response.status}`);
+      const error = `Failed to save subscription to server: ${response.status} ${errorText}`;
+      console.error('❌ Step 5:', error);
+      throw new Error(error);
     }
 
-    console.log('✅ Subscription saved to server successfully');
+    console.log('✅ Step 5: Subscription saved to server successfully');
     return subscription;
   } catch (error) {
-    console.error('Error subscribing to push notifications:', error);
-    return null;
+    console.error('❌ Error subscribing to push notifications:', error);
+    // Re-throw the error so the caller can handle it
+    throw error;
   }
 }
 
