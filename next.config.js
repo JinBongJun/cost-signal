@@ -38,8 +38,12 @@ module.exports = withSentryConfig(
     // Only upload source maps in production
     widenClientFileUpload: true,
     hideSourceMaps: true,
-    disableLogger: true,
-    automaticVercelMonitors: true,
+    webpack: {
+      treeshake: {
+        removeDebugLogging: true,
+      },
+      automaticVercelMonitors: true,
+    },
   }
 );
 
