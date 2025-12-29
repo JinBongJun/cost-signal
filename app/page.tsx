@@ -234,12 +234,61 @@ export default function Home() {
     }
   }
 
+  // Skeleton Loading Component
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center p-4">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-gray-100 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading signal...</p>
+      <main className="min-h-screen p-4 md:p-8">
+        <div className="max-w-4xl mx-auto">
+          {/* Header Skeleton */}
+          <header className="mb-8 text-center">
+            <div className="h-12 w-48 bg-gray-300 dark:bg-gray-700 rounded animate-pulse mx-auto mb-4"></div>
+            <div className="h-6 w-80 bg-gray-300 dark:bg-gray-700 rounded animate-pulse mx-auto"></div>
+          </header>
+
+          {/* Buttons Skeleton */}
+          <div className="mb-6 flex flex-col items-center gap-3">
+            <div className="h-10 w-64 bg-gray-300 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+          </div>
+
+          {/* Auth Status Skeleton */}
+          <div className="mb-6 flex justify-center items-center gap-4">
+            <div className="h-8 w-48 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
+          </div>
+
+          {/* Tier Display Skeleton */}
+          <div className="mb-6 flex justify-center">
+            <div className="h-10 w-32 bg-gray-300 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+          </div>
+
+          {/* Main Signal Card Skeleton */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 md:p-8 mb-6">
+            <div className="text-center mb-6">
+              {/* Emoji Circle Skeleton */}
+              <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-700 animate-pulse mx-auto mb-4"></div>
+              
+              {/* Status Text Skeleton */}
+              <div className="h-10 w-32 bg-gray-300 dark:bg-gray-700 rounded animate-pulse mx-auto mb-2"></div>
+              
+              {/* Date Text Skeleton */}
+              <div className="h-5 w-64 bg-gray-300 dark:bg-gray-700 rounded animate-pulse mx-auto"></div>
+            </div>
+
+            {/* Explanation Skeleton (for paid tier) */}
+            <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-6">
+              <div className="space-y-2">
+                <div className="h-4 w-full bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
+                <div className="h-4 w-5/6 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
+                <div className="h-4 w-4/6 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
+              </div>
+            </div>
+
+            {/* Upgrade Prompt Skeleton (for free tier) */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+              <div className="h-5 w-40 bg-gray-300 dark:bg-gray-700 rounded animate-pulse mb-2"></div>
+              <div className="h-4 w-full bg-gray-300 dark:bg-gray-700 rounded animate-pulse mb-3"></div>
+              <div className="h-9 w-40 bg-gray-300 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+            </div>
+          </div>
         </div>
       </main>
     );
