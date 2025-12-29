@@ -287,15 +287,15 @@ export default function Home() {
       // Provide more specific error messages
       let userMessage = '❌ Failed to enable notifications.';
       if (errorMessage.includes('permission')) {
-        userMessage = '❌ 알림 권한이 필요합니다. 브라우저 설정에서 알림을 허용해주세요.';
+        userMessage = '❌ Notification permission required. Please allow notifications in your browser settings.';
       } else if (errorMessage.includes('VAPID')) {
-        userMessage = '❌ 푸시 알림 설정 오류: VAPID 키가 없습니다. 관리자에게 문의하세요.';
+        userMessage = '❌ Push notification configuration error: VAPID key missing. Please contact support.';
       } else if (errorMessage.includes('Service Worker')) {
-        userMessage = '❌ 브라우저가 Service Worker를 지원하지 않습니다. Chrome, Firefox, Edge를 사용해주세요.';
+        userMessage = '❌ Your browser does not support Service Workers. Please use Chrome, Firefox, or Edge.';
       } else if (errorMessage.includes('push subscription')) {
-        userMessage = '❌ 푸시 구독 생성 실패. 브라우저 설정에서 알림을 허용하고 다시 시도해주세요.';
+        userMessage = '❌ Failed to create push subscription. Please allow notifications in browser settings and try again.';
       } else {
-        userMessage = `❌ 오류: ${errorMessage}`;
+        userMessage = `❌ Error: ${errorMessage}`;
       }
       
       alert(userMessage);
@@ -313,7 +313,7 @@ export default function Home() {
   async function handleTestNotification() {
     try {
       if (!('serviceWorker' in navigator)) {
-        alert('❌ Service Worker를 지원하지 않는 브라우저입니다.');
+        alert('❌ Your browser does not support Service Workers.');
         return;
       }
 
@@ -321,7 +321,7 @@ export default function Home() {
       const subscription = await registration.pushManager.getSubscription();
 
       if (!subscription) {
-        alert('❌ 알림 구독을 찾을 수 없습니다. 알림을 다시 활성화해주세요.');
+        alert('❌ Push subscription not found. Please enable notifications again.');
         return;
       }
 
@@ -341,10 +341,10 @@ export default function Home() {
         throw new Error(errorData.error || 'Failed to send test notification');
       }
 
-      alert('✅ 테스트 알림을 보냈습니다! 잠시 후 알림이 표시됩니다.');
+      alert('✅ Test notification sent! You should see a notification shortly.');
     } catch (error) {
       console.error('Error sending test notification:', error);
-      alert(`❌ 테스트 알림 전송 실패: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      alert(`❌ Failed to send test notification: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -433,36 +433,36 @@ export default function Home() {
   const getErrorMessage = (error: string): { title: string; message: string; suggestion: string } => {
     if (error.includes('Failed to fetch') || error.includes('network')) {
       return {
-        title: '연결 문제',
-        message: '인터넷 연결을 확인할 수 없습니다.',
-        suggestion: '인터넷 연결을 확인하고 다시 시도해주세요.'
+        title: 'Connection Issue',
+        message: 'Unable to verify internet connection.',
+        suggestion: 'Please check your internet connection and try again.'
       };
     }
     if (error.includes('404') || error.includes('No signal data')) {
       return {
-        title: '데이터 없음',
-        message: '아직 신호 데이터가 준비되지 않았습니다.',
-        suggestion: '잠시 후 다시 시도해주세요. 데이터는 매주 월요일 업데이트됩니다.'
+        title: 'No Data Available',
+        message: 'Signal data is not ready yet.',
+        suggestion: 'Please try again later. Data is updated every Monday.'
       };
     }
     if (error.includes('401') || error.includes('403')) {
       return {
-        title: '인증 필요',
-        message: '이 기능을 사용하려면 로그인이 필요합니다.',
-        suggestion: '로그인 후 다시 시도해주세요.'
+        title: 'Authentication Required',
+        message: 'You need to sign in to use this feature.',
+        suggestion: 'Please sign in and try again.'
       };
     }
     if (error.includes('500')) {
       return {
-        title: '서버 오류',
-        message: '서버에 문제가 발생했습니다.',
-        suggestion: '잠시 후 다시 시도해주세요. 문제가 계속되면 관리자에게 문의해주세요.'
+        title: 'Server Error',
+        message: 'A server error occurred.',
+        suggestion: 'Please try again later. If the problem persists, please contact support.'
       };
     }
     return {
-      title: '오류 발생',
-      message: '데이터를 불러오는 중 문제가 발생했습니다.',
-      suggestion: '페이지를 새로고침하거나 잠시 후 다시 시도해주세요.'
+      title: 'Error Occurred',
+      message: 'An error occurred while loading data.',
+      suggestion: 'Please refresh the page or try again later.'
     };
   };
 
@@ -488,13 +488,13 @@ export default function Home() {
               onClick={fetchSignal}
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
-              다시 시도
+              Try Again
             </button>
             <button
               onClick={() => window.location.reload()}
               className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
             >
-              페이지 새로고침
+              Refresh Page
             </button>
           </div>
         </div>
@@ -537,8 +537,8 @@ export default function Home() {
           {/* PWA Install Instructions (if not installed and no prompt) */}
           {!isInstalled && !deferredPrompt && (
             <div className="text-center text-sm text-gray-600 dark:text-gray-400 mb-2">
-              <p>💡 앱 설치: 주소창의 설치 아이콘을 클릭하거나</p>
-              <p>모바일에서는 메뉴 → "홈 화면에 추가"</p>
+              <p>💡 Install app: Click the install icon in the address bar or</p>
+              <p>on mobile, go to Menu → "Add to Home Screen"</p>
             </div>
           )}
           
@@ -562,11 +562,11 @@ export default function Home() {
                   onClick={handleTestNotification}
                   className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
                 >
-                  🧪 테스트 알림
+                  🧪 Test Notification
                 </button>
               </div>
               <div className="text-xs text-green-600 dark:text-green-400">
-                ✅ 알림이 활성화되어 있습니다
+                ✅ Notifications enabled
               </div>
             </div>
           )}
@@ -574,7 +574,7 @@ export default function Home() {
           {/* Notification Permission Help */}
           {!isSubscribed && (
             <div className="text-center text-xs text-gray-500 dark:text-gray-500 mt-1">
-              <p>⚠️ 알림 팝업이 안 뜨면 브라우저 설정에서 알림을 허용해주세요</p>
+              <p>⚠️ If the notification popup doesn't appear, please allow notifications in your browser settings</p>
             </div>
           )}
           
@@ -681,13 +681,13 @@ export default function Home() {
                   }}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
                 >
-                  미리보기: 유료 기능 보기
+                  Preview: View Paid Features
                 </button>
                 <Link
                   href="/pricing"
                   className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm flex items-center"
                 >
-                  실제 구독하기
+                  Subscribe Now
                 </Link>
               </div>
             </div>
@@ -733,13 +733,13 @@ export default function Home() {
               ) : (
                 <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
                   <p className="text-yellow-800 dark:text-yellow-200 text-sm">
-                    <strong>미리보기 모드:</strong> 개별 지표 상세 정보를 보려면 실제 구독이 필요합니다.
+                    <strong>Preview Mode:</strong> A subscription is required to view detailed information for individual indicators.
                   </p>
                   <Link
                     href="/pricing"
                     className="mt-3 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
                   >
-                    구독하기
+                    Subscribe
                   </Link>
                 </div>
               )}

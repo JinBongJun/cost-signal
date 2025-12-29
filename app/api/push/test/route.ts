@@ -44,8 +44,8 @@ export async function POST(request: NextRequest) {
         },
       },
       {
-        title: '✅ 테스트 알림',
-        body: '푸시 알림이 정상적으로 작동합니다! 매주 월요일에 경제 신호를 받게 됩니다.',
+        title: '✅ Test Notification',
+        body: 'Push notifications are working! You will receive weekly economic signals every Monday.',
         icon: '/icon-192.png',
         badge: '/icon-192.png',
         data: {
