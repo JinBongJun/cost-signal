@@ -48,10 +48,12 @@ class Database {
   }
 
   async getLatestWeeklySignal(): Promise<WeeklySignal | null> {
+    // Use created_at for reliable sorting (most recent first)
+    // Fallback to id if created_at is not available
     const { data, error } = await supabase
       .from('weekly_signals')
       .select('*')
-      .order('week_start', { ascending: false })
+      .order('created_at', { ascending: false })
       .limit(1);
 
     if (error) {
