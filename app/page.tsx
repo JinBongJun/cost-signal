@@ -8,6 +8,10 @@ import {
   unsubscribeFromPushNotifications,
   isSubscribedToPushNotifications 
 } from '@/lib/push-client';
+import { useToast, ToastContainer } from '@/components/Toast';
+import { Button } from '@/components/Button';
+import { SignalCard } from '@/components/SignalCard';
+import { HistorySection } from '@/components/HistorySection';
 
 interface Signal {
   week_start: string;
@@ -74,6 +78,8 @@ export default function Home() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     fetchSignal();
@@ -187,6 +193,7 @@ export default function Home() {
   async function fetchHistory() {
     if (tier !== 'paid') return;
     
+    setHistoryLoading(true);
     try {
       // Use preview mode if user doesn't have subscription (or not logged in)
       const isPreviewMode = !session?.user || !hasActiveSubscription;
@@ -198,6 +205,9 @@ export default function Home() {
       setHistory(data.signals || []);
     } catch (err) {
       console.error('Error fetching history:', err);
+      toast.error('Failed to load history. Please try again.');
+    } finally {
+      setHistoryLoading(false);
     }
   }
 
@@ -235,12 +245,12 @@ export default function Home() {
   async function handleSubscribe() {
     try {
       if (!('serviceWorker' in navigator)) {
-        alert('❌ Your browser does not support service workers. Please use a modern browser like Chrome, Firefox, or Edge.');
+        toast.error('Your browser does not support service workers. Please use a modern browser like Chrome, Firefox, or Edge.');
         return;
       }
 
       if (!('Notification' in window)) {
-        alert('❌ Your browser does not support notifications.');
+        toast.error('Your browser does not support notifications.');
         return;
       }
 
@@ -248,7 +258,7 @@ export default function Home() {
       const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
       if (!vapidKey) {
         console.error('VAPID public key not found');
-        alert('❌ Push notification configuration error. Please contact support.');
+        toast.error('Push notification configuration error. Please contact support.');
         return;
       }
 
@@ -260,7 +270,7 @@ export default function Home() {
         console.log('Service Worker registered:', registration);
       } catch (error) {
         console.error('Service Worker registration failed:', error);
-        alert('❌ Failed to register service worker. Please refresh the page and try again.');
+        toast.error('Failed to register service worker. Please refresh the page and try again.');
         return;
       }
 
@@ -275,10 +285,10 @@ export default function Home() {
       if (subscription) {
         setIsSubscribed(true);
         console.log('✅ Push notification subscription successful');
-        alert('✅ Notifications enabled! You\'ll receive weekly economic signals every Monday.');
+        toast.success('Notifications enabled! You\'ll receive weekly economic signals every Monday.');
       } else {
         console.error('Failed to subscribe to push notifications');
-        alert('❌ Failed to enable notifications. Please check your browser notification settings and try again.');
+        toast.error('Failed to enable notifications. Please check your browser notification settings and try again.');
       }
     } catch (error) {
       console.error('Error in handleSubscribe:', error);
@@ -295,10 +305,10 @@ export default function Home() {
       } else if (errorMessage.includes('push subscription')) {
         userMessage = '❌ Failed to create push subscription. Please allow notifications in browser settings and try again.';
       } else {
-        userMessage = `❌ Error: ${errorMessage}`;
+        userMessage = `Error: ${errorMessage}`;
       }
       
-      alert(userMessage);
+      toast.error(userMessage);
     }
   }
 
@@ -306,7 +316,9 @@ export default function Home() {
     const success = await unsubscribeFromPushNotifications();
     if (success) {
       setIsSubscribed(false);
-      alert('Notifications disabled.');
+      toast.info('Notifications disabled.');
+    } else {
+      toast.error('Failed to disable notifications.');
     }
   }
 
@@ -321,7 +333,7 @@ export default function Home() {
       const subscription = await registration.pushManager.getSubscription();
 
       if (!subscription) {
-        alert('❌ Push subscription not found. Please enable notifications again.');
+        toast.error('Push subscription not found. Please enable notifications again.');
         return;
       }
 
@@ -341,16 +353,16 @@ export default function Home() {
         throw new Error(errorData.error || 'Failed to send test notification');
       }
 
-      alert('✅ Test notification sent! You should see a notification shortly.');
+      toast.success('Test notification sent! You should see a notification shortly.');
     } catch (error) {
       console.error('Error sending test notification:', error);
-      alert(`❌ Failed to send test notification: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error(`Failed to send test notification: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
   async function handleInstall() {
     if (!deferredPrompt) {
-      alert('App is already installed or installation is not available.');
+      toast.info('App is already installed or installation is not available.');
       return;
     }
 
@@ -360,6 +372,9 @@ export default function Home() {
     if (outcome === 'accepted') {
       setIsInstalled(true);
       setDeferredPrompt(null);
+      toast.success('App installed successfully!');
+    } else {
+      toast.info('App installation was cancelled.');
     }
   }
 
@@ -513,8 +528,10 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen p-4 md:p-8">
-      <div className="max-w-4xl mx-auto">
+    <>
+      <ToastContainer toasts={toast.toasts} onClose={toast.removeToast} />
+      <main className="min-h-screen p-4 md:p-8">
+        <div className="max-w-4xl mx-auto">
         {/* Header */}
         <header className="mb-8 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-2">Cost Signal</h1>
@@ -526,12 +543,9 @@ export default function Home() {
         {/* Install & Notification Buttons */}
         <div className="mb-6 flex flex-col items-center gap-3">
           {!isInstalled && deferredPrompt && (
-            <button
-              onClick={handleInstall}
-              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-            >
+            <Button onClick={handleInstall} variant="success">
               📱 Install App
-            </button>
+            </Button>
           )}
           
           {/* PWA Install Instructions (if not installed and no prompt) */}
@@ -543,27 +557,18 @@ export default function Home() {
           )}
           
           {!isSubscribed ? (
-            <button
-              onClick={handleSubscribe}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-            >
+            <Button onClick={handleSubscribe} variant="primary">
               🔔 Enable Weekly Notifications
-            </button>
+            </Button>
           ) : (
             <div className="flex flex-col items-center gap-2">
               <div className="flex gap-2">
-                <button
-                  onClick={handleUnsubscribe}
-                  className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2"
-                >
+                <Button onClick={handleUnsubscribe} variant="secondary">
                   🔕 Disable Notifications
-                </button>
-                <button
-                  onClick={handleTestNotification}
-                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-                >
+                </Button>
+                <Button onClick={handleTestNotification} variant="success">
                   🧪 Test Notification
-                </button>
+                </Button>
               </div>
               <div className="text-xs text-green-600 dark:text-green-400">
                 ✅ Notifications enabled
@@ -605,26 +610,21 @@ export default function Home() {
                   Upgrade to Paid
                 </Link>
               )}
-              <button
-                onClick={() => signOut()}
-                className="text-sm text-gray-500 dark:text-gray-400 hover:underline"
-              >
+              <Button onClick={() => signOut()} variant="ghost" size="sm">
                 Sign out
-              </button>
+              </Button>
             </div>
           ) : (
             <div className="flex items-center gap-4">
-              <Link
-                href="/login"
-                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
-              >
-                Sign In
+              <Link href="/login">
+                <Button variant="secondary" size="sm">
+                  Sign In
+                </Button>
               </Link>
-              <Link
-                href="/signup"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-              >
-                Sign Up
+              <Link href="/signup">
+                <Button variant="primary" size="sm">
+                  Sign Up
+                </Button>
               </Link>
             </div>
           )}
@@ -642,154 +642,31 @@ export default function Home() {
         )}
 
         {/* Main Signal Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 md:p-8 mb-6">
-          <div className="text-center mb-6">
-            <div className="text-6xl mb-4">{STATUS_EMOJI[signal.overall_status]}</div>
-            <h2 className={`text-3xl md:text-4xl font-bold mb-2 ${STATUS_COLOR[signal.overall_status]}`}>
-              {STATUS_LABEL[signal.overall_status]}
-            </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Week of {formatDate(signal.week_start)}
-            </p>
-          </div>
+        {signal && (
+          <SignalCard
+            signal={signal}
+            tier={tier}
+            session={session}
+            hasActiveSubscription={hasActiveSubscription}
+            onPreviewClick={async () => {
+              setTier('paid');
+              await fetchSignal();
+            }}
+            formatDate={formatDate}
+            formatValue={formatValue}
+          />
+        )}
 
-          {/* Explanation - Paid tier only */}
-          {tier === 'paid' && signal.explanation && (
-            <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-6">
-              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                {signal.explanation}
-              </p>
-            </div>
-          )}
-
-          {/* Free tier upgrade prompt */}
-          {tier === 'free' && (
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-              <p className="text-blue-800 dark:text-blue-200 text-sm mb-2">
-                <strong>Want to understand why?</strong>
-              </p>
-              <p className="text-blue-700 dark:text-blue-300 text-sm mb-3">
-                Upgrade to see detailed explanations, indicator breakdowns, and historical trends.
-              </p>
-              <div className="flex gap-2">
-                <button
-                  onClick={async () => {
-                    // Switch to paid tier for preview (frontend only)
-                    setTier('paid');
-                    // Fetch paid tier data (will show mock data if no subscription)
-                    await fetchSignal();
-                  }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                >
-                  Preview: View Paid Features
-                </button>
-                <Link
-                  href="/pricing"
-                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm flex items-center"
-                >
-                  Subscribe Now
-                </Link>
-              </div>
-            </div>
-          )}
-
-          {/* Individual Indicators (Paid tier only) */}
-          {tier === 'paid' && (
-            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg font-semibold mb-4">Indicator Details</h3>
-              {signal.indicators && signal.indicators.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {signal.indicators.map((indicator, idx) => (
-                    <div
-                      key={idx}
-                      className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-gray-700 dark:text-gray-300">
-                          {INDICATOR_LABELS[indicator.type] || indicator.type}
-                        </span>
-                        <span
-                          className={`text-sm font-semibold ${
-                            indicator.status === 'risk'
-                              ? 'text-red-600 dark:text-red-400'
-                              : 'text-green-600 dark:text-green-400'
-                          }`}
-                        >
-                          {indicator.status === 'risk' ? 'RISK' : 'OK'}
-                        </span>
-                      </div>
-                      <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                        {formatValue(indicator.type, indicator.value)}
-                      </div>
-                      {indicator.previous_value !== null && indicator.change_percent !== null && (
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {indicator.change_percent > 0 ? '+' : ''}
-                          {indicator.change_percent.toFixed(2)}% from previous
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                  <p className="text-yellow-800 dark:text-yellow-200 text-sm">
-                    <strong>Preview Mode:</strong> A subscription is required to view detailed information for individual indicators.
-                  </p>
-                  <Link
-                    href="/pricing"
-                    className="mt-3 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                  >
-                    Subscribe
-                  </Link>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* History Section (Paid tier only) */}
-          {tier === 'paid' && (
-            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Historical Signals</h3>
-                <button
-                  onClick={() => setShowHistory(!showHistory)}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
-                >
-                  {showHistory ? 'Hide' : 'Show'} History
-                </button>
-              </div>
-              
-              {showHistory && (
-                <div className="space-y-3">
-                  {history.length > 0 ? (
-                    history.map((histSignal) => (
-                      <div
-                        key={histSignal.week_start}
-                        className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4"
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm text-gray-500 dark:text-gray-400">
-                            {formatDate(histSignal.week_start)}
-                          </span>
-                          <span className={`text-lg font-semibold ${STATUS_COLOR[histSignal.overall_status]}`}>
-                            {STATUS_EMOJI[histSignal.overall_status]} {STATUS_LABEL[histSignal.overall_status]}
-                          </span>
-                        </div>
-                        {histSignal.explanation && (
-                          <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                            {histSignal.explanation}
-                          </p>
-                        )}
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">Loading history...</p>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        {/* History Section (Paid tier only) */}
+        {tier === 'paid' && signal && (
+          <HistorySection
+            history={history}
+            showHistory={showHistory}
+            onToggle={() => setShowHistory(!showHistory)}
+            formatDate={formatDate}
+            isLoading={historyLoading}
+          />
+        )}
 
         {/* Footer */}
         <footer className="text-center text-sm text-gray-500 dark:text-gray-400">
@@ -802,6 +679,7 @@ export default function Home() {
         </footer>
       </div>
     </main>
+    </>
   );
 }
 

@@ -6,8 +6,50 @@ import SessionProvider from '@/components/SessionProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Cost Signal - Weekly Economic Signal for U.S. Consumers',
-  description: 'A simple weekly check on whether recent U.S. economic changes are likely to affect everyday living costs.',
+  title: {
+    default: 'Cost Signal - Weekly Economic Signal for U.S. Consumers',
+    template: '%s | Cost Signal',
+  },
+  description: 'A simple weekly check on whether recent U.S. economic changes are likely to affect everyday living costs. Get notified every Monday with a clear signal (OK, CAUTION, or RISK) based on official government data.',
+  keywords: ['economic signal', 'cost of living', 'inflation', 'gas prices', 'interest rates', 'unemployment', 'US economy', 'consumer economics'],
+  authors: [{ name: 'Cost Signal' }],
+  creator: 'Cost Signal',
+  publisher: 'Cost Signal',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://cost-signal.vercel.app'),
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: '/',
+    title: 'Cost Signal - Weekly Economic Signal for U.S. Consumers',
+    description: 'Get a clear weekly signal about whether recent U.S. economic changes are likely to affect your everyday living costs.',
+    siteName: 'Cost Signal',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Cost Signal - Weekly Economic Signal for U.S. Consumers',
+    description: 'Get a clear weekly signal about whether recent U.S. economic changes are likely to affect your everyday living costs.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    // Add your verification codes here when available
+    // google: 'your-google-verification-code',
+    // yandex: 'your-yandex-verification-code',
+  },
 }
 
 export default function RootLayout({
