@@ -143,6 +143,37 @@ export async function cancelSubscription(subscriptionId: string): Promise<boolea
 }
 
 /**
+ * Get payment transactions for a subscription
+ */
+export async function getTransactions(subscriptionId: string): Promise<any[]> {
+  if (!PADDLE_API_KEY) {
+    return [];
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.paddle.com/transactions?subscription_id=${subscriptionId}&per_page=20`,
+      {
+        headers: {
+          'Authorization': `Bearer ${PADDLE_API_KEY}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.error('Failed to fetch transactions:', response.status);
+      return [];
+    }
+
+    const data = await response.json();
+    return data.data || [];
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    return [];
+  }
+}
+
+/**
  * Verify Paddle webhook signature
  * 
  * Paddle webhook signature format:
