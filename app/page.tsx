@@ -160,7 +160,7 @@ export default function Home() {
       // Use preview mode if user doesn't have subscription (or not logged in)
       const isPreviewMode = tier === 'paid' && (!session?.user || !hasActiveSubscription);
       let response = await fetch(`/api/signal?tier=${tier}${isPreviewMode ? '&preview=true' : ''}`, {
-        cache: 'no-store', // Prevent caching for testing
+        cache: 'no-store',
       });
       
       // If paid tier fails (no subscription), fall back to preview mode
@@ -562,14 +562,14 @@ export default function Home() {
             </Button>
           ) : (
             <div className="flex flex-col items-center gap-2">
-              <div className="flex gap-2">
-                <Button onClick={handleUnsubscribe} variant="secondary">
-                  🔕 Disable Notifications
-                </Button>
-                <Button onClick={handleTestNotification} variant="success">
+              <Button onClick={handleUnsubscribe} variant="secondary">
+                🔕 Disable Notifications
+              </Button>
+              {process.env.NODE_ENV === 'development' && (
+                <Button onClick={handleTestNotification} variant="success" size="sm">
                   🧪 Test Notification
                 </Button>
-              </div>
+              )}
               <div className="text-xs text-green-600 dark:text-green-400">
                 ✅ Notifications enabled
               </div>
@@ -580,13 +580,6 @@ export default function Home() {
           {!isSubscribed && (
             <div className="text-center text-xs text-gray-500 dark:text-gray-500 mt-1">
               <p>⚠️ If the notification popup doesn't appear, please allow notifications in your browser settings</p>
-            </div>
-          )}
-          
-          {/* Debug Info (only in development) */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="text-xs text-gray-400 mt-2 text-center">
-              <p>Debug: isSubscribed={String(isSubscribed)}, Permission={typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'N/A'}</p>
             </div>
           )}
         </div>
