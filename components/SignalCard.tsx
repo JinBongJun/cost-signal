@@ -107,42 +107,64 @@ export function SignalCard({
           <h3 className="text-lg font-semibold mb-4">Indicator Details</h3>
           {signal.indicators && signal.indicators.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {signal.indicators.map((indicator, idx) => (
-                <div
-                  key={idx}
-                  className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 transition-smooth hover:shadow-md"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-gray-700 dark:text-gray-300">
-                      {INDICATOR_LABELS[indicator.type] || indicator.type}
-                    </span>
-                    <span
-                      className={`text-sm font-semibold ${
-                        indicator.status === 'risk'
-                          ? 'text-red-600 dark:text-red-400'
+              {signal.indicators.map((indicator, idx) => {
+                const statusColors = {
+                  risk: 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20',
+                  caution: 'border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20',
+                  ok: 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20',
+                };
+                
+                const statusTextColors = {
+                  risk: 'text-red-600 dark:text-red-400',
+                  caution: 'text-yellow-600 dark:text-yellow-400',
+                  ok: 'text-green-600 dark:text-green-400',
+                };
+
+                return (
+                  <div
+                    key={idx}
+                    className={`rounded-lg p-4 border-2 transition-smooth hover:shadow-md ${statusColors[indicator.status]}`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-semibold text-gray-700 dark:text-gray-300">
+                        {INDICATOR_LABELS[indicator.type] || indicator.type}
+                      </span>
+                      <span
+                        className={`text-xs font-bold px-2 py-1 rounded-full ${
+                          indicator.status === 'risk'
+                            ? 'bg-red-600 text-white'
+                            : indicator.status === 'caution'
+                            ? 'bg-yellow-600 text-white'
+                            : 'bg-green-600 text-white'
+                        }`}
+                      >
+                        {indicator.status === 'risk'
+                          ? 'RISK'
                           : indicator.status === 'caution'
-                          ? 'text-yellow-600 dark:text-yellow-400'
-                          : 'text-green-600 dark:text-green-400'
-                      }`}
-                    >
-                      {indicator.status === 'risk'
-                        ? 'RISK'
-                        : indicator.status === 'caution'
-                        ? 'CAUTION'
-                        : 'OK'}
-                    </span>
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                    {formatValue(indicator.type, indicator.value)}
-                  </div>
-                  {indicator.previous_value !== null && indicator.change_percent !== null && (
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      {indicator.change_percent > 0 ? '+' : ''}
-                      {indicator.change_percent.toFixed(2)}% from previous
+                          ? 'CAUTION'
+                          : 'OK'}
+                      </span>
                     </div>
-                  )}
-                </div>
-              ))}
+                    <div className={`text-3xl font-bold mb-2 ${statusTextColors[indicator.status]}`}>
+                      {formatValue(indicator.type, indicator.value)}
+                    </div>
+                    {indicator.previous_value !== null && indicator.change_percent !== null && (
+                      <div className={`text-sm font-medium ${
+                        indicator.change_percent > 0
+                          ? indicator.status === 'risk'
+                            ? 'text-red-700 dark:text-red-300'
+                            : indicator.status === 'caution'
+                            ? 'text-yellow-700 dark:text-yellow-300'
+                            : 'text-gray-600 dark:text-gray-400'
+                          : 'text-gray-600 dark:text-gray-400'
+                      }`}>
+                        {indicator.change_percent > 0 ? '↑' : indicator.change_percent < 0 ? '↓' : '→'} {indicator.change_percent > 0 ? '+' : ''}
+                        {indicator.change_percent.toFixed(2)}% from previous
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">

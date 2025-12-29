@@ -43,6 +43,13 @@ const STATUS_COLOR: Record<string, string> = {
   risk: 'text-red-600 dark:text-red-400',
 };
 
+const INDICATOR_LABELS: Record<string, string> = {
+  gas: 'Gas Prices',
+  cpi: 'Inflation (CPI)',
+  interest_rate: 'Interest Rates',
+  unemployment: 'Unemployment',
+};
+
 export function HistorySection({
   history,
   showHistory,
@@ -72,21 +79,29 @@ export function HistorySection({
                 key={histSignal.week_start}
                 padding="md"
                 hover
-                className="animate-scale-in"
-                style={{ animationDelay: `${idx * 0.05}s` }}
+                className="animate-scale-in border-l-4"
+                style={{
+                  animationDelay: `${idx * 0.05}s`,
+                  borderLeftColor:
+                    histSignal.overall_status === 'risk'
+                      ? '#dc2626'
+                      : histSignal.overall_status === 'caution'
+                      ? '#eab308'
+                      : '#16a34a',
+                }}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className={`text-xl font-semibold ${STATUS_COLOR[histSignal.overall_status]}`}>
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className={`text-2xl font-bold ${STATUS_COLOR[histSignal.overall_status]}`}>
                         {STATUS_EMOJI[histSignal.overall_status]} {STATUS_LABEL[histSignal.overall_status]}
                       </span>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                      <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
                         {formatDate(histSignal.week_start)}
                       </span>
                     </div>
                     {histSignal.explanation && (
-                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
                         {histSignal.explanation}
                       </p>
                     )}
@@ -95,15 +110,15 @@ export function HistorySection({
                         {histSignal.indicators.map((ind, i) => (
                           <span
                             key={i}
-                            className={`text-xs px-2 py-1 rounded-full ${
+                            className={`text-xs px-3 py-1.5 rounded-full font-medium ${
                               ind.status === 'risk'
-                                ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200'
+                                ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800'
                                 : ind.status === 'caution'
-                                ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200'
-                                : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
+                                ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800'
+                                : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-800'
                             }`}
                           >
-                            {ind.type}: {ind.status.toUpperCase()}
+                            {INDICATOR_LABELS[ind.type] || ind.type}: {ind.status.toUpperCase()}
                           </span>
                         ))}
                       </div>
