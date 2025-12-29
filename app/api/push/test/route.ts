@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Send test notification
+    console.log('Sending test notification to endpoint:', subscription.endpoint.substring(0, 50) + '...');
     const success = await sendPushNotification(
       {
         endpoint: subscription.endpoint,
@@ -55,13 +56,15 @@ export async function POST(request: NextRequest) {
     );
 
     if (success) {
+      console.log('✅ Test notification sent successfully');
       return NextResponse.json({ 
         success: true, 
-        message: 'Test notification sent successfully' 
+        message: 'Test notification sent successfully. Check your browser notifications!' 
       });
     } else {
+      console.error('❌ Failed to send test notification');
       return NextResponse.json(
-        { error: 'Failed to send notification' },
+        { error: 'Failed to send notification. Check server logs for details.' },
         { status: 500 }
       );
     }
