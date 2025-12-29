@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { runWeeklyUpdate } from '@/scripts/run-cron';
+import { rateLimit } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,11 +14,45 @@ export const dynamic = 'force-dynamic';
  */
 async function handleCron(request: NextRequest) {
   try {
-    // Optional: Add authentication check here
-    // const authHeader = request.headers.get('authorization');
-    // if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    // }
+    // Rate limiting (except for Vercel Cron)
+    const isVercelCron = request.headers.get('x-vercel-signature') !== null;
+    if (!isVercelCron) {
+      const ip = request.headers.get('x-forwarded-for') || 
+                 request.headers.get('x-real-ip') || 
+                 'unknown';
+      const identifier = `cron:${ip}`;
+      
+      if (!rateLimit(identifier, 5, 60000)) { // 5 requests per minute
+        return NextResponse.json(
+          { error: 'Too many requests. Please try again later.' },
+          { status: 429 }
+        );
+      }
+    }
+
+    // Security: Verify request is from authorized source
+    // Vercel Cron automatically sends x-vercel-signature header
+    // For manual calls, require CRON_SECRET
+    const cronSecret = request.headers.get('authorization')?.replace('Bearer ', '');
+    const expectedSecret = process.env.CRON_SECRET;
+
+    // Allow if:
+    // 1. From Vercel Cron (has x-vercel-signature header)
+    // 2. Has valid CRON_SECRET (for manual calls)
+    // 3. Development mode without secret (for testing)
+    if (!isVercelCron && expectedSecret) {
+      if (!cronSecret || cronSecret !== expectedSecret) {
+        console.warn('Unauthorized cron attempt:', {
+          hasSecret: !!cronSecret,
+          hasExpectedSecret: !!expectedSecret,
+          isVercelCron,
+        });
+        return NextResponse.json(
+          { error: 'Unauthorized' },
+          { status: 401 }
+        );
+      }
+    }
 
     await runWeeklyUpdate();
 

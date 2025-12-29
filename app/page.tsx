@@ -562,6 +562,13 @@ export default function Home() {
           <p className="text-gray-600 dark:text-gray-400">
             Weekly economic signal for U.S. consumers
           </p>
+          {!session?.user && (
+            <div className="mt-4 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                👋 <strong>Welcome!</strong> You can browse for free. <Link href="/signup" className="underline font-medium">Sign up</Link> for full features.
+              </p>
+            </div>
+          )}
         </header>
 
         {/* Install & Notification Buttons */}
@@ -627,6 +634,11 @@ export default function Home() {
                   Upgrade to Paid
                 </Link>
               )}
+              <Link href="/account">
+                <Button variant="ghost" size="sm">
+                  Account
+                </Button>
+              </Link>
               <Button onClick={() => signOut()} variant="ghost" size="sm">
                 Sign out
               </Button>
