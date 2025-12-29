@@ -310,6 +310,44 @@ export default function Home() {
     }
   }
 
+  async function handleTestNotification() {
+    try {
+      if (!('serviceWorker' in navigator)) {
+        alert('❌ Service Worker를 지원하지 않는 브라우저입니다.');
+        return;
+      }
+
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
+
+      if (!subscription) {
+        alert('❌ 알림 구독을 찾을 수 없습니다. 알림을 다시 활성화해주세요.');
+        return;
+      }
+
+      // Send test notification
+      const response = await fetch('/api/push/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          endpoint: subscription.endpoint,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to send test notification');
+      }
+
+      alert('✅ 테스트 알림을 보냈습니다! 잠시 후 알림이 표시됩니다.');
+    } catch (error) {
+      console.error('Error sending test notification:', error);
+      alert(`❌ 테스트 알림 전송 실패: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
   async function handleInstall() {
     if (!deferredPrompt) {
       alert('App is already installed or installation is not available.');
@@ -513,12 +551,20 @@ export default function Home() {
             </button>
           ) : (
             <div className="flex flex-col items-center gap-2">
-              <button
-                onClick={handleUnsubscribe}
-                className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2"
-              >
-                🔕 Disable Notifications
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleUnsubscribe}
+                  className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2"
+                >
+                  🔕 Disable Notifications
+                </button>
+                <button
+                  onClick={handleTestNotification}
+                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+                >
+                  🧪 테스트 알림
+                </button>
+              </div>
               <div className="text-xs text-green-600 dark:text-green-400">
                 ✅ 알림이 활성화되어 있습니다
               </div>
