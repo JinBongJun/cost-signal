@@ -8,17 +8,29 @@ export async function requestNotificationPermission(): Promise<boolean> {
     return false;
   }
 
+  console.log('Current notification permission:', Notification.permission);
+
   if (Notification.permission === 'granted') {
+    console.log('Notification permission already granted');
     return true;
   }
 
   if (Notification.permission === 'denied') {
-    console.log('Notification permission denied');
+    console.error('Notification permission denied. Please enable in browser settings.');
     return false;
   }
 
+  console.log('Requesting notification permission...');
   const permission = await Notification.requestPermission();
-  return permission === 'granted';
+  console.log('Notification permission result:', permission);
+  
+  if (permission === 'granted') {
+    console.log('✅ Notification permission granted');
+    return true;
+  } else {
+    console.error('❌ Notification permission denied or dismissed');
+    return false;
+  }
 }
 
 export async function subscribeToPushNotifications(): Promise<PushSubscription | null> {
