@@ -138,9 +138,19 @@ export default function Home() {
       const minLoadingTime = 800; // 800ms minimum
       const startTime = Date.now();
       
-      const response = await fetch(`/api/signal?tier=${tier}`, {
+      // Try to fetch paid tier data first if tier is 'paid'
+      let response = await fetch(`/api/signal?tier=${tier}`, {
         cache: 'no-store', // Prevent caching for testing
       });
+      
+      // If paid tier fails (no subscription), fall back to free tier but keep UI in paid mode
+      if (!response.ok && tier === 'paid') {
+        console.log('Paid tier not available, fetching free tier data for preview');
+        response = await fetch('/api/signal?tier=free', {
+          cache: 'no-store',
+        });
+      }
+      
       if (!response.ok) {
         throw new Error('Failed to fetch signal');
       }
@@ -521,51 +531,78 @@ export default function Home() {
               <p className="text-blue-700 dark:text-blue-300 text-sm mb-3">
                 Upgrade to see detailed explanations, indicator breakdowns, and historical trends.
               </p>
-              <button
-                onClick={() => setTier('paid')}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-              >
-                View Paid Features
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={async () => {
+                    // Switch to paid tier for preview (frontend only)
+                    setTier('paid');
+                    // Fetch paid tier data (will show mock data if no subscription)
+                    await fetchSignal();
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                >
+                  미리보기: 유료 기능 보기
+                </button>
+                <Link
+                  href="/pricing"
+                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm flex items-center"
+                >
+                  실제 구독하기
+                </Link>
+              </div>
             </div>
           )}
 
           {/* Individual Indicators (Paid tier only) */}
-          {tier === 'paid' && signal.indicators && signal.indicators.length > 0 && (
+          {tier === 'paid' && (
             <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
               <h3 className="text-lg font-semibold mb-4">Indicator Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {signal.indicators.map((indicator, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-gray-700 dark:text-gray-300">
-                        {INDICATOR_LABELS[indicator.type] || indicator.type}
-                      </span>
-                      <span
-                        className={`text-sm font-semibold ${
-                          indicator.status === 'risk'
-                            ? 'text-red-600 dark:text-red-400'
-                            : 'text-green-600 dark:text-green-400'
-                        }`}
-                      >
-                        {indicator.status === 'risk' ? 'RISK' : 'OK'}
-                      </span>
-                    </div>
-                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                      {formatValue(indicator.type, indicator.value)}
-                    </div>
-                    {indicator.previous_value !== null && indicator.change_percent !== null && (
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {indicator.change_percent > 0 ? '+' : ''}
-                        {indicator.change_percent.toFixed(2)}% from previous
+              {signal.indicators && signal.indicators.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {signal.indicators.map((indicator, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                          {INDICATOR_LABELS[indicator.type] || indicator.type}
+                        </span>
+                        <span
+                          className={`text-sm font-semibold ${
+                            indicator.status === 'risk'
+                              ? 'text-red-600 dark:text-red-400'
+                              : 'text-green-600 dark:text-green-400'
+                          }`}
+                        >
+                          {indicator.status === 'risk' ? 'RISK' : 'OK'}
+                        </span>
                       </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+                      <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                        {formatValue(indicator.type, indicator.value)}
+                      </div>
+                      {indicator.previous_value !== null && indicator.change_percent !== null && (
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          {indicator.change_percent > 0 ? '+' : ''}
+                          {indicator.change_percent.toFixed(2)}% from previous
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                  <p className="text-yellow-800 dark:text-yellow-200 text-sm">
+                    <strong>미리보기 모드:</strong> 개별 지표 상세 정보를 보려면 실제 구독이 필요합니다.
+                  </p>
+                  <Link
+                    href="/pricing"
+                    className="mt-3 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                  >
+                    구독하기
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 
