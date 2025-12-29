@@ -468,6 +468,14 @@ export default function Home() {
             </button>
           )}
           
+          {/* PWA Install Instructions (if not installed and no prompt) */}
+          {!isInstalled && !deferredPrompt && (
+            <div className="text-center text-sm text-gray-600 dark:text-gray-400 mb-2">
+              <p>💡 앱 설치: 주소창의 설치 아이콘을 클릭하거나</p>
+              <p>모바일에서는 메뉴 → "홈 화면에 추가"</p>
+            </div>
+          )}
+          
           {!isSubscribed ? (
             <button
               onClick={handleSubscribe}
@@ -482,6 +490,13 @@ export default function Home() {
             >
               🔕 Disable Notifications
             </button>
+          )}
+          
+          {/* Notification Permission Help */}
+          {!isSubscribed && (
+            <div className="text-center text-xs text-gray-500 dark:text-gray-500 mt-1">
+              <p>⚠️ 알림 팝업이 안 뜨면 브라우저 설정에서 알림을 허용해주세요</p>
+            </div>
           )}
         </div>
 

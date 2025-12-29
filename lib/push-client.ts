@@ -23,7 +23,11 @@ export async function requestNotificationPermission(): Promise<boolean> {
 
   // Permission is 'default', need to request
   console.log('Requesting notification permission (this will show a browser popup)...');
+  console.log('⚠️ If popup does not appear, check browser notification settings');
+  
   try {
+    // Note: Notification.requestPermission() must be called in response to user interaction
+    // This function is called from a button click, so it should work
     const permission = await Notification.requestPermission();
     console.log('Notification permission result:', permission);
     
