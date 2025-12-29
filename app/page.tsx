@@ -379,20 +379,24 @@ export default function Home() {
           )}
         </div>
 
-        {/* Test Loading Button (Development only) */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mb-4 flex justify-center">
-            <button
-              onClick={() => {
-                setLoading(true);
-                setTimeout(() => fetchSignal(), 100);
-              }}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
-            >
-              🔄 Test Loading UI
-            </button>
-          </div>
-        )}
+        {/* Test Loading Button - Always visible for testing */}
+        <div className="mb-4 flex justify-center">
+          <button
+            onClick={() => {
+              // Clear signal data and force loading state
+              setSignal(null);
+              setLoading(true);
+              setError(null);
+              // Wait 2 seconds to show loading, then fetch
+              setTimeout(() => {
+                fetchSignal();
+              }, 2000);
+            }}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
+          >
+            🔄 테스트: 로딩 화면 보기 (2초)
+          </button>
+        </div>
 
         {/* User Auth Status */}
         <div className="mb-6 flex justify-center items-center gap-4">
