@@ -2,7 +2,8 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   dest: 'public',
   register: true,
   skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development',
+  disable: false, // Enable in both dev and production for push notifications
+  sw: 'sw.js', // Use our custom service worker
   workboxOptions: {
     // Inject custom code after workbox initialization
     runtimeCaching: [],

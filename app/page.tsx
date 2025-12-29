@@ -286,6 +286,30 @@ export default function Home() {
         setIsSubscribed(true);
         console.log('✅ Push notification subscription successful');
         toast.success('Notifications enabled! You\'ll receive weekly economic signals every Monday.');
+        
+        // Automatically send a test notification after successful subscription
+        console.log('Sending test notification to verify setup...');
+        try {
+          const testResponse = await fetch('/api/push/test', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              endpoint: subscription.endpoint,
+            }),
+          });
+
+          if (testResponse.ok) {
+            console.log('✅ Test notification sent successfully');
+            toast.info('Test notification sent! Check your browser notifications.');
+          } else {
+            console.warn('⚠️ Test notification failed, but subscription is active');
+          }
+        } catch (testError) {
+          console.warn('⚠️ Could not send test notification:', testError);
+          // Don't show error to user - subscription is still successful
+        }
       } else {
         console.error('Failed to subscribe to push notifications');
         toast.error('Failed to enable notifications. Please check your browser notification settings and try again.');
@@ -562,14 +586,14 @@ export default function Home() {
             </Button>
           ) : (
             <div className="flex flex-col items-center gap-2">
-              <Button onClick={handleUnsubscribe} variant="secondary">
-                🔕 Disable Notifications
-              </Button>
-              {process.env.NODE_ENV === 'development' && (
+              <div className="flex gap-2">
+                <Button onClick={handleUnsubscribe} variant="secondary">
+                  🔕 Disable Notifications
+                </Button>
                 <Button onClick={handleTestNotification} variant="success" size="sm">
                   🧪 Test Notification
                 </Button>
-              )}
+              </div>
               <div className="text-xs text-green-600 dark:text-green-400">
                 ✅ Notifications enabled
               </div>
