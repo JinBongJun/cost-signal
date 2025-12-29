@@ -1,7 +1,9 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
 import { getDb } from '@/lib/db';
 import bcrypt from 'bcryptjs';
+import { v4 as uuidv4 } from 'uuid';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -41,6 +43,10 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+    }),
   ],
   session: {
     strategy: 'jwt',
@@ -50,7 +56,75 @@ export const authOptions: NextAuthOptions = {
     signIn: '/login',
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ user, account, profile }) {
+      // Handle Google OAuth sign in
+      if (account?.provider === 'google') {
+        try {
+          const db = getDb();
+          const existingUser = await db.getUserByEmail(user.email!);
+
+          if (!existingUser) {
+            // Create new user for Google sign in
+            const userId = uuidv4();
+            await db.createUser({
+              id: userId,
+              email: user.email!,
+              name: user.name || null,
+              emailVerified: new Date(),
+            });
+
+            // Link Google account
+            if (account) {
+              await db.linkAccount({
+                id: uuidv4(),
+                userId,
+                type: account.type,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+                access_token: account.access_token,
+                expires_at: account.expires_at,
+                token_type: account.token_type,
+                scope: account.scope,
+                id_token: account.id_token,
+              });
+            }
+
+            user.id = userId;
+          } else {
+            // User exists, check if Google account is linked
+            user.id = existingUser.id;
+            
+            // Link Google account if not already linked
+            if (account) {
+              const existingAccount = await db.getAccountByProvider(
+                account.provider,
+                account.providerAccountId
+              );
+              
+              if (!existingAccount) {
+                await db.linkAccount({
+                  id: uuidv4(),
+                  userId: existingUser.id,
+                  type: account.type,
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                  access_token: account.access_token,
+                  expires_at: account.expires_at,
+                  token_type: account.token_type,
+                  scope: account.scope,
+                  id_token: account.id_token,
+                });
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error in Google sign in:', error);
+          return false;
+        }
+      }
+      return true;
+    },
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
       }

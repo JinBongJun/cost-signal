@@ -281,6 +281,50 @@ class Database {
     }
   }
 
+  async getAccountByProvider(provider: string, providerAccountId: string): Promise<any | null> {
+    const { data, error } = await supabase
+      .from('accounts')
+      .select('*')
+      .eq('provider', provider)
+      .eq('provider_account_id', providerAccountId)
+      .single();
+
+    if (error || !data) return null;
+    return data;
+  }
+
+  async linkAccount(account: {
+    id: string;
+    userId: string;
+    type: string;
+    provider: string;
+    providerAccountId: string;
+    access_token?: string;
+    expires_at?: number;
+    token_type?: string;
+    scope?: string;
+    id_token?: string;
+  }): Promise<void> {
+    const { error } = await supabase
+      .from('accounts')
+      .insert({
+        id: account.id,
+        user_id: account.userId,
+        type: account.type,
+        provider: account.provider,
+        provider_account_id: account.providerAccountId,
+        access_token: account.access_token || null,
+        expires_at: account.expires_at || null,
+        token_type: account.token_type || null,
+        scope: account.scope || null,
+        id_token: account.id_token || null,
+      });
+
+    if (error) {
+      throw new Error(`Failed to link account: ${error.message}`);
+    }
+  }
+
   async getSubscriptionByUserId(userId: string): Promise<any | null> {
     const { data, error } = await supabase
       .from('subscriptions')
