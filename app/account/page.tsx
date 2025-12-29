@@ -292,6 +292,22 @@ export default function AccountPage() {
 
           <h1 className="text-3xl md:text-4xl font-bold mb-8">Account</h1>
 
+          {/* Navigation Tabs */}
+          <div className="mb-6 flex gap-4 border-b border-gray-200 dark:border-gray-700">
+            <Link
+              href="/account"
+              className="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
+            >
+              Profile
+            </Link>
+            <Link
+              href="/account/notifications"
+              className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+            >
+              Notifications
+            </Link>
+          </div>
+
           {/* User Info */}
           <Card className="mb-6">
             <h2 className="text-xl font-semibold mb-4">Profile</h2>
