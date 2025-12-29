@@ -314,17 +314,74 @@ export default function Home() {
     );
   }
 
+  // User-friendly error messages
+  const getErrorMessage = (error: string): { title: string; message: string; suggestion: string } => {
+    if (error.includes('Failed to fetch') || error.includes('network')) {
+      return {
+        title: '연결 문제',
+        message: '인터넷 연결을 확인할 수 없습니다.',
+        suggestion: '인터넷 연결을 확인하고 다시 시도해주세요.'
+      };
+    }
+    if (error.includes('404') || error.includes('No signal data')) {
+      return {
+        title: '데이터 없음',
+        message: '아직 신호 데이터가 준비되지 않았습니다.',
+        suggestion: '잠시 후 다시 시도해주세요. 데이터는 매주 월요일 업데이트됩니다.'
+      };
+    }
+    if (error.includes('401') || error.includes('403')) {
+      return {
+        title: '인증 필요',
+        message: '이 기능을 사용하려면 로그인이 필요합니다.',
+        suggestion: '로그인 후 다시 시도해주세요.'
+      };
+    }
+    if (error.includes('500')) {
+      return {
+        title: '서버 오류',
+        message: '서버에 문제가 발생했습니다.',
+        suggestion: '잠시 후 다시 시도해주세요. 문제가 계속되면 관리자에게 문의해주세요.'
+      };
+    }
+    return {
+      title: '오류 발생',
+      message: '데이터를 불러오는 중 문제가 발생했습니다.',
+      suggestion: '페이지를 새로고침하거나 잠시 후 다시 시도해주세요.'
+    };
+  };
+
   if (error) {
+    const errorInfo = getErrorMessage(error);
     return (
       <main className="min-h-screen flex items-center justify-center p-4">
-        <div className="text-center">
-          <p className="text-red-600 dark:text-red-400 mb-4">Error: {error}</p>
-          <button
-            onClick={fetchSignal}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Retry
-          </button>
+        <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 text-center">
+          <div className="mb-6">
+            <div className="text-6xl mb-4">⚠️</div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              {errorInfo.title}
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              {errorInfo.message}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-500">
+              {errorInfo.suggestion}
+            </p>
+          </div>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={fetchSignal}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              다시 시도
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            >
+              페이지 새로고침
+            </button>
+          </div>
         </div>
       </main>
     );
@@ -377,25 +434,6 @@ export default function Home() {
               🔕 Disable Notifications
             </button>
           )}
-        </div>
-
-        {/* Test Loading Button - Always visible for testing */}
-        <div className="mb-4 flex justify-center">
-          <button
-            onClick={() => {
-              // Clear signal data and force loading state
-              setSignal(null);
-              setLoading(true);
-              setError(null);
-              // Wait 2 seconds to show loading, then fetch
-              setTimeout(() => {
-                fetchSignal();
-              }, 2000);
-            }}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
-          >
-            🔄 테스트: 로딩 화면 보기 (2초)
-          </button>
         </div>
 
         {/* User Auth Status */}
