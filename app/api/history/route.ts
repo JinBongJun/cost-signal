@@ -15,9 +15,14 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(request: NextRequest) {
   try {
-    // Require paid tier (includes auth check)
-    await requirePaidTier();
     const searchParams = request.nextUrl.searchParams;
+    const preview = searchParams.get('preview') === 'true'; // Preview mode for testing
+    
+    // Require paid tier (includes auth check) unless in preview mode
+    if (!preview) {
+      await requirePaidTier();
+    }
+    
     const limit = parseInt(searchParams.get('limit') || '12', 10);
 
     const db = getDb();

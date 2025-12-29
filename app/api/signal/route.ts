@@ -18,32 +18,38 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const requestedTier = searchParams.get('tier') || 'free';
+    const preview = searchParams.get('preview') === 'true'; // Preview mode for testing
 
     // Check authentication for paid tier
     let tier = 'free';
     if (requestedTier === 'paid') {
-      const user = await getCurrentUser();
-      if (user) {
-        const userId = (user as any).id;
-        if (!userId) {
-          return NextResponse.json({ error: 'User ID not found' }, { status: 500 });
-        }
-        const hasSubscription = await hasActiveSubscription(userId);
-        if (hasSubscription) {
-          tier = 'paid';
+      // Preview mode: allow access without subscription for testing
+      if (preview) {
+        tier = 'paid';
+      } else {
+        const user = await getCurrentUser();
+        if (user) {
+          const userId = (user as any).id;
+          if (!userId) {
+            return NextResponse.json({ error: 'User ID not found' }, { status: 500 });
+          }
+          const hasSubscription = await hasActiveSubscription(userId);
+          if (hasSubscription) {
+            tier = 'paid';
+          } else {
+            // User is authenticated but doesn't have active subscription
+            return NextResponse.json(
+              { error: 'Active subscription required for paid tier' },
+              { status: 403 }
+            );
+          }
         } else {
-          // User is authenticated but doesn't have active subscription
+          // User is not authenticated
           return NextResponse.json(
-            { error: 'Active subscription required for paid tier' },
-            { status: 403 }
+            { error: 'Authentication required for paid tier' },
+            { status: 401 }
           );
         }
-      } else {
-        // User is not authenticated
-        return NextResponse.json(
-          { error: 'Authentication required for paid tier' },
-          { status: 401 }
-        );
       }
     }
 

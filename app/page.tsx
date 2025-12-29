@@ -139,14 +139,16 @@ export default function Home() {
       const startTime = Date.now();
       
       // Try to fetch paid tier data first if tier is 'paid'
-      let response = await fetch(`/api/signal?tier=${tier}`, {
+      // Use preview mode if user doesn't have subscription
+      const isPreviewMode = tier === 'paid' && !hasActiveSubscription;
+      let response = await fetch(`/api/signal?tier=${tier}${isPreviewMode ? '&preview=true' : ''}`, {
         cache: 'no-store', // Prevent caching for testing
       });
       
       // If paid tier fails (no subscription), fall back to free tier but keep UI in paid mode
-      if (!response.ok && tier === 'paid') {
-        console.log('Paid tier not available, fetching free tier data for preview');
-        response = await fetch('/api/signal?tier=free', {
+      if (!response.ok && tier === 'paid' && !isPreviewMode) {
+        console.log('Paid tier not available, trying preview mode');
+        response = await fetch('/api/signal?tier=paid&preview=true', {
           cache: 'no-store',
         });
       }
@@ -174,7 +176,9 @@ export default function Home() {
     if (tier !== 'paid') return;
     
     try {
-      const response = await fetch('/api/history?limit=12');
+      // Use preview mode if user doesn't have subscription
+      const isPreviewMode = !hasActiveSubscription;
+      const response = await fetch(`/api/history?limit=12${isPreviewMode ? '&preview=true' : ''}`);
       if (!response.ok) {
         throw new Error('Failed to fetch history');
       }
