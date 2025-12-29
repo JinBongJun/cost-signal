@@ -11,24 +11,37 @@ export async function requestNotificationPermission(): Promise<boolean> {
   console.log('Current notification permission:', Notification.permission);
 
   if (Notification.permission === 'granted') {
-    console.log('Notification permission already granted');
+    console.log('✅ Notification permission already granted');
     return true;
   }
 
   if (Notification.permission === 'denied') {
-    console.error('Notification permission denied. Please enable in browser settings.');
+    console.error('❌ Notification permission denied. Please enable in browser settings.');
+    alert('❌ 알림 권한이 거부되었습니다. 브라우저 설정에서 알림을 허용해주세요.');
     return false;
   }
 
-  console.log('Requesting notification permission...');
-  const permission = await Notification.requestPermission();
-  console.log('Notification permission result:', permission);
-  
-  if (permission === 'granted') {
-    console.log('✅ Notification permission granted');
-    return true;
-  } else {
-    console.error('❌ Notification permission denied or dismissed');
+  // Permission is 'default', need to request
+  console.log('Requesting notification permission (this will show a browser popup)...');
+  try {
+    const permission = await Notification.requestPermission();
+    console.log('Notification permission result:', permission);
+    
+    if (permission === 'granted') {
+      console.log('✅ Notification permission granted');
+      return true;
+    } else if (permission === 'denied') {
+      console.error('❌ Notification permission denied by user');
+      alert('❌ 알림 권한이 거부되었습니다. 브라우저 설정에서 알림을 허용해주세요.');
+      return false;
+    } else {
+      console.error('❌ Notification permission dismissed (user closed popup)');
+      alert('⚠️ 알림 권한 요청이 취소되었습니다. 알림을 받으려면 다시 시도해주세요.');
+      return false;
+    }
+  } catch (error) {
+    console.error('Error requesting notification permission:', error);
+    alert('❌ 알림 권한 요청 중 오류가 발생했습니다.');
     return false;
   }
 }
