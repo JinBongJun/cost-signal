@@ -29,23 +29,35 @@ export async function subscribeToPushNotifications(): Promise<PushSubscription |
 
   try {
     // Request notification permission
+    console.log('Requesting notification permission...');
     const hasPermission = await requestNotificationPermission();
     if (!hasPermission) {
+      console.error('Notification permission denied');
       return null;
     }
+    console.log('Notification permission granted');
 
     // Register service worker
     const registration = await navigator.serviceWorker.ready;
+    console.log('Service worker ready, subscribing to push...');
+
+    // Check VAPID key
+    const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+    if (!vapidKey) {
+      console.error('VAPID public key not found in environment');
+      return null;
+    }
+    console.log('VAPID key found, length:', vapidKey.length);
 
     // Subscribe to push notifications
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(
-        process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ''
-      ) as BufferSource,
+      applicationServerKey: urlBase64ToUint8Array(vapidKey) as BufferSource,
     });
+    console.log('Push subscription created:', subscription.endpoint);
 
     // Send subscription to server
+    console.log('Sending subscription to server...');
     const response = await fetch('/api/push/subscribe', {
       method: 'POST',
       headers: {
@@ -61,9 +73,12 @@ export async function subscribeToPushNotifications(): Promise<PushSubscription |
     });
 
     if (!response.ok) {
-      throw new Error('Failed to save subscription');
+      const errorText = await response.text();
+      console.error('Failed to save subscription:', response.status, errorText);
+      throw new Error(`Failed to save subscription: ${response.status}`);
     }
 
+    console.log('✅ Subscription saved to server successfully');
     return subscription;
   } catch (error) {
     console.error('Error subscribing to push notifications:', error);
