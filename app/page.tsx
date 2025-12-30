@@ -10,6 +10,7 @@ import {
 } from '@/lib/push-client';
 import { useToast, ToastContainer } from '@/components/Toast';
 import { Button } from '@/components/Button';
+import { Card } from '@/components/Card';
 import { SignalCard } from '@/components/SignalCard';
 import { HistorySection } from '@/components/HistorySection';
 import { WelcomeModal } from '@/components/WelcomeModal';
