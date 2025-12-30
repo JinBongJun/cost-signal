@@ -18,22 +18,25 @@ export function WelcomeModal() {
     }
   }, []);
 
-  function handleClose() {
+  function handleClose(scrollToLearnMore = false) {
     setIsOpen(false);
     if (typeof window !== 'undefined') {
       localStorage.setItem('hasSeenWelcome', 'true');
     }
+    
+    // If scrollToLearnMore is true, scroll to "Why Cost Signal?" section
+    if (scrollToLearnMore) {
+      setTimeout(() => {
+        const element = document.getElementById('why-cost-signal');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
   }
 
   function handleLearnMore() {
-    handleClose();
-    // Scroll to "Why Cost Signal?" section after a small delay
-    setTimeout(() => {
-      const element = document.getElementById('why-cost-signal');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 100);
+    handleClose(true);
   }
 
   if (!isOpen) return null;
@@ -82,7 +85,7 @@ export function WelcomeModal() {
         </div>
 
         <div className="flex gap-3">
-          <Button onClick={handleClose} variant="primary" className="flex-1">
+          <Button onClick={() => handleClose(false)} variant="primary" className="flex-1">
             Get Started
           </Button>
           <Button onClick={handleLearnMore} variant="secondary" className="flex-1">
