@@ -42,16 +42,18 @@ export async function POST(request: NextRequest) {
       await db.createPasswordResetToken(user.id, token, expiresAt);
 
       // Send email
+      console.log('About to send password reset email to:', email);
       const emailResult = await sendPasswordResetEmail(email, token);
       
       if (!emailResult.success) {
-        console.error('Failed to send password reset email:', emailResult.error);
+        console.error('❌ Failed to send password reset email:', emailResult.error);
         console.error('Email:', email, 'Token:', token);
         console.error('RESEND_API_KEY exists:', !!process.env.RESEND_API_KEY);
         console.error('RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL);
         // Still return success to user to prevent enumeration
       } else {
-        console.log('Password reset email sent successfully to:', email);
+        console.log('✅ Password reset email sent successfully to:', email);
+        console.log('Email ID:', emailResult.data?.id);
       }
     }
 
