@@ -51,14 +51,6 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      authorization: {
-        params: {
-          // Force use of NEXTAUTH_URL for callback
-          redirect_uri: process.env.NEXTAUTH_URL 
-            ? `${process.env.NEXTAUTH_URL}/api/auth/callback/google`
-            : undefined,
-        },
-      },
     })
   );
 } else {
