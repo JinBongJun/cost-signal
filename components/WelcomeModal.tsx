@@ -18,25 +18,26 @@ export function WelcomeModal() {
     }
   }, []);
 
-  function handleClose(scrollToLearnMore = false) {
+  function handleClose() {
     setIsOpen(false);
     if (typeof window !== 'undefined') {
       localStorage.setItem('hasSeenWelcome', 'true');
     }
-    
-    // If scrollToLearnMore is true, scroll to "Why Cost Signal?" section
-    if (scrollToLearnMore) {
-      setTimeout(() => {
-        const element = document.getElementById('why-cost-signal');
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 100);
-    }
   }
 
   function handleLearnMore() {
-    handleClose(true);
+    handleClose();
+    // Trigger custom event to show Learn More section
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('showLearnMore'));
+    }
+    // Scroll to section after a small delay
+    setTimeout(() => {
+      const element = document.getElementById('why-cost-signal');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 200);
   }
 
   if (!isOpen) return null;
