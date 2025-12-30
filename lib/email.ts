@@ -11,7 +11,13 @@ export async function sendPasswordResetEmail(email: string, resetToken: string) 
 
   console.log('Attempting to send password reset email to:', email);
   console.log('RESEND_API_KEY exists:', !!process.env.RESEND_API_KEY);
+  console.log('RESEND_API_KEY length:', process.env.RESEND_API_KEY?.length || 0);
   console.log('RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL);
+  
+  // Validate API key format
+  if (process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.startsWith('re_')) {
+    console.error('⚠️ WARNING: RESEND_API_KEY does not start with "re_" - may be invalid');
+  }
 
   const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://cost-signal.vercel.app'}/reset-password?token=${resetToken}`;
 
