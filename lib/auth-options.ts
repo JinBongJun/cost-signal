@@ -150,8 +150,6 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET || 'your-secret-key-change-in-production',
   debug: process.env.NODE_ENV === 'development',
-  // Ensure NEXTAUTH_URL is used for callbacks
-  url: process.env.NEXTAUTH_URL,
 };
 
 
