@@ -86,7 +86,7 @@ export function WelcomeModal() {
         </div>
 
         <div className="flex gap-3">
-          <Button onClick={() => handleClose(false)} variant="primary" className="flex-1">
+          <Button onClick={handleClose} variant="primary" className="flex-1">
             Get Started
           </Button>
           <Button onClick={handleLearnMore} variant="secondary" className="flex-1">
