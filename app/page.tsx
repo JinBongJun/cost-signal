@@ -432,63 +432,63 @@ export default function Home() {
   // 3. Signal data is not available yet
   const isLoading = loading || status === 'loading' || !signal;
   
-  // Skeleton Loading Component
+  // Simple Loading Component (Google Style)
   if (isLoading) {
     return (
-      <main className="min-h-screen p-4 md:p-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Header Skeleton */}
-          <header className="mb-8 text-center">
-            <div className="h-12 w-48 bg-gray-300 dark:bg-gray-700 rounded animate-pulse mx-auto mb-4"></div>
-            <div className="h-6 w-80 bg-gray-300 dark:bg-gray-700 rounded animate-pulse mx-auto"></div>
-          </header>
-
-          {/* Buttons Skeleton */}
-          <div className="mb-6 flex flex-col items-center gap-3">
-            <div className="h-10 w-64 bg-gray-300 dark:bg-gray-700 rounded-lg animate-pulse"></div>
-          </div>
-
-          {/* Auth Status Skeleton */}
-          <div className="mb-6 flex justify-center items-center gap-4">
-            <div className="h-8 w-48 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
-          </div>
-
-          {/* Tier Display Skeleton */}
-          <div className="mb-6 flex justify-center">
-            <div className="h-10 w-32 bg-gray-300 dark:bg-gray-700 rounded-lg animate-pulse"></div>
-          </div>
-
-          {/* Main Signal Card Skeleton */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 md:p-8 mb-6">
-            <div className="text-center mb-6">
-              {/* Emoji Circle Skeleton */}
-              <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-700 animate-pulse mx-auto mb-4"></div>
-              
-              {/* Status Text Skeleton */}
-              <div className="h-10 w-32 bg-gray-300 dark:bg-gray-700 rounded animate-pulse mx-auto mb-2"></div>
-              
-              {/* Date Text Skeleton */}
-              <div className="h-5 w-64 bg-gray-300 dark:bg-gray-700 rounded animate-pulse mx-auto"></div>
-            </div>
-
-            {/* Explanation Skeleton (for paid tier) */}
-            <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-6">
-              <div className="space-y-2">
-                <div className="h-4 w-full bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
-                <div className="h-4 w-5/6 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
-                <div className="h-4 w-4/6 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
+      <>
+        <ToastContainer toasts={toast.toasts} onClose={toast.removeToast} />
+        <WelcomeModal />
+        
+        {/* Fixed Header (same as main page) */}
+        <header className="sticky top-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+          <div className="max-w-4xl mx-auto px-4 md:px-8 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-6">
+                <Link href="/" className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 hover:opacity-80 transition-opacity">
+                  Cost Signal
+                </Link>
+              </div>
+              <div className="flex items-center gap-4">
+                <Link 
+                  href="/faq" 
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                >
+                  FAQ
+                </Link>
+                <button
+                  onClick={() => {
+                    setShowLearnMore(true);
+                    setTimeout(() => {
+                      const element = document.getElementById('why-cost-signal');
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }, 100);
+                  }}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                >
+                  Learn More
+                </button>
+                <ProfileMenu
+                  hasActiveSubscription={hasActiveSubscription}
+                  isSubscribed={isSubscribed}
+                  onNotificationClick={handleNotificationClick}
+                />
               </div>
             </div>
-
-            {/* Upgrade Prompt Skeleton (for free tier) */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-              <div className="h-5 w-40 bg-gray-300 dark:bg-gray-700 rounded animate-pulse mb-2"></div>
-              <div className="h-4 w-full bg-gray-300 dark:bg-gray-700 rounded animate-pulse mb-3"></div>
-              <div className="h-9 w-40 bg-gray-300 dark:bg-gray-700 rounded-lg animate-pulse"></div>
-            </div>
           </div>
-        </div>
-      </main>
+        </header>
+
+        {/* Simple Loading Spinner (Google Style) */}
+        <main className="min-h-screen flex items-center justify-center p-4 md:p-8">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 dark:border-gray-600 border-t-blue-600 dark:border-t-blue-400 mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
+              Loading signal data...
+            </p>
+          </div>
+        </main>
+      </>
     );
   }
 
