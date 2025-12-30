@@ -5,8 +5,13 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function sendPasswordResetEmail(email: string, resetToken: string) {
   if (!process.env.RESEND_API_KEY) {
     console.error('RESEND_API_KEY is not set');
+    console.error('Available env vars:', Object.keys(process.env).filter(k => k.includes('RESEND')));
     return { success: false, error: 'Email service not configured' };
   }
+
+  console.log('Attempting to send password reset email to:', email);
+  console.log('RESEND_API_KEY exists:', !!process.env.RESEND_API_KEY);
+  console.log('RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL);
 
   const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://cost-signal.vercel.app'}/reset-password?token=${resetToken}`;
 
@@ -55,9 +60,11 @@ This link will expire in 1 hour. If you didn't request a password reset, you can
 
     if (error) {
       console.error('Resend error:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       return { success: false, error: error.message };
     }
 
+    console.log('Email sent successfully via Resend. Email ID:', data?.id);
     return { success: true, data };
   } catch (error: any) {
     console.error('Email send error:', error);

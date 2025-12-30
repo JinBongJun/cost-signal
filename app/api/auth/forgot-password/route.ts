@@ -46,7 +46,12 @@ export async function POST(request: NextRequest) {
       
       if (!emailResult.success) {
         console.error('Failed to send password reset email:', emailResult.error);
+        console.error('Email:', email, 'Token:', token);
+        console.error('RESEND_API_KEY exists:', !!process.env.RESEND_API_KEY);
+        console.error('RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL);
         // Still return success to user to prevent enumeration
+      } else {
+        console.log('Password reset email sent successfully to:', email);
       }
     }
 
