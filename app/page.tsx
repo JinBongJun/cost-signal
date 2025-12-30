@@ -162,6 +162,11 @@ export default function Home() {
     setLoading(true);
     setError(null);
     try {
+      // Check online status
+      if (!navigator.onLine) {
+        throw new Error('You are currently offline. Please check your internet connection.');
+      }
+
       // Add minimum loading time for better UX
       // This ensures users see the skeleton UI even on fast connections
       const minLoadingTime = 800; // 800ms minimum
@@ -183,7 +188,8 @@ export default function Home() {
       }
       
       if (!response.ok) {
-        throw new Error('Failed to fetch signal');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to fetch signal');
       }
       const data = await response.json();
       
@@ -195,7 +201,13 @@ export default function Home() {
       
       setSignal(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(errorMessage);
+      
+      // Show toast for network errors
+      if (errorMessage.includes('offline') || errorMessage.includes('Failed to fetch')) {
+        toast.error('Connection issue. Please check your internet and try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -481,38 +493,45 @@ export default function Home() {
 
   // User-friendly error messages
   const getErrorMessage = (error: string): { title: string; message: string; suggestion: string } => {
-    if (error.includes('Failed to fetch') || error.includes('network')) {
+    if (error.includes('offline') || error.includes('Failed to fetch') || error.includes('network')) {
       return {
         title: 'Connection Issue',
-        message: 'Unable to verify internet connection.',
-        suggestion: 'Please check your internet connection and try again.'
+        message: 'Unable to connect to the server.',
+        suggestion: 'Please check your internet connection and try again. You can also try refreshing the page.'
       };
     }
-    if (error.includes('404') || error.includes('No signal data')) {
+    if (error.includes('404') || error.includes('No signal data') || error.includes('not ready')) {
       return {
         title: 'No Data Available',
         message: 'Signal data is not ready yet.',
-        suggestion: 'Please try again later. Data is updated every Monday.'
+        suggestion: 'Please try again later. Data is updated every Monday at 9 AM Eastern Time.'
       };
     }
-    if (error.includes('401') || error.includes('403')) {
+    if (error.includes('401') || error.includes('Authentication')) {
       return {
         title: 'Authentication Required',
         message: 'You need to sign in to use this feature.',
-        suggestion: 'Please sign in and try again.'
+        suggestion: 'Please sign in and try again. If you don\'t have an account, you can sign up for free.'
       };
     }
-    if (error.includes('500')) {
+    if (error.includes('403') || error.includes('subscription')) {
+      return {
+        title: 'Subscription Required',
+        message: 'This feature requires an active subscription.',
+        suggestion: 'Please upgrade to a paid plan to access this feature. You can preview features before subscribing.'
+      };
+    }
+    if (error.includes('500') || error.includes('Server')) {
       return {
         title: 'Server Error',
         message: 'A server error occurred.',
-        suggestion: 'Please try again later. If the problem persists, please contact support.'
+        suggestion: 'Please try again later. If the problem persists, please contact support through your account settings.'
       };
     }
     return {
       title: 'Error Occurred',
       message: 'An error occurred while loading data.',
-      suggestion: 'Please refresh the page or try again later.'
+      suggestion: 'Please refresh the page or try again later. If the problem continues, contact support.'
     };
   };
 
@@ -536,16 +555,25 @@ export default function Home() {
           <div className="flex flex-col gap-3">
             <button
               onClick={fetchSignal}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              aria-label="Retry fetching signal data"
             >
               Try Again
             </button>
             <button
               onClick={() => window.location.reload()}
-              className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+              className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              aria-label="Refresh the page"
             >
               Refresh Page
             </button>
+            {typeof window !== 'undefined' && !navigator.onLine && (
+              <div className="mt-2 px-4 py-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg" role="alert">
+                <p className="text-yellow-800 dark:text-yellow-200 text-sm">
+                  ⚠️ You appear to be offline. Please check your internet connection.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </main>
@@ -574,7 +602,7 @@ export default function Home() {
           <p className="text-gray-600 dark:text-gray-400">
             Weekly economic signal for U.S. consumers
           </p>
-          <div className="mt-4">
+          <div className="mt-4 flex items-center justify-center gap-4">
             <button
               onClick={() => {
                 setShowLearnMore(true);
@@ -589,6 +617,9 @@ export default function Home() {
             >
               Learn More →
             </button>
+            <Link href="/faq" className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+              FAQ
+            </Link>
           </div>
           {!session?.user && (
             <div className="mt-4 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
@@ -841,6 +872,14 @@ export default function Home() {
             </div>
           </div>
           <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex flex-wrap justify-center gap-4 mb-3">
+              <Link href="/terms" className="text-xs hover:text-gray-700 dark:hover:text-gray-300 underline">
+                Terms of Service
+              </Link>
+              <Link href="/privacy" className="text-xs hover:text-gray-700 dark:hover:text-gray-300 underline">
+                Privacy Policy
+              </Link>
+            </div>
             <p className="text-xs">
               Updated every Monday
             </p>

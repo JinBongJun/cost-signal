@@ -66,6 +66,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Cost Signal" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
       </head>
       <body className={inter.className}>
         <SessionProvider>{children}</SessionProvider>
