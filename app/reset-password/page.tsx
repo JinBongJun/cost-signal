@@ -296,3 +296,29 @@ function ResetPasswordForm() {
   );
 }
 
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <>
+        <Header />
+        <main className="min-h-screen flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-900">
+          <div className="w-full max-w-md">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+              <div className="animate-pulse">
+                <div className="h-8 bg-gray-300 dark:bg-gray-700 rounded mb-4"></div>
+                <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded mb-8"></div>
+                <div className="space-y-4">
+                  <div className="h-10 bg-gray-300 dark:bg-gray-700 rounded"></div>
+                  <div className="h-10 bg-gray-300 dark:bg-gray-700 rounded"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </>
+    }>
+      <ResetPasswordForm />
+    </Suspense>
+  );
+}
+
