@@ -30,9 +30,18 @@ export async function POST(request: NextRequest) {
     const db = getDb();
     const user = await db.getUserByEmail(email);
 
+    console.log('User lookup result:', {
+      email,
+      userExists: !!user,
+      userId: user?.id,
+      hasPassword: !!user?.password,
+      passwordLength: user?.password?.length || 0,
+    });
+
     // Always return success to prevent email enumeration
     // But only send email if user exists and has a password (not OAuth-only)
     if (user && user.password) {
+      console.log('✅ User found with password, proceeding with email send');
       // Generate reset token
       const token = uuidv4();
       const expiresAt = new Date();
@@ -54,6 +63,13 @@ export async function POST(request: NextRequest) {
       } else {
         console.log('✅ Password reset email sent successfully to:', email);
         console.log('Email ID:', emailResult.data?.id);
+      }
+    } else {
+      if (!user) {
+        console.log('⚠️ User not found for email:', email);
+      } else if (!user.password) {
+        console.log('⚠️ User exists but has no password (OAuth-only account):', email);
+        console.log('User accounts:', user);
       }
     }
 
