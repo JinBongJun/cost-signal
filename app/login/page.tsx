@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { signIn, getProviders } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Header } from '@/components/Header';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -229,11 +231,16 @@ export default function LoginPage() {
             </div>
           )}
 
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center space-y-2">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Don't have an account?{' '}
               <Link href="/signup" className="text-blue-600 dark:text-blue-400 hover:underline">
                 Sign up
+              </Link>
+            </p>
+            <p className="text-sm">
+              <Link href="/forgot-password" className="text-blue-600 dark:text-blue-400 hover:underline">
+                Forgot your password?
               </Link>
             </p>
           </div>

@@ -50,7 +50,7 @@ const faqs: FAQItem[] = [
   },
   {
     question: 'What if I forget my password?',
-    answer: 'If you signed up with email/password, you can use the "Sign in with Google" option if you linked your Google account. Otherwise, please contact support for password reset assistance.',
+    answer: 'Click "Forgot your password?" on the login page, enter your email address, and we\'ll send you a password reset link. The link will expire in 1 hour. If you signed up with Google, you can use the "Sign in with Google" option instead.',
   },
 ];
 

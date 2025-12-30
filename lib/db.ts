@@ -262,7 +262,7 @@ class Database {
     }
   }
 
-  async updateUser(userId: string, updates: { email?: string; name?: string; emailVerified?: Date }): Promise<void> {
+  async updateUser(userId: string, updates: { email?: string; name?: string; emailVerified?: Date; password?: string }): Promise<void> {
     const updateData: any = {};
 
     if (updates.email) updateData.email = updates.email;
@@ -270,6 +270,7 @@ class Database {
     if (updates.emailVerified !== undefined) {
       updateData.email_verified = updates.emailVerified.toISOString();
     }
+    if (updates.password) updateData.password = updates.password;
 
     const { error } = await supabase
       .from('users')
@@ -278,6 +279,62 @@ class Database {
 
     if (error) {
       throw new Error(`Failed to update user: ${error.message}`);
+    }
+  }
+
+  // Password reset token methods
+  async createPasswordResetToken(userId: string, token: string, expiresAt: Date): Promise<void> {
+    // Invalidate any existing tokens for this user
+    await supabase
+      .from('password_reset_tokens')
+      .update({ used: true })
+      .eq('user_id', userId)
+      .eq('used', false);
+
+    const { error } = await supabase
+      .from('password_reset_tokens')
+      .insert({
+        user_id: userId,
+        token,
+        expires_at: expiresAt.toISOString(),
+        used: false,
+      });
+
+    if (error) {
+      throw new Error(`Failed to create password reset token: ${error.message}`);
+    }
+  }
+
+  async getPasswordResetToken(token: string): Promise<{ userId: string; expiresAt: Date } | null> {
+    const { data, error } = await supabase
+      .from('password_reset_tokens')
+      .select('user_id, expires_at, used')
+      .eq('token', token)
+      .eq('used', false)
+      .single();
+
+    if (error || !data) return null;
+
+    const expiresAt = new Date(data.expires_at);
+    if (expiresAt < new Date()) {
+      // Token expired
+      return null;
+    }
+
+    return {
+      userId: data.user_id,
+      expiresAt,
+    };
+  }
+
+  async markPasswordResetTokenAsUsed(token: string): Promise<void> {
+    const { error } = await supabase
+      .from('password_reset_tokens')
+      .update({ used: true })
+      .eq('token', token);
+
+    if (error) {
+      throw new Error(`Failed to mark token as used: ${error.message}`);
     }
   }
 
