@@ -118,6 +118,7 @@ export default function FAQPage() {
         </Card>
       </div>
     </main>
+    </>
   );
 }
 
