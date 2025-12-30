@@ -12,6 +12,7 @@ import { useToast, ToastContainer } from '@/components/Toast';
 import { Button } from '@/components/Button';
 import { SignalCard } from '@/components/SignalCard';
 import { HistorySection } from '@/components/HistorySection';
+import { WelcomeModal } from '@/components/WelcomeModal';
 
 interface Signal {
   week_start: string;
@@ -554,6 +555,7 @@ export default function Home() {
   return (
     <>
       <ToastContainer toasts={toast.toasts} onClose={toast.removeToast} />
+      <WelcomeModal />
       <main className="min-h-screen p-4 md:p-8">
         <div className="max-w-4xl mx-auto">
         {/* Header */}
@@ -686,6 +688,59 @@ export default function Home() {
           />
         )}
 
+        {/* Why Cost Signal Section */}
+        {!session?.user && (
+          <Card className="mb-6 animate-fade-in">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold mb-2">Why Cost Signal?</h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                Simple, reliable, and clear - no opinions, just data
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="text-center">
+                <div className="text-4xl mb-3">❌</div>
+                <h3 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">Other Apps</h3>
+                <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1 text-left">
+                  <li>• Complex charts & graphs</li>
+                  <li>• Opinions & predictions</li>
+                  <li>• Financial advice</li>
+                  <li>• Daily information overload</li>
+                  <li>• Subscription required</li>
+                </ul>
+              </div>
+
+              <div className="text-center">
+                <div className="text-4xl mb-3">✅</div>
+                <h3 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">Cost Signal</h3>
+                <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1 text-left">
+                  <li>• Simple signal (🟢🟡🔴)</li>
+                  <li>• Just data, no opinions</li>
+                  <li>• No financial advice</li>
+                  <li>• Weekly summary</li>
+                  <li>• Free tier available</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <div className="text-2xl">💡</div>
+                <div>
+                  <h4 className="font-semibold mb-1 text-blue-900 dark:text-blue-100">
+                    One clear signal. Every Monday. No opinions. Just data.
+                  </h4>
+                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                    Track 4 key economic indicators from official U.S. government sources. 
+                    Get notified when costs change. Free to start.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
+
         {/* History Section (Paid tier only) */}
         {tier === 'paid' && signal && (
           <HistorySection
@@ -699,12 +754,24 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="text-center text-sm text-gray-500 dark:text-gray-400">
-          <p className="mb-2">
-            Cost Signal provides a neutral summary of economic indicators.
-          </p>
-          <p>
-            This is not financial advice. Data from official U.S. government sources.
-          </p>
+          <div className="mb-4">
+            <p className="mb-2">
+              Cost Signal provides a neutral summary of economic indicators.
+            </p>
+            <p className="mb-2">
+              This is not financial advice. Data from official U.S. government sources.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4 text-xs mt-3">
+              <span>📊 EIA (Energy Information Administration)</span>
+              <span>📈 BLS (Bureau of Labor Statistics)</span>
+              <span>🏛️ FRED (Federal Reserve Economic Data)</span>
+            </div>
+          </div>
+          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <p className="text-xs">
+              Updated every Monday • Trusted by users nationwide
+            </p>
+          </div>
         </footer>
       </div>
     </main>

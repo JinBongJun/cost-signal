@@ -51,6 +51,8 @@ export default function AccountPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [updatingPassword, setUpdatingPassword] = useState(false);
+  const [hasPassword, setHasPassword] = useState<boolean | null>(null);
+  const [hasGoogleAccount, setHasGoogleAccount] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -377,7 +379,22 @@ export default function AccountPage() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                   Password
                 </label>
-                {changingPassword ? (
+                {hasGoogleAccount && !hasPassword ? (
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <p className="text-blue-800 dark:text-blue-200 text-sm">
+                      You signed in with Google. Password management is handled by your Google account. 
+                      To change your password, please visit your{' '}
+                      <a 
+                        href="https://myaccount.google.com/security" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="underline font-medium hover:text-blue-900 dark:hover:text-blue-100"
+                      >
+                        Google Account settings
+                      </a>.
+                    </p>
+                  </div>
+                ) : changingPassword ? (
                   <div className="space-y-4">
                     <div>
                       <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
@@ -504,7 +521,7 @@ export default function AccountPage() {
                       </Button>
                     </div>
                   </div>
-                ) : (
+                ) : hasPassword !== false ? (
                   <Button
                     onClick={() => setChangingPassword(true)}
                     variant="secondary"
@@ -512,7 +529,7 @@ export default function AccountPage() {
                   >
                     Change Password
                   </Button>
-                )}
+                ) : null}
               </div>
             </div>
           </Card>

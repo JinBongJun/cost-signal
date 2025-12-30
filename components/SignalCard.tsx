@@ -51,6 +51,29 @@ const INDICATOR_LABELS: Record<string, string> = {
   unemployment: 'Unemployment',
 };
 
+const DATA_SOURCES: Record<string, { name: string; fullName: string; url: string }> = {
+  gas: {
+    name: 'EIA',
+    fullName: 'Energy Information Administration',
+    url: 'https://www.eia.gov/',
+  },
+  cpi: {
+    name: 'BLS',
+    fullName: 'Bureau of Labor Statistics',
+    url: 'https://www.bls.gov/',
+  },
+  interest_rate: {
+    name: 'FRED',
+    fullName: 'Federal Reserve Economic Data',
+    url: 'https://fred.stlouisfed.org/',
+  },
+  unemployment: {
+    name: 'FRED',
+    fullName: 'Federal Reserve Economic Data',
+    url: 'https://fred.stlouisfed.org/',
+  },
+};
+
 export function SignalCard({
   signal,
   tier,
@@ -126,9 +149,22 @@ export function SignalCard({
                     className={`rounded-lg p-4 border-2 transition-smooth hover:shadow-md ${statusColors[indicator.status]}`}
                   >
                     <div className="flex items-center justify-between mb-3">
-                      <span className="font-semibold text-gray-700 dark:text-gray-300">
-                        {INDICATOR_LABELS[indicator.type] || indicator.type}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-gray-700 dark:text-gray-300">
+                          {INDICATOR_LABELS[indicator.type] || indicator.type}
+                        </span>
+                        {DATA_SOURCES[indicator.type] && (
+                          <a
+                            href={DATA_SOURCES[indicator.type].url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                            title={DATA_SOURCES[indicator.type].fullName}
+                          >
+                            {DATA_SOURCES[indicator.type].name}
+                          </a>
+                        )}
+                      </div>
                       <span
                         className={`text-xs font-bold px-2 py-1 rounded-full ${
                           indicator.status === 'risk'
@@ -160,6 +196,19 @@ export function SignalCard({
                       }`}>
                         {indicator.change_percent > 0 ? '↑' : indicator.change_percent < 0 ? '↓' : '→'} {indicator.change_percent > 0 ? '+' : ''}
                         {indicator.change_percent.toFixed(2)}% from previous
+                      </div>
+                    )}
+                    {DATA_SOURCES[indicator.type] && (
+                      <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                        Data from{' '}
+                        <a
+                          href={DATA_SOURCES[indicator.type].url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline hover:text-gray-700 dark:hover:text-gray-300"
+                        >
+                          {DATA_SOURCES[indicator.type].fullName}
+                        </a>
                       </div>
                     )}
                   </div>

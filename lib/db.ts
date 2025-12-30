@@ -293,6 +293,16 @@ class Database {
     return data;
   }
 
+  async getUserAccounts(userId: string): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('accounts')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (error || !data) return [];
+    return data;
+  }
+
   async linkAccount(account: {
     id: string;
     userId: string;
