@@ -53,6 +53,7 @@ export default function AccountPage() {
   const [updatingPassword, setUpdatingPassword] = useState(false);
   const [hasPassword, setHasPassword] = useState<boolean | null>(null);
   const [hasGoogleAccount, setHasGoogleAccount] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong' | ''>('');
   const toast = useToast();
 
   useEffect(() => {
@@ -143,6 +144,28 @@ export default function AccountPage() {
       toast.error(error instanceof Error ? error.message : 'Failed to update name');
     } finally {
       setUpdatingName(false);
+    }
+  }
+
+  function checkPasswordStrength(value: string) {
+    if (!value) {
+      setPasswordStrength('');
+      return;
+    }
+
+    let strength = 0;
+    if (value.length >= 8) strength++;
+    if (value.length >= 12) strength++;
+    if (/[a-z]/.test(value) && /[A-Z]/.test(value)) strength++;
+    if (/\d/.test(value)) strength++;
+    if (/[^a-zA-Z\d]/.test(value)) strength++;
+
+    if (strength <= 2) {
+      setPasswordStrength('weak');
+    } else if (strength <= 3) {
+      setPasswordStrength('medium');
+    } else {
+      setPasswordStrength('strong');
     }
   }
 
@@ -411,7 +434,8 @@ export default function AccountPage() {
                         <button
                           type="button"
                           onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 p-1"
+                          aria-label={showCurrentPassword ? 'Hide password' : 'Show password'}
                         >
                           {showCurrentPassword ? (
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -428,21 +452,25 @@ export default function AccountPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         New Password
                       </label>
                       <div className="relative">
                         <input
                           type={showNewPassword ? 'text' : 'password'}
                           value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                          className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                          onChange={(e) => {
+                            setNewPassword(e.target.value);
+                            checkPasswordStrength(e.target.value);
+                          }}
+                          className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                           placeholder="Enter new password (min 8 characters)"
                         />
                         <button
                           type="button"
                           onClick={() => setShowNewPassword(!showNewPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 p-1"
+                          aria-label={showNewPassword ? 'Hide password' : 'Show password'}
                         >
                           {showNewPassword ? (
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -456,10 +484,66 @@ export default function AccountPage() {
                           )}
                         </button>
                       </div>
+                      {newPassword && (
+                        <div className="mt-4">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="flex-1 h-2.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full transition-all duration-300 ${
+                                  passwordStrength === 'weak'
+                                    ? 'bg-red-500 w-1/3'
+                                    : passwordStrength === 'medium'
+                                    ? 'bg-yellow-500 w-2/3'
+                                    : passwordStrength === 'strong'
+                                    ? 'bg-green-500 w-full'
+                                    : ''
+                                }`}
+                              />
+                            </div>
+                            <span
+                              className={`text-sm font-semibold min-w-[60px] ${
+                                passwordStrength === 'weak'
+                                  ? 'text-red-600 dark:text-red-400'
+                                  : passwordStrength === 'medium'
+                                  ? 'text-yellow-600 dark:text-yellow-400'
+                                  : passwordStrength === 'strong'
+                                  ? 'text-green-600 dark:text-green-400'
+                                  : 'text-gray-500 dark:text-gray-400'
+                              }`}
+                            >
+                              {passwordStrength === 'weak'
+                                ? 'Weak'
+                                : passwordStrength === 'medium'
+                                ? 'Medium'
+                                : passwordStrength === 'strong'
+                                ? 'Strong'
+                                : ''}
+                            </span>
+                          </div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+                            <div className={`flex items-center gap-2 ${newPassword.length >= 8 ? 'text-green-600 dark:text-green-400' : ''}`}>
+                              <span className="text-base">{newPassword.length >= 8 ? '✓' : '○'}</span>
+                              <span>At least 8 characters</span>
+                            </div>
+                            <div className={`flex items-center gap-2 ${/[a-z]/.test(newPassword) && /[A-Z]/.test(newPassword) ? 'text-green-600 dark:text-green-400' : ''}`}>
+                              <span className="text-base">{/[a-z]/.test(newPassword) && /[A-Z]/.test(newPassword) ? '✓' : '○'}</span>
+                              <span>Uppercase and lowercase letters</span>
+                            </div>
+                            <div className={`flex items-center gap-2 ${/\d/.test(newPassword) ? 'text-green-600 dark:text-green-400' : ''}`}>
+                              <span className="text-base">{/\d/.test(newPassword) ? '✓' : '○'}</span>
+                              <span>At least one number</span>
+                            </div>
+                            <div className={`flex items-center gap-2 ${/[^a-zA-Z\d]/.test(newPassword) ? 'text-green-600 dark:text-green-400' : ''}`}>
+                              <span className="text-base">{/[^a-zA-Z\d]/.test(newPassword) ? '✓' : '○'}</span>
+                              <span>At least one special character</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div>
-                      <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Confirm New Password
                       </label>
                       <div className="relative">
@@ -467,13 +551,14 @@ export default function AccountPage() {
                           type={showConfirmPassword ? 'text' : 'password'}
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
-                          className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                          className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                           placeholder="Confirm new password"
                         />
                         <button
                           type="button"
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 p-1"
+                          aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                         >
                           {showConfirmPassword ? (
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -495,13 +580,14 @@ export default function AccountPage() {
                       </div>
                     )}
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-3 pt-2">
                       <Button
                         onClick={handleChangePassword}
                         disabled={updatingPassword}
                         isLoading={updatingPassword}
                         variant="primary"
-                        size="sm"
+                        size="md"
+                        className="min-h-[44px]"
                       >
                         Change Password
                       </Button>
@@ -512,10 +598,12 @@ export default function AccountPage() {
                           setNewPassword('');
                           setConfirmPassword('');
                           setPasswordError('');
+                          setPasswordStrength('');
                         }}
                         disabled={updatingPassword}
                         variant="secondary"
-                        size="sm"
+                        size="md"
+                        className="min-h-[44px]"
                       >
                         Cancel
                       </Button>

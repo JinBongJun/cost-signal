@@ -677,28 +677,28 @@ export default function Home() {
         {/* User Auth Status */}
         <div className="mb-6 flex justify-center items-center gap-4">
           {session?.user ? (
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                Signed in as {session.user.email}
+            <div className="flex items-center gap-6">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Signed in as <span className="text-gray-900 dark:text-gray-100 font-semibold">{session.user.email}</span>
               </span>
               {hasActiveSubscription ? (
-                <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-sm font-medium">
+                <span className="px-4 py-1.5 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-sm font-semibold">
                   Paid
                 </span>
               ) : (
                 <Link
                   href="/pricing"
-                  className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium hover:bg-blue-200 dark:hover:bg-blue-800"
+                  className="px-4 py-1.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-semibold hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
                 >
                   Upgrade to Paid
                 </Link>
               )}
               <Link href="/account">
-                <Button variant="ghost" size="sm">
+                <Button variant="secondary" size="sm" className="font-semibold min-h-[44px]">
                   Account
                 </Button>
               </Link>
-              <Button onClick={() => signOut()} variant="ghost" size="sm">
+              <Button onClick={() => signOut()} variant="secondary" size="sm" className="font-semibold min-h-[44px]">
                 Sign out
               </Button>
             </div>
