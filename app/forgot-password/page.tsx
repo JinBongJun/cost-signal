@@ -56,12 +56,13 @@ export default function ForgotPasswordPage() {
 
       if (!response.ok) {
         setEmailError(data.error || 'Failed to send reset email');
+        toast.error(data.error || 'Failed to send reset email');
         return;
       }
 
       setSuccess(true);
-      setSuccessMessage(data.message || 'If an account exists, a password reset link has been sent to your email.');
-      toast.success(data.message || 'If an account exists, a password reset link has been sent to your email.');
+      setSuccessMessage(data.message || 'A password reset link has been sent to your email. Please check your inbox and spam folder.');
+      toast.success(data.message || 'A password reset link has been sent to your email.');
     } catch (err) {
       setEmailError('An error occurred. Please try again.');
     } finally {

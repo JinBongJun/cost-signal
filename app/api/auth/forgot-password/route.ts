@@ -67,17 +67,17 @@ export async function POST(request: NextRequest) {
     } else {
       if (!user) {
         console.log('⚠️ User not found for email:', email);
-        // Return a slightly different message for better UX while maintaining security
+        // Return clear message that email is not registered
         return NextResponse.json({
-          message: 'If an account with that email exists and was created with email/password, a password reset link has been sent. If you signed up with Google, please use "Sign in with Google" instead.',
-        });
+          error: 'No account found with this email address. Please check your email or sign up for a new account.',
+        }, { status: 404 });
       } else if (!user.password) {
         console.log('⚠️ User exists but has no password (OAuth-only account):', email);
         console.log('User accounts:', user);
         // User exists but only has OAuth account
         return NextResponse.json({
-          message: 'This email is associated with a Google account. Please use "Sign in with Google" instead. If you need to set a password, please contact support.',
-        });
+          error: 'This email is associated with a Google account. Please use "Sign in with Google" instead.',
+        }, { status: 400 });
       }
     }
 
