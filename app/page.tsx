@@ -14,6 +14,7 @@ import { Card } from '@/components/Card';
 import { SignalCard } from '@/components/SignalCard';
 import { HistorySection } from '@/components/HistorySection';
 import { WelcomeModal } from '@/components/WelcomeModal';
+import { ProfileMenu } from '@/components/ProfileMenu';
 
 interface Signal {
   week_start: string;
@@ -590,142 +591,79 @@ export default function Home() {
     );
   }
 
+  function handleNotificationClick() {
+    if (!isSubscribed) {
+      handleSubscribe();
+    } else {
+      // Open notification settings page
+      window.location.href = '/account/notifications';
+    }
+  }
+
   return (
     <>
       <ToastContainer toasts={toast.toasts} onClose={toast.removeToast} />
       <WelcomeModal />
+      
+      {/* Fixed Header (Google Style) */}
+      <header className="sticky top-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-4xl mx-auto px-4 md:px-8 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <Link href="/" className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 hover:opacity-80 transition-opacity">
+                Cost Signal
+              </Link>
+            </div>
+            <div className="flex items-center gap-4">
+              <Link 
+                href="/faq" 
+                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+              >
+                FAQ
+              </Link>
+              <button
+                onClick={() => {
+                  setShowLearnMore(true);
+                  setTimeout(() => {
+                    const element = document.getElementById('why-cost-signal');
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }, 100);
+                }}
+                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+              >
+                Learn More
+              </button>
+              <ProfileMenu
+                hasActiveSubscription={hasActiveSubscription}
+                isSubscribed={isSubscribed}
+                onNotificationClick={handleNotificationClick}
+              />
+            </div>
+          </div>
+        </div>
+      </header>
+
       <main className="min-h-screen p-4 md:p-8">
         <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <header className="mb-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-2">Cost Signal</h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Weekly economic signal for U.S. consumers
-          </p>
-          <div className="mt-4 flex items-center justify-center gap-4">
-            <button
-              onClick={() => {
-                setShowLearnMore(true);
-                setTimeout(() => {
-                  const element = document.getElementById('why-cost-signal');
-                  if (element) {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  }
-                }, 100);
-              }}
-              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              Learn More →
-            </button>
-            <Link href="/faq" className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
-              FAQ
-            </Link>
-          </div>
-          {!session?.user && (
-            <div className="mt-4 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
+        {/* Welcome Message (for guests) */}
+        {!session?.user && (
+          <div className="mb-6 text-center">
+            <div className="inline-block px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
               <p className="text-sm text-blue-800 dark:text-blue-200">
                 👋 <strong>Welcome!</strong> You can browse for free. <Link href="/signup" className="underline font-medium">Sign up</Link> for full features.
               </p>
             </div>
-          )}
-        </header>
+          </div>
+        )}
 
-        {/* Install & Notification Buttons */}
-        <div className="mb-6 flex flex-col items-center gap-3">
-          {!isInstalled && deferredPrompt && (
-            <Button onClick={handleInstall} variant="success">
+        {/* PWA Install Prompt (minimal) */}
+        {!isInstalled && deferredPrompt && (
+          <div className="mb-4 text-center">
+            <Button onClick={handleInstall} variant="ghost" size="sm">
               📱 Install App
             </Button>
-          )}
-          
-          {/* PWA Install Instructions (if not installed and no prompt) */}
-          {!isInstalled && !deferredPrompt && (
-            <div className="text-center text-sm text-gray-600 dark:text-gray-400 mb-2">
-              <p>💡 Install app: Click the install icon in the address bar or</p>
-              <p>on mobile, go to Menu → "Add to Home Screen"</p>
-            </div>
-          )}
-          
-          {!isSubscribed ? (
-            <Button onClick={handleSubscribe} variant="primary">
-              🔔 Enable Weekly Notifications
-            </Button>
-          ) : (
-            <div className="flex flex-col items-center gap-2">
-              <div className="flex gap-2">
-                <Button onClick={handleUnsubscribe} variant="secondary">
-                  🔕 Disable Notifications
-                </Button>
-                <Button onClick={handleTestNotification} variant="success" size="sm">
-                  🧪 Test Notification
-                </Button>
-              </div>
-              <div className="text-xs text-green-600 dark:text-green-400">
-                ✅ Notifications enabled
-              </div>
-            </div>
-          )}
-          
-          {/* Notification Permission Help */}
-          {!isSubscribed && (
-            <div className="text-center text-xs text-gray-500 dark:text-gray-500 mt-1">
-              <p>⚠️ If the notification popup doesn't appear, please allow notifications in your browser settings</p>
-            </div>
-          )}
-        </div>
-
-        {/* User Auth Status */}
-        <div className="mb-6 flex justify-center items-center gap-4">
-          {session?.user ? (
-            <div className="flex items-center gap-6">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Signed in as <span className="text-gray-900 dark:text-gray-100 font-semibold">{session.user.email}</span>
-              </span>
-              {hasActiveSubscription ? (
-                <span className="px-4 py-1.5 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-sm font-semibold">
-                  Paid
-                </span>
-              ) : (
-                <Link
-                  href="/pricing"
-                  className="px-4 py-1.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-semibold hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
-                >
-                  Upgrade to Paid
-                </Link>
-              )}
-              <Link href="/account">
-                <Button variant="secondary" size="sm" className="font-semibold min-h-[44px]">
-                  Account
-                </Button>
-              </Link>
-              <Button onClick={() => signOut()} variant="secondary" size="sm" className="font-semibold min-h-[44px]">
-                Sign out
-              </Button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-4">
-              <Link href="/login">
-                <Button variant="secondary" size="sm">
-                  Sign In
-                </Button>
-              </Link>
-              <Link href="/signup">
-                <Button variant="primary" size="sm">
-                  Sign Up
-                </Button>
-              </Link>
-            </div>
-          )}
-        </div>
-
-        {/* Tier Display (read-only based on subscription) */}
-        {session?.user && (
-          <div className="mb-6 flex justify-center">
-            <div className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                {hasActiveSubscription ? 'Paid Tier' : 'Free Tier'}
-              </span>
-            </div>
           </div>
         )}
 
@@ -856,33 +794,18 @@ export default function Home() {
           />
         )}
 
-        {/* Footer */}
-        <footer className="text-center text-sm text-gray-500 dark:text-gray-400">
-          <div className="mb-4">
-            <p className="mb-2">
-              Cost Signal provides a neutral summary of economic indicators.
-            </p>
-            <p className="mb-2">
-              This is not financial advice. Data from official U.S. government sources.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4 text-xs mt-3">
-              <span>📊 EIA (Energy Information Administration)</span>
-              <span>📈 BLS (Bureau of Labor Statistics)</span>
-              <span>🏛️ FRED (Federal Reserve Economic Data)</span>
-            </div>
-          </div>
-          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex flex-wrap justify-center gap-4 mb-3">
-              <Link href="/terms" className="text-xs hover:text-gray-700 dark:hover:text-gray-300 underline">
-                Terms of Service
-              </Link>
-              <Link href="/privacy" className="text-xs hover:text-gray-700 dark:hover:text-gray-300 underline">
-                Privacy Policy
-              </Link>
-            </div>
-            <p className="text-xs">
+        {/* Footer (Google Style - Simple) */}
+        <footer className="mt-12 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-600 dark:text-gray-400">
+            <Link href="/terms" className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+              Terms
+            </Link>
+            <Link href="/privacy" className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+              Privacy
+            </Link>
+            <span className="text-gray-500 dark:text-gray-500">
               Updated every Monday
-            </p>
+            </span>
           </div>
         </footer>
       </div>
