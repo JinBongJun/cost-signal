@@ -305,17 +305,10 @@ export default function AccountPage() {
   return (
     <>
       <ToastContainer toasts={toast.toasts} onClose={toast.removeToast} />
+      <Header />
       <main className="min-h-screen p-4 md:p-8 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-4xl mx-auto">
-          <div className="mb-6">
-            <Link href="/">
-              <Button variant="ghost" size="sm">
-                ← Back to home
-              </Button>
-            </Link>
-          </div>
-
-          <h1 className="text-3xl md:text-4xl font-bold mb-8">Account</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-8 mt-6">Account</h1>
 
           {/* Navigation Tabs */}
           <div className="mb-6 flex gap-4 border-b border-gray-200 dark:border-gray-700">

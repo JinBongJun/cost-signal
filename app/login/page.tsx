@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { signIn, getProviders } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Header } from '@/components/Header';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -237,11 +238,6 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <div className="mt-4 text-center">
-            <Link href="/" className="text-sm text-gray-500 dark:text-gray-400 hover:underline">
-              ← Back to home
-            </Link>
-          </div>
         </div>
       </div>
     </main>

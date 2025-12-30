@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useToast, ToastContainer } from '@/components/Toast';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
+import { Header } from '@/components/Header';
 
 export default function PricingPage() {
   const { data: session, status } = useSession();
@@ -176,13 +177,6 @@ export default function PricingPage() {
             ))}
           </div>
 
-          <div className="text-center mb-12">
-            <Link href="/">
-              <Button variant="ghost" size="sm">
-                ← Back to home
-              </Button>
-            </Link>
-          </div>
 
           <Card className="mt-12">
             <div className="text-center">

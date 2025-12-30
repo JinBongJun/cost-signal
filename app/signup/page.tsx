@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { signIn, getProviders } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Header } from '@/components/Header';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -108,13 +109,15 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-900">
-      <div className="w-full max-w-md">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-          <h1 className="text-3xl font-bold text-center mb-2">Cost Signal</h1>
-          <p className="text-center text-gray-600 dark:text-gray-400 mb-8">
-            Create your account
-          </p>
+    <>
+      <Header />
+      <main className="min-h-screen flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-900">
+        <div className="w-full max-w-md">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+            <h1 className="text-3xl font-bold text-center mb-2">Create Account</h1>
+            <p className="text-center text-gray-600 dark:text-gray-400 mb-8">
+              Sign up to access full features
+            </p>
 
           {error && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
@@ -176,13 +179,13 @@ export default function SignupPage() {
                   }}
                   required
                   minLength={8}
-                  className="w-full px-4 py-2 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  placeholder="••••••••"
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  placeholder="Enter password (min 8 characters)"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none transition-colors"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 p-1 min-w-[44px] min-h-[44px] flex items-center justify-center"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
@@ -197,20 +200,62 @@ export default function SignupPage() {
                   )}
                 </button>
               </div>
-              <div className="mt-1 flex items-center gap-2">
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Must be at least 8 characters
-                </p>
-                {passwordStrength && (
-                  <span className={`text-xs font-medium ${
-                    passwordStrength === 'strong' ? 'text-green-600 dark:text-green-400' :
-                    passwordStrength === 'medium' ? 'text-yellow-600 dark:text-yellow-400' :
-                    'text-red-600 dark:text-red-400'
-                  }`}>
-                    ({passwordStrength})
-                  </span>
-                )}
-              </div>
+              {password && (
+                <div className="mt-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="flex-1 h-2.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-300 ${
+                          passwordStrength === 'weak'
+                            ? 'bg-red-500 w-1/3'
+                            : passwordStrength === 'medium'
+                            ? 'bg-yellow-500 w-2/3'
+                            : passwordStrength === 'strong'
+                            ? 'bg-green-500 w-full'
+                            : ''
+                        }`}
+                      />
+                    </div>
+                    <span
+                      className={`text-sm font-semibold min-w-[60px] ${
+                        passwordStrength === 'weak'
+                          ? 'text-red-600 dark:text-red-400'
+                          : passwordStrength === 'medium'
+                          ? 'text-yellow-600 dark:text-yellow-400'
+                          : passwordStrength === 'strong'
+                          ? 'text-green-600 dark:text-green-400'
+                          : 'text-gray-500 dark:text-gray-400'
+                      }`}
+                    >
+                      {passwordStrength === 'weak'
+                        ? 'Weak'
+                        : passwordStrength === 'medium'
+                        ? 'Medium'
+                        : passwordStrength === 'strong'
+                        ? 'Strong'
+                        : ''}
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+                    <div className={`flex items-center gap-2 ${password.length >= 8 ? 'text-green-600 dark:text-green-400' : ''}`}>
+                      <span className="text-base">{password.length >= 8 ? '✓' : '○'}</span>
+                      <span>At least 8 characters</span>
+                    </div>
+                    <div className={`flex items-center gap-2 ${/[a-z]/.test(password) && /[A-Z]/.test(password) ? 'text-green-600 dark:text-green-400' : ''}`}>
+                      <span className="text-base">{/[a-z]/.test(password) && /[A-Z]/.test(password) ? '✓' : '○'}</span>
+                      <span>Uppercase and lowercase letters</span>
+                    </div>
+                    <div className={`flex items-center gap-2 ${/\d/.test(password) ? 'text-green-600 dark:text-green-400' : ''}`}>
+                      <span className="text-base">{/\d/.test(password) ? '✓' : '○'}</span>
+                      <span>At least one number</span>
+                    </div>
+                    <div className={`flex items-center gap-2 ${/[^a-zA-Z\d]/.test(password) ? 'text-green-600 dark:text-green-400' : ''}`}>
+                      <span className="text-base">{/[^a-zA-Z\d]/.test(password) ? '✓' : '○'}</span>
+                      <span>At least one special character</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <button

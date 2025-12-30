@@ -14,7 +14,7 @@ import { Card } from '@/components/Card';
 import { SignalCard } from '@/components/SignalCard';
 import { HistorySection } from '@/components/HistorySection';
 import { WelcomeModal } from '@/components/WelcomeModal';
-import { ProfileMenu } from '@/components/ProfileMenu';
+import { Header } from '@/components/Header';
 
 interface Signal {
   week_start: string;
@@ -438,46 +438,21 @@ export default function Home() {
       <>
         <ToastContainer toasts={toast.toasts} onClose={toast.removeToast} />
         <WelcomeModal />
-        
-        {/* Fixed Header (same as main page) */}
-        <header className="sticky top-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-          <div className="max-w-4xl mx-auto px-4 md:px-8 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-6">
-                <Link href="/" className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 hover:opacity-80 transition-opacity">
-                  Cost Signal
-                </Link>
-              </div>
-              <div className="flex items-center gap-4">
-                <Link 
-                  href="/faq" 
-                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                >
-                  FAQ
-                </Link>
-                <button
-                  onClick={() => {
-                    setShowLearnMore(true);
-                    setTimeout(() => {
-                      const element = document.getElementById('why-cost-signal');
-                      if (element) {
-                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }
-                    }, 100);
-                  }}
-                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                >
-                  Learn More
-                </button>
-                <ProfileMenu
-                  hasActiveSubscription={hasActiveSubscription}
-                  isSubscribed={isSubscribed}
-                  onNotificationClick={handleNotificationClick}
-                />
-              </div>
-            </div>
-          </div>
-        </header>
+        <Header
+          hasActiveSubscription={hasActiveSubscription}
+          isSubscribed={isSubscribed}
+          onNotificationClick={handleNotificationClick}
+          showLearnMore={showLearnMore}
+          onLearnMoreClick={() => {
+            setShowLearnMore(true);
+            setTimeout(() => {
+              const element = document.getElementById('why-cost-signal');
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }, 100);
+          }}
+        />
 
         {/* Simple Loading Spinner (Google Style) */}
         <main className="min-h-screen flex items-center justify-center p-4 md:p-8">
@@ -604,46 +579,21 @@ export default function Home() {
     <>
       <ToastContainer toasts={toast.toasts} onClose={toast.removeToast} />
       <WelcomeModal />
-      
-      {/* Fixed Header (Google Style) */}
-      <header className="sticky top-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-4xl mx-auto px-4 md:px-8 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <Link href="/" className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 hover:opacity-80 transition-opacity">
-                Cost Signal
-              </Link>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link 
-                href="/faq" 
-                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-              >
-                FAQ
-              </Link>
-              <button
-                onClick={() => {
-                  setShowLearnMore(true);
-                  setTimeout(() => {
-                    const element = document.getElementById('why-cost-signal');
-                    if (element) {
-                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                  }, 100);
-                }}
-                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-              >
-                Learn More
-              </button>
-              <ProfileMenu
-                hasActiveSubscription={hasActiveSubscription}
-                isSubscribed={isSubscribed}
-                onNotificationClick={handleNotificationClick}
-              />
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header
+        hasActiveSubscription={hasActiveSubscription}
+        isSubscribed={isSubscribed}
+        onNotificationClick={handleNotificationClick}
+        showLearnMore={showLearnMore}
+        onLearnMoreClick={() => {
+          setShowLearnMore(true);
+          setTimeout(() => {
+            const element = document.getElementById('why-cost-signal');
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }, 100);
+        }}
+      />
 
       <main className="min-h-screen p-4 md:p-8">
         <div className="max-w-4xl mx-auto">
