@@ -8,9 +8,10 @@ interface CardProps {
   padding?: 'sm' | 'md' | 'lg';
   hover?: boolean;
   style?: CSSProperties;
+  id?: string;
 }
 
-export function Card({ children, className = '', padding = 'md', hover = false, style }: CardProps) {
+export function Card({ children, className = '', padding = 'md', hover = false, style, id }: CardProps) {
   const paddings = {
     sm: 'p-4',
     md: 'p-6 md:p-8',
@@ -19,6 +20,7 @@ export function Card({ children, className = '', padding = 'md', hover = false, 
 
   return (
     <div
+      id={id}
       className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg ${paddings[padding]} ${hover ? 'transition-shadow hover:shadow-xl' : ''} ${className}`}
       style={style}
     >
