@@ -107,6 +107,14 @@ export default function LoginPage() {
             </div>
           )}
 
+          {searchParams && searchParams.get('reset') === 'success' && (
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-6">
+              <p className="text-green-800 dark:text-green-200 text-sm">
+                Password reset successful! You can now sign in with your new password.
+              </p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
