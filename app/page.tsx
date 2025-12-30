@@ -82,12 +82,6 @@ export default function Home() {
   const [showHistory, setShowHistory] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [showLearnMore, setShowLearnMore] = useState(false);
-  const [stats, setStats] = useState<{
-    totalUsers: number;
-    notificationSubscribers: number;
-    weeksOfData: number;
-    sinceDate: string | null;
-  } | null>(null);
   const toast = useToast();
 
   useEffect(() => {
@@ -95,7 +89,6 @@ export default function Home() {
     checkSubscriptionStatus();
     checkInstallStatus();
     checkUserSubscription();
-    fetchStats();
     
     // Listen for beforeinstallprompt event
     const handler = (e: Event) => {
@@ -116,17 +109,6 @@ export default function Home() {
     };
   }, [tier, session]);
 
-  async function fetchStats() {
-    try {
-      const response = await fetch('/api/stats');
-      if (response.ok) {
-        const data = await response.json();
-        setStats(data.stats);
-      }
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-    }
-  }
 
   async function checkUserSubscription() {
     if (session?.user) {
@@ -592,7 +574,7 @@ export default function Home() {
           <p className="text-gray-600 dark:text-gray-400">
             Weekly economic signal for U.S. consumers
           </p>
-          <div className="mt-4 flex flex-col items-center gap-3">
+          <div className="mt-4">
             <button
               onClick={() => {
                 setShowLearnMore(true);
@@ -607,28 +589,6 @@ export default function Home() {
             >
               Learn More →
             </button>
-            {stats && (
-              <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-                {stats.totalUsers > 0 && (
-                  <span className="flex items-center gap-1">
-                    <span className="text-blue-600 dark:text-blue-400 font-semibold">{stats.totalUsers.toLocaleString()}</span>
-                    <span>users</span>
-                  </span>
-                )}
-                {stats.notificationSubscribers > 0 && (
-                  <span className="flex items-center gap-1">
-                    <span className="text-green-600 dark:text-green-400 font-semibold">{stats.notificationSubscribers.toLocaleString()}</span>
-                    <span>subscribers</span>
-                  </span>
-                )}
-                {stats.weeksOfData > 0 && (
-                  <span className="flex items-center gap-1">
-                    <span className="text-purple-600 dark:text-purple-400 font-semibold">{stats.weeksOfData}</span>
-                    <span>weeks of data</span>
-                  </span>
-                )}
-              </div>
-            )}
           </div>
           {!session?.user && (
             <div className="mt-4 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
@@ -883,12 +843,6 @@ export default function Home() {
           <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
             <p className="text-xs">
               Updated every Monday
-              {stats && stats.totalUsers > 0 && (
-                <span> • Trusted by {stats.totalUsers.toLocaleString()} {stats.totalUsers === 1 ? 'user' : 'users'}</span>
-              )}
-              {stats && stats.sinceDate && (
-                <span> • Since {new Date(stats.sinceDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
-              )}
             </p>
           </div>
         </footer>
