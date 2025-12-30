@@ -25,6 +25,17 @@ export function WelcomeModal() {
     }
   }
 
+  function handleLearnMore() {
+    handleClose();
+    // Scroll to "Why Cost Signal?" section after a small delay
+    setTimeout(() => {
+      const element = document.getElementById('why-cost-signal');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  }
+
   if (!isOpen) return null;
 
   return (
@@ -74,7 +85,7 @@ export function WelcomeModal() {
           <Button onClick={handleClose} variant="primary" className="flex-1">
             Get Started
           </Button>
-          <Button onClick={handleClose} variant="secondary" className="flex-1">
+          <Button onClick={handleLearnMore} variant="secondary" className="flex-1">
             Learn More
           </Button>
         </div>

@@ -565,6 +565,19 @@ export default function Home() {
           <p className="text-gray-600 dark:text-gray-400">
             Weekly economic signal for U.S. consumers
           </p>
+          <div className="mt-4">
+            <button
+              onClick={() => {
+                const element = document.getElementById('why-cost-signal');
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              }}
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Learn More →
+            </button>
+          </div>
           {!session?.user && (
             <div className="mt-4 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
               <p className="text-sm text-blue-800 dark:text-blue-200">
@@ -690,8 +703,7 @@ export default function Home() {
         )}
 
         {/* Why Cost Signal Section */}
-        {!session?.user && (
-          <Card className="mb-6 animate-fade-in">
+        <Card id="why-cost-signal" className="mb-6 animate-fade-in">
             <div className="text-center mb-6">
               <h2 className="text-2xl md:text-3xl font-bold mb-2">Why Cost Signal?</h2>
               <p className="text-gray-600 dark:text-gray-400">
@@ -740,7 +752,6 @@ export default function Home() {
               </div>
             </div>
           </Card>
-        )}
 
         {/* History Section (Paid tier only) */}
         {tier === 'paid' && signal && (
