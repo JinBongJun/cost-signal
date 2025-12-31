@@ -185,3 +185,4 @@ Paddle-Signature: ts=1234567890;h1=abc123def456...
 
 이제 Paddle webhook 요청이 실제로 Paddle에서 온 것인지 안전하게 확인할 수 있습니다!
 
+

@@ -275,3 +275,4 @@ Get a simple signal: 🟢 OK, 🟡 CAUTION, or 🔴 RISK
 3. **분석**: 전환율, 이탈률 추적
 4. **반복**: 데이터 기반 개선
 
+

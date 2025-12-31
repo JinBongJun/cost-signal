@@ -15,14 +15,24 @@ This guide explains how to set up Resend for password reset emails.
 3. Name it (e.g., "Cost Signal Production")
 4. Copy the API key (you'll only see it once!)
 
-## 3. Verify Your Domain (Optional but Recommended)
+## 3. Verify Your Domain (REQUIRED for Production)
 
-For production, you should verify your domain:
+**⚠️ IMPORTANT:** The test domain `onboarding@resend.dev` can only send emails to your registered email address. To send emails to all users, you MUST verify a domain.
 
-1. Go to https://resend.com/domains
-2. Click "Add Domain"
-3. Follow the DNS setup instructions
-4. Once verified, you can use emails like `noreply@yourdomain.com`
+### Why Domain Verification is Required
+
+- Test domain (`onboarding@resend.dev`) only works for your registered email
+- Production requires a verified domain to send to any email address
+- See `RESEND_DOMAIN_SETUP.md` for detailed instructions
+
+### Quick Steps:
+
+1. Purchase a domain (if you don't have one) - ~$10-15/year
+2. Go to https://resend.com/domains
+3. Click "Add Domain"
+4. Follow the DNS setup instructions
+5. Wait for DNS propagation (1-24 hours)
+6. Once verified, use emails like `noreply@yourdomain.com`
 
 ## 4. Set Up Environment Variables
 

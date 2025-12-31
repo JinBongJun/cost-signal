@@ -3,21 +3,18 @@
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { ProfileMenu } from './ProfileMenu';
+import { ThemeToggle } from './ThemeToggle';
 
 interface HeaderProps {
   hasActiveSubscription?: boolean;
   isSubscribed?: boolean;
   onNotificationClick?: () => void;
-  showLearnMore?: boolean;
-  onLearnMoreClick?: () => void;
 }
 
 export function Header({ 
   hasActiveSubscription = false, 
   isSubscribed = false,
-  onNotificationClick = () => {},
-  showLearnMore = false,
-  onLearnMoreClick = () => {}
+  onNotificationClick = () => {}
 }: HeaderProps) {
   const { data: session } = useSession();
 
@@ -37,14 +34,19 @@ export function Header({
             >
               FAQ
             </Link>
-            {onLearnMoreClick && (
-              <button
-                onClick={onLearnMoreClick}
-                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-              >
-                Learn More
-              </button>
-            )}
+            <Link 
+              href="/feedback" 
+              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+            >
+              Feedback
+            </Link>
+            <Link 
+              href="/learn-more" 
+              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+            >
+              Learn More
+            </Link>
+            <ThemeToggle />
             {session?.user ? (
               <ProfileMenu
                 hasActiveSubscription={hasActiveSubscription}
@@ -71,4 +73,5 @@ export function Header({
     </header>
   );
 }
+
 

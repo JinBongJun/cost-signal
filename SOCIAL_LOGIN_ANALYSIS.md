@@ -132,3 +132,4 @@ GOOGLE_CLIENT_SECRET=your_google_client_secret
 
 **제 추천**: 나중에 프로덕션 준비할 때 한 번에 추가하는 것이 좋습니다. 지금은 테스트 단계이므로 이메일/비밀번호로 충분합니다.
 
+

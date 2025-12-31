@@ -39,3 +39,4 @@ VAPID_EMAIL=bongjun0289@gmail.com
 
 **기존 VAPID 키를 그대로 사용하세요!** 새로 생성한 키는 무시하셔도 됩니다.
 
+

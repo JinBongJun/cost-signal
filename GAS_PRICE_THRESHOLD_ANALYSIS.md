@@ -125,3 +125,4 @@ if (consecutiveIncreases >= 3) {  // 2 → 3
 - 진짜 중요한 변화만 감지
 - 사용자 신뢰도 향상
 
+

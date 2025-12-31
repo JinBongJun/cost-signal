@@ -112,7 +112,7 @@ export default function FAQPage() {
               Still have questions?
             </h3>
             <p className="text-blue-800 dark:text-blue-200 mb-4">
-              Check out our <Link href="/" className="underline font-medium">Learn More</Link> section or contact support through your account settings.
+              Check out our <Link href="/learn-more" className="underline font-medium">Learn More</Link> page or contact support through your account settings.
             </p>
           </div>
         </Card>

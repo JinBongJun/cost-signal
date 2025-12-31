@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from './Button';
 import { Card } from './Card';
 
 export function WelcomeModal() {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     // Check if user has seen the welcome modal before
@@ -27,17 +29,7 @@ export function WelcomeModal() {
 
   function handleLearnMore() {
     handleClose();
-    // Trigger custom event to show Learn More section
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('showLearnMore'));
-    }
-    // Scroll to section after a small delay
-    setTimeout(() => {
-      const element = document.getElementById('why-cost-signal');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 200);
+    router.push('/learn-more');
   }
 
   if (!isOpen) return null;

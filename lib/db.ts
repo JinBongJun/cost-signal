@@ -461,6 +461,27 @@ class Database {
     }
   }
 
+  async createFeedback(feedback: {
+    type: 'bug' | 'feature' | 'general';
+    subject: string;
+    message: string;
+    userEmail?: string;
+  }): Promise<void> {
+    const { error } = await supabase
+      .from('feedback')
+      .insert({
+        type: feedback.type,
+        subject: feedback.subject,
+        message: feedback.message,
+        user_email: feedback.userEmail || null,
+        status: 'pending',
+      });
+
+    if (error) {
+      throw new Error(`Failed to create feedback: ${error.message}`);
+    }
+  }
+
   close() {
     // Supabase client doesn't need explicit closing
     return Promise.resolve();

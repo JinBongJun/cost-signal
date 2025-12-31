@@ -98,3 +98,4 @@ if (fs.existsSync(swPath)) {
   console.warn('⚠️ Service worker file not found:', swPath);
 }
 
+

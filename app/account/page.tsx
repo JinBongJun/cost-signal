@@ -613,6 +613,24 @@ export default function AccountPage() {
                   </Button>
                 ) : null}
               </div>
+
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <h3 className="text-sm font-medium text-red-600 dark:text-red-400 mb-2">
+                  Danger Zone
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                  Once you delete your account, there is no going back. Please be certain.
+                </p>
+                <Link href="/account/delete">
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    className="min-h-[44px]"
+                  >
+                    Delete Account
+                  </Button>
+                </Link>
+              </div>
             </div>
           </Card>
 

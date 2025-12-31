@@ -57,3 +57,4 @@ https://cost-signal.vercel.app/api/signal
 - **Status: CAUTION** (노란색)
 - **Risk Count: 1**
 
+

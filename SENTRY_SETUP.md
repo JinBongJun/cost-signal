@@ -78,3 +78,4 @@ SENTRY_ENABLE_IN_DEV=true
 - Source maps are automatically uploaded during build (if auth token is provided)
 - Errors are filtered to exclude known non-critical issues (network errors, etc.)
 
+

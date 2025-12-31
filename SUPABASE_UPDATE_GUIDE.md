@@ -79,3 +79,4 @@ CHECK (status IN ('ok', 'caution', 'risk'));
 2. 새로운 데이터부터 `'caution'` 상태가 사용됩니다
 3. 기존 데이터는 그대로 유지됩니다
 
+

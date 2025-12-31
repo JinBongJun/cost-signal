@@ -70,3 +70,4 @@
 - 로컬 (localhost:3000) → Git push 불필요
 - Vercel (cost-signal.vercel.app) → Git push 필요
 
+

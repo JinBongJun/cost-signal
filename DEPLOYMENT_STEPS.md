@@ -147,3 +147,4 @@ curl -X POST https://your-domain.vercel.app/api/cron
 - [ ] 자동화된 주간 업데이트 설정
 
 
+

@@ -13,3 +13,4 @@ console.log('1. NEXTAUTH_SECRET = ' + secret);
 console.log('2. NEXTAUTH_URL = https://cost-signal.vercel.app\n');
 
 
+

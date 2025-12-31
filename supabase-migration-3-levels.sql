@@ -12,3 +12,4 @@ CHECK (status IN ('ok', 'caution', 'risk'));
 -- Note: Existing data with 'ok' or 'risk' status will remain unchanged
 -- New data can now use 'caution' status
 
+

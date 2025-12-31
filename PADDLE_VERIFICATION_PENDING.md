@@ -134,3 +134,4 @@ curl -X POST http://localhost:3000/api/paddle/webhook \
 
 **결론**: 검증이 완료되지 않아도 개발은 계속할 수 있습니다! Webhook Secret만 나중에 추가하면 됩니다. 🎉
 
+
