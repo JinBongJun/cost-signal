@@ -34,6 +34,13 @@ export async function POST(request: NextRequest) {
 
     const { plan } = body;
 
+    if (!plan || typeof plan !== 'string') {
+      return NextResponse.json(
+        { error: 'Plan is required' },
+        { status: 400 }
+      );
+    }
+
     // Map plan to Paddle price ID (from environment variables)
     const priceIdMap: Record<string, string> = {
       monthly: process.env.PADDLE_PRICE_ID_MONTHLY || '',
