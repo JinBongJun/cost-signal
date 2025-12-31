@@ -44,6 +44,10 @@ export default function AccountPage() {
   const [editingName, setEditingName] = useState(false);
   const [newName, setNewName] = useState(session?.user?.name || '');
   const [updatingName, setUpdatingName] = useState(false);
+  const [editingEmail, setEditingEmail] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [updatingEmail, setUpdatingEmail] = useState(false);
+  const [emailError, setEmailError] = useState('');
   const [changingPassword, setChangingPassword] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -242,6 +246,55 @@ export default function AccountPage() {
     }
   }
 
+  async function handleRequestEmailChange() {
+    if (!newEmail.trim()) {
+      setEmailError('Email is required');
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail.trim())) {
+      setEmailError('Invalid email format');
+      return;
+    }
+
+    // Check if new email is the same as current email
+    if (newEmail.trim().toLowerCase() === session?.user?.email?.toLowerCase()) {
+      setEmailError('New email must be different from your current email');
+      return;
+    }
+
+    setUpdatingEmail(true);
+    setEmailError('');
+    
+    try {
+      const response = await fetch('/api/account/email/request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ newEmail: newEmail.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to request email change');
+      }
+
+      toast.success('Verification email sent! Please check your new email inbox and click the confirmation link.');
+      setEditingEmail(false);
+      setNewEmail('');
+    } catch (error) {
+      console.error('Error requesting email change:', error);
+      setEmailError(error instanceof Error ? error.message : 'Failed to request email change');
+      toast.error(error instanceof Error ? error.message : 'Failed to request email change');
+    } finally {
+      setUpdatingEmail(false);
+    }
+  }
+
   async function handleCancelSubscription() {
     if (!subscription) {
       return;
@@ -379,9 +432,54 @@ export default function AccountPage() {
                   Email
                 </label>
                 <p className="text-gray-600 dark:text-gray-400">{session.user.email}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Email is your account identifier and cannot be changed. If you need to change your email, please contact support.
-                </p>
+                {!editingEmail && (
+                  <Button
+                    onClick={() => setEditingEmail(true)}
+                    variant="ghost"
+                    size="sm"
+                    className="mt-2"
+                  >
+                    Change Email
+                  </Button>
+                )}
+                {editingEmail && (
+                  <div className="mt-2 space-y-2">
+                    <input
+                      type="email"
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      placeholder="New email address"
+                      autoFocus
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={handleRequestEmailChange}
+                        disabled={updatingEmail || !newEmail.trim()}
+                        isLoading={updatingEmail}
+                        variant="primary"
+                        size="sm"
+                      >
+                        Send Verification Email
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setEditingEmail(false);
+                          setNewEmail('');
+                          setEmailError('');
+                        }}
+                        variant="ghost"
+                        size="sm"
+                        disabled={updatingEmail}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                    {emailError && (
+                      <p className="text-sm text-red-600 dark:text-red-400">{emailError}</p>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div>

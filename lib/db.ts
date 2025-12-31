@@ -338,6 +338,64 @@ class Database {
     }
   }
 
+  // Email change token methods
+  async createEmailChangeToken(userId: string, newEmail: string, token: string, expiresAt: Date): Promise<void> {
+    // Invalidate any existing tokens for this user
+    await supabase
+      .from('email_change_tokens')
+      .update({ used: true })
+      .eq('user_id', userId)
+      .eq('used', false);
+
+    const { error } = await supabase
+      .from('email_change_tokens')
+      .insert({
+        user_id: userId,
+        new_email: newEmail,
+        token,
+        expires_at: expiresAt.toISOString(),
+        used: false,
+      });
+
+    if (error) {
+      throw new Error(`Failed to create email change token: ${error.message}`);
+    }
+  }
+
+  async getEmailChangeToken(token: string): Promise<{ userId: string; newEmail: string; expiresAt: Date } | null> {
+    const { data, error } = await supabase
+      .from('email_change_tokens')
+      .select('user_id, new_email, expires_at, used')
+      .eq('token', token)
+      .eq('used', false)
+      .single();
+
+    if (error || !data) return null;
+
+    const expiresAt = new Date(data.expires_at);
+    if (expiresAt < new Date()) {
+      // Token expired
+      return null;
+    }
+
+    return {
+      userId: data.user_id,
+      newEmail: data.new_email,
+      expiresAt,
+    };
+  }
+
+  async markEmailChangeTokenAsUsed(token: string): Promise<void> {
+    const { error } = await supabase
+      .from('email_change_tokens')
+      .update({ used: true })
+      .eq('token', token);
+
+    if (error) {
+      throw new Error(`Failed to mark token as used: ${error.message}`);
+    }
+  }
+
   async getAccountByProvider(provider: string, providerAccountId: string): Promise<any | null> {
     const { data, error } = await supabase
       .from('accounts')
