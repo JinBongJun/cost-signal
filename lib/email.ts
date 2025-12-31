@@ -241,31 +241,40 @@ This link will expire in 1 hour. If you didn't request this change, you can safe
       console.error('❌ Error details:', JSON.stringify(error, null, 2));
       console.error('❌ Error message:', error.message);
       console.error('❌ Error name:', error.name);
+      console.error('❌ Error statusCode:', error.statusCode);
       console.error('❌ Attempted to send to:', newEmail);
       console.error('❌ RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL);
       
       // Check for specific Resend errors
       if (error.message?.includes('domain') || error.message?.includes('Domain') || error.message?.includes('verify a domain')) {
+        // Domain might be verified but error message is generic - check statusCode
+        if (error.statusCode === 403) {
+          return { 
+            success: false, 
+            error: 'Email sending failed. Please check that the domain is verified in Resend and try again.' 
+          };
+        }
         return { 
           success: false, 
-          error: 'Email domain not verified. Currently, we can only send verification emails to registered email addresses. Please contact support or use your registered email address (bongjun0289@daum.net) for now.' 
+          error: 'Email domain not verified. Please ensure the domain is verified in Resend.' 
         };
       }
       
       if (error.message?.includes('testing') || error.message?.includes('test') || error.message?.includes('only send testing emails')) {
         return { 
           success: false, 
-          error: 'This email address cannot receive emails from the test domain. Please use your registered email address (bongjun0289@daum.net) or contact support to verify the domain.' 
+          error: 'This email address cannot receive emails from the test domain. Please verify your domain in Resend.' 
         };
       }
       
       if (error.statusCode === 403) {
         return { 
           success: false, 
-          error: 'Email sending is currently limited to registered addresses. Please contact support to enable email changes to other addresses.' 
+          error: 'Email sending failed. Please verify your domain is properly configured in Resend.' 
         };
       }
       
+      // Return the actual error message from Resend
       return { success: false, error: error.message || 'Failed to send email' };
     }
 
