@@ -49,7 +49,10 @@ export function ProfileMenu({ hasActiveSubscription, isSubscribed, onNotificatio
     );
   }
 
-  const userInitial = session.user.email?.charAt(0).toUpperCase() || 'U';
+  // Use name initial if available, otherwise use email initial
+  const userInitial = session.user.name?.charAt(0).toUpperCase() || 
+                      session.user.email?.charAt(0).toUpperCase() || 
+                      'U';
 
   return (
     <div className="relative" ref={menuRef}>

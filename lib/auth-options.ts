@@ -135,15 +135,34 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger }) {
       if (user) {
         token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
       }
+      
+      // If session is being updated (e.g., after profile change), refresh user data from DB
+      if (trigger === 'update' && token.id) {
+        try {
+          const db = getDb();
+          const dbUser = await db.getUserById(token.id as string);
+          if (dbUser) {
+            token.email = dbUser.email;
+            token.name = dbUser.name;
+          }
+        } catch (error) {
+          console.error('Error refreshing user data in JWT:', error);
+        }
+      }
+      
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         (session.user as any).id = token.id as string;
+        session.user.email = token.email as string;
+        session.user.name = token.name as string | null | undefined;
       }
       return session;
     },

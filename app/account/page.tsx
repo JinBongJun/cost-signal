@@ -141,8 +141,15 @@ export default function AccountPage() {
 
       toast.success('Name updated successfully');
       setEditingName(false);
-      // Refresh session to get updated name
-      window.location.reload();
+      
+      // Update session to reflect the new name
+      const { update } = await import('next-auth/react');
+      await update();
+      
+      // Also reload to ensure all components get the updated session
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (error) {
       console.error('Error updating name:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to update name');
