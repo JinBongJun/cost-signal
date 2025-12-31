@@ -54,8 +54,11 @@ export async function POST(request: NextRequest) {
         await handleTransactionCompleted(event.data, db);
         break;
 
-      default:
-        console.log('Unhandled webhook event:', event.event_type);
+      default: {
+        // TypeScript exhaustive check
+        const _exhaustive: never = event;
+        console.log('Unhandled webhook event:', (_exhaustive as PaddleWebhookEvent).event_type);
+      }
     }
 
     return NextResponse.json({ received: true });
