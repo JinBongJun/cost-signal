@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { update as updateSession } from 'next-auth/react';
 import Link from 'next/link';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
@@ -143,8 +144,7 @@ export default function AccountPage() {
       setEditingName(false);
       
       // Update session to reflect the new name
-      const { update } = await import('next-auth/react');
-      await update();
+      await updateSession();
       
       // Also reload to ensure all components get the updated session
       setTimeout(() => {
