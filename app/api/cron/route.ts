@@ -14,9 +14,47 @@ export const dynamic = 'force-dynamic';
  */
 async function handleCron(request: NextRequest) {
   try {
-    // Rate limiting (except for Vercel Cron)
+    // Security: Verify request is from authorized source
     const isVercelCron = request.headers.get('x-vercel-signature') !== null;
+    const cronSecret = request.headers.get('authorization')?.replace('Bearer ', '') || 
+                       request.headers.get('x-cron-secret') || 
+                       request.nextUrl.searchParams.get('secret');
+    const expectedSecret = process.env.CRON_SECRET;
+    const isDevelopment = process.env.NODE_ENV === 'development';
+
+    // Security check: Allow only if:
+    // 1. From Vercel Cron (has x-vercel-signature header) - most secure
+    // 2. Has valid CRON_SECRET (for manual/external calls)
+    // 3. Development mode (for local testing only)
     if (!isVercelCron) {
+      if (isDevelopment && !expectedSecret) {
+        // Development mode without secret - allow for local testing
+        console.log('⚠️ Development mode: Allowing cron without authentication');
+      } else if (expectedSecret) {
+        // Production or development with secret - require authentication
+        if (!cronSecret || cronSecret !== expectedSecret) {
+          console.warn('❌ Unauthorized cron attempt:', {
+            hasSecret: !!cronSecret,
+            hasExpectedSecret: !!expectedSecret,
+            isVercelCron,
+            isDevelopment,
+            ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+          });
+          return NextResponse.json(
+            { error: 'Unauthorized. Valid CRON_SECRET required.' },
+            { status: 401 }
+          );
+        }
+      } else {
+        // Production mode without secret configured - deny
+        console.error('❌ CRON_SECRET not configured in production');
+        return NextResponse.json(
+          { error: 'Server configuration error' },
+          { status: 500 }
+        );
+      }
+
+      // Rate limiting for non-Vercel Cron requests
       const ip = request.headers.get('x-forwarded-for') || 
                  request.headers.get('x-real-ip') || 
                  'unknown';
@@ -26,30 +64,6 @@ async function handleCron(request: NextRequest) {
         return NextResponse.json(
           { error: 'Too many requests. Please try again later.' },
           { status: 429 }
-        );
-      }
-    }
-
-    // Security: Verify request is from authorized source
-    // Vercel Cron automatically sends x-vercel-signature header
-    // For manual calls, require CRON_SECRET
-    const cronSecret = request.headers.get('authorization')?.replace('Bearer ', '');
-    const expectedSecret = process.env.CRON_SECRET;
-
-    // Allow if:
-    // 1. From Vercel Cron (has x-vercel-signature header)
-    // 2. Has valid CRON_SECRET (for manual calls)
-    // 3. Development mode without secret (for testing)
-    if (!isVercelCron && expectedSecret) {
-      if (!cronSecret || cronSecret !== expectedSecret) {
-        console.warn('Unauthorized cron attempt:', {
-          hasSecret: !!cronSecret,
-          hasExpectedSecret: !!expectedSecret,
-          isVercelCron,
-        });
-        return NextResponse.json(
-          { error: 'Unauthorized' },
-          { status: 401 }
         );
       }
     }
