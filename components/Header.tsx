@@ -7,13 +7,13 @@ import { ThemeToggle } from './ThemeToggle';
 
 interface HeaderProps {
   hasActiveSubscription?: boolean;
-  isSubscribed?: boolean;
+  isSubscribed?: boolean | null; // null = checking, true/false = known state
   onNotificationClick?: () => void;
 }
 
 export function Header({ 
   hasActiveSubscription = false, 
-  isSubscribed = false,
+  isSubscribed = null,
   onNotificationClick = () => {}
 }: HeaderProps) {
   const { data: session } = useSession();
