@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getDb } from '@/lib/db';
 import { rateLimit } from '@/lib/rate-limit';
+import { sendFeedbackNotification } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,11 +46,20 @@ export async function POST(request: NextRequest) {
     }
 
     const db = getDb();
-    await db.createFeedback({
+    const feedbackData = {
       type,
       subject: subject.trim(),
       message: message.trim(),
       userEmail: session?.user?.email || userEmail || undefined,
+    };
+
+    // Save feedback to database
+    await db.createFeedback(feedbackData);
+
+    // Send notification email to admin (non-blocking)
+    sendFeedbackNotification(feedbackData).catch((error) => {
+      console.error('Failed to send feedback notification email:', error);
+      // Don't fail the request if email fails
     });
 
     return NextResponse.json({
