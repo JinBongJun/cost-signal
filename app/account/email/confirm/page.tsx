@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/Button';
 import { useToast, ToastContainer } from '@/components/Toast';
@@ -45,10 +46,13 @@ function EmailConfirmContent() {
         setMessage(data.message || 'Your email has been changed successfully.');
         toast.success('Email changed successfully! Please sign in again with your new email.');
 
-        // Redirect to login after 3 seconds
+        // Sign out to clear session with old email
+        await signOut({ redirect: false });
+
+        // Redirect to login after 2 seconds
         setTimeout(() => {
           router.push('/login');
-        }, 3000);
+        }, 2000);
       } catch (error) {
         console.error('Error confirming email change:', error);
         setStatus('error');
