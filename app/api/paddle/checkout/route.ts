@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { createCheckoutSession } from '@/lib/paddle';
+import type { SessionUser } from '@/lib/types';
 
 /**
  * POST /api/paddle/checkout
@@ -21,7 +22,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    let body: { plan?: string };
+    try {
+      body = await request.json();
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      );
+    }
+
     const { plan } = body;
 
     // Map plan to Paddle price ID (from environment variables)
@@ -41,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     // Create checkout session
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const userId = (session.user as any).id;
+    const userId = (session.user as SessionUser).id;
     if (!userId) {
       return NextResponse.json(
         { error: 'User ID not found' },

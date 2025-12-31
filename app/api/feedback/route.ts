@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'Feedback submitted successfully',
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Feedback submission error:', error);
     return NextResponse.json(
       { error: 'An error occurred while submitting feedback. Please try again later.' },

@@ -92,7 +92,7 @@ export async function DELETE(request: NextRequest) {
       success: true,
       message: 'Account deleted successfully',
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Account deletion error:', error);
     return NextResponse.json(
       { error: 'An error occurred while deleting your account. Please try again or contact support.' },

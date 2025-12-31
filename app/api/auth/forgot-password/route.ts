@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       message: 'A password reset link has been sent to your email. Please check your inbox and spam folder.',
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Forgot password error:', error);
     return NextResponse.json(
       { error: 'An error occurred. Please try again later.' },

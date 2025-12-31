@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getDb } from '@/lib/db';
 import { getTransactions } from '@/lib/paddle';
+import type { SessionUser } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const userId = (session.user as any).id;
+    const userId = (session.user as SessionUser).id;
     if (!userId) {
       return NextResponse.json(
         { error: 'User ID not found' },
@@ -53,7 +54,7 @@ export async function GET(request: NextRequest) {
     const transactions = await getTransactions(subscriptionId);
 
     return NextResponse.json({
-      transactions: transactions.map((tx: any) => ({
+      transactions: transactions.map((tx: { id: string; status: string; totals?: { total: string }; total?: string; currency_code?: string; created_at: string; billing_period?: unknown }) => ({
         id: tx.id,
         status: tx.status,
         total: tx.totals?.total || tx.total || '0',

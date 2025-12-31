@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { verifyWebhookSignature } from '@/lib/paddle';
+import type { PaddleWebhookEvent, PaddleSubscriptionData, PaddleTransactionData, Database } from '@/lib/types';
 
 /**
  * POST /api/paddle/webhook
@@ -26,8 +27,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const event = JSON.parse(body);
-    const db = getDb();
+    let event: PaddleWebhookEvent;
+    try {
+      event = JSON.parse(body);
+    } catch (error) {
+      console.error('Invalid JSON in webhook body:', error);
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      );
+    }
+    const db = getDb() as Database;
 
     // Handle different event types
     switch (event.event_type) {
@@ -58,7 +68,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function handleSubscriptionUpdate(data: any, db: any) {
+async function handleSubscriptionUpdate(data: PaddleSubscriptionData, db: Database) {
   const subscription = data;
   const userId = subscription.custom_data?.user_id || subscription.customer_id;
 
@@ -87,7 +97,7 @@ async function handleSubscriptionUpdate(data: any, db: any) {
   });
 }
 
-async function handleSubscriptionCanceled(data: any, db: any) {
+async function handleSubscriptionCanceled(data: PaddleSubscriptionData, db: Database) {
   const subscription = data;
   const existing = await db.getSubscriptionByStripeId(subscription.id);
 
@@ -106,7 +116,7 @@ async function handleSubscriptionCanceled(data: any, db: any) {
   }
 }
 
-async function handleTransactionCompleted(data: any, db: any) {
+async function handleTransactionCompleted(data: PaddleTransactionData, db: Database) {
   // Transaction completed - subscription should already be created
   // Just log for now
   console.log('Transaction completed:', data.id);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getDb } from '@/lib/db';
+import type { SessionUser } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,7 +20,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const userId = (session.user as any).id;
+    const userId = (session.user as SessionUser).id;
     if (!userId) {
       return NextResponse.json(
         { error: 'User ID not found' },
@@ -27,21 +28,48 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    const { name } = body;
-
-    if (name !== undefined && typeof name !== 'string') {
+    let body;
+    try {
+      body = await request.json();
+    } catch (error) {
       return NextResponse.json(
-        { error: 'Invalid name format' },
+        { error: 'Invalid JSON in request body' },
         { status: 400 }
       );
+    }
+
+    const { name } = body;
+
+    if (name !== undefined) {
+      if (typeof name !== 'string') {
+        return NextResponse.json(
+          { error: 'Invalid name format' },
+          { status: 400 }
+        );
+      }
+      
+      const trimmedName = name.trim();
+      if (trimmedName.length === 0) {
+        return NextResponse.json(
+          { error: 'Name cannot be empty' },
+          { status: 400 }
+        );
+      }
+      
+      if (trimmedName.length > 100) {
+        return NextResponse.json(
+          { error: 'Name must be 100 characters or less' },
+          { status: 400 }
+        );
+      }
     }
 
     const db = getDb();
     
     // Update user name in database
     try {
-      await db.updateUser(userId, { name: name?.trim() || null });
+      const trimmedName = name ? name.trim() : null;
+      await db.updateUser(userId, { name: trimmedName || null });
     } catch (error) {
       console.error('Error updating user:', error);
       return NextResponse.json(

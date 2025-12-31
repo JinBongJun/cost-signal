@@ -7,12 +7,37 @@ import { getDb } from '@/lib/db';
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      );
+    }
+
     const { endpoint, keys } = body;
 
     if (!endpoint || !keys || !keys.p256dh || !keys.auth) {
       return NextResponse.json(
         { error: 'Invalid subscription data' },
+        { status: 400 }
+      );
+    }
+
+    // Validate endpoint URL
+    if (typeof endpoint !== 'string' || !endpoint.startsWith('https://')) {
+      return NextResponse.json(
+        { error: 'Invalid endpoint URL. Must be a valid HTTPS URL.' },
+        { status: 400 }
+      );
+    }
+
+    // Validate endpoint length (reasonable limit)
+    if (endpoint.length > 2048) {
+      return NextResponse.json(
+        { error: 'Endpoint URL is too long' },
         { status: 400 }
       );
     }

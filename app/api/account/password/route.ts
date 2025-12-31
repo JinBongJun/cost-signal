@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getDb } from '@/lib/db';
 import bcrypt from 'bcryptjs';
+import type { SessionUser } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +21,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const userId = (session.user as any).id;
+    const userId = (session.user as SessionUser).id;
     if (!userId) {
       return NextResponse.json(
         { error: 'User ID not found' },
@@ -31,9 +32,16 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json();
     const { currentPassword, newPassword } = body;
 
-    if (!currentPassword || !newPassword) {
+    if (!currentPassword || typeof currentPassword !== 'string') {
       return NextResponse.json(
-        { error: 'Current password and new password are required' },
+        { error: 'Current password is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!newPassword || typeof newPassword !== 'string') {
+      return NextResponse.json(
+        { error: 'New password is required' },
         { status: 400 }
       );
     }
