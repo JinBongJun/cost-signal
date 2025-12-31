@@ -237,14 +237,39 @@ This link will expire in 1 hour. If you didn't request this change, you can safe
     });
 
     if (error) {
-      console.error('Resend error:', error);
-      return { success: false, error: error.message };
+      console.error('❌ Resend API error:', error);
+      console.error('❌ Error details:', JSON.stringify(error, null, 2));
+      console.error('❌ Error message:', error.message);
+      console.error('❌ Error name:', error.name);
+      console.error('❌ Attempted to send to:', newEmail);
+      console.error('❌ RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL);
+      
+      // Check for specific Resend errors
+      if (error.message?.includes('domain') || error.message?.includes('Domain')) {
+        return { 
+          success: false, 
+          error: 'Email domain not verified. Please contact support or use a verified email address.' 
+        };
+      }
+      
+      if (error.message?.includes('testing') || error.message?.includes('test')) {
+        return { 
+          success: false, 
+          error: 'This email address cannot receive emails from the test domain. Please contact support.' 
+        };
+      }
+      
+      return { success: false, error: error.message || 'Failed to send email' };
     }
 
-    console.log('Email change confirmation email sent successfully. Email ID:', data?.id);
+    console.log('✅ Email change confirmation email sent successfully. Email ID:', data?.id);
+    console.log('✅ Sent to:', newEmail);
     return { success: true, data };
   } catch (error: any) {
-    console.error('Email send error:', error);
+    console.error('❌ Email send exception:', error);
+    console.error('❌ Error type:', error?.constructor?.name);
+    console.error('❌ Error message:', error?.message);
+    console.error('❌ Error stack:', error?.stack);
     return { success: false, error: error.message || 'Failed to send email' };
   }
 }

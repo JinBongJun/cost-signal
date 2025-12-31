@@ -100,12 +100,19 @@ export async function POST(request: NextRequest) {
     const emailResult = await sendEmailChangeEmail(newEmail.toLowerCase(), token);
     
     if (!emailResult.success) {
-      console.error('Failed to send email change email:', emailResult.error);
+      console.error('❌ Failed to send email change email:', emailResult.error);
+      console.error('❌ New email:', newEmail.toLowerCase());
+      console.error('❌ User ID:', userId);
+      
+      // Return more specific error message
+      const errorMessage = emailResult.error || 'Failed to send verification email';
       return NextResponse.json(
-        { error: 'Failed to send verification email. Please try again later.' },
+        { error: errorMessage },
         { status: 500 }
       );
     }
+    
+    console.log('✅ Email change verification email sent successfully to:', newEmail.toLowerCase());
 
     return NextResponse.json({
       success: true,
