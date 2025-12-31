@@ -17,10 +17,19 @@ export interface SessionUser {
 /**
  * Paddle webhook event types
  */
-export interface PaddleWebhookEvent {
-  event_type: 'subscription.created' | 'subscription.updated' | 'subscription.canceled' | 'transaction.completed';
-  data: PaddleSubscriptionData | PaddleTransactionData;
-}
+export type PaddleWebhookEvent =
+  | {
+      event_type: 'subscription.created' | 'subscription.updated';
+      data: PaddleSubscriptionData;
+    }
+  | {
+      event_type: 'subscription.canceled';
+      data: PaddleSubscriptionData;
+    }
+  | {
+      event_type: 'transaction.completed';
+      data: PaddleTransactionData;
+    };
 
 export interface PaddleSubscriptionData {
   id: string;
