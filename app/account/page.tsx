@@ -8,6 +8,7 @@ import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { useToast, ToastContainer } from '@/components/Toast';
 import { Header } from '@/components/Header';
+import { CancelSubscriptionModal } from '@/components/CancelSubscriptionModal';
 
 interface Subscription {
   id: string;
@@ -55,6 +56,8 @@ export default function AccountPage() {
   const [hasPassword, setHasPassword] = useState<boolean | null>(null);
   const [hasGoogleAccount, setHasGoogleAccount] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong' | ''>('');
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [resuming, setResuming] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -234,7 +237,7 @@ export default function AccountPage() {
   }
 
   async function handleCancelSubscription() {
-    if (!subscription || !confirm('Are you sure you want to cancel your subscription? You will continue to have access until the end of your billing period.')) {
+    if (!subscription) {
       return;
     }
 
@@ -250,12 +253,39 @@ export default function AccountPage() {
       }
 
       toast.success('Subscription canceled. You will continue to have access until the end of your billing period.');
+      setShowCancelModal(false);
       await fetchSubscription(); // Refresh subscription data
     } catch (error) {
       console.error('Error canceling subscription:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to cancel subscription');
     } finally {
       setCanceling(false);
+    }
+  }
+
+  async function handleResumeSubscription() {
+    if (!subscription) {
+      return;
+    }
+
+    setResuming(true);
+    try {
+      const response = await fetch('/api/account/subscription/resume', {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to resume subscription');
+      }
+
+      toast.success('Subscription resumed successfully. Your subscription will continue as normal.');
+      await fetchSubscription(); // Refresh subscription data
+    } catch (error) {
+      console.error('Error resuming subscription:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to resume subscription');
+    } finally {
+      setResuming(false);
     }
   }
 
@@ -306,6 +336,13 @@ export default function AccountPage() {
   return (
     <>
       <ToastContainer toasts={toast.toasts} onClose={toast.removeToast} />
+      <CancelSubscriptionModal
+        isOpen={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        onConfirm={handleCancelSubscription}
+        isLoading={canceling}
+        periodEndDate={subscription ? formatDate(subscription.current_period_end) : ''}
+      />
       <Header />
       <main className="min-h-screen p-4 md:p-8 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-4xl mx-auto">
@@ -636,46 +673,70 @@ export default function AccountPage() {
 
           {/* Subscription Info */}
           <Card>
-            <h2 className="text-xl font-semibold mb-4">Subscription</h2>
+            <h2 className="text-xl font-semibold mb-6">Subscription</h2>
             
             {subscription ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
+              <div className="space-y-6">
+                {/* Plan and Status */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-gray-200 dark:border-gray-700">
                   <div>
-                    <p className="text-lg font-medium">{getPlanName(subscription.plan)}</p>
+                    <p className="text-2xl font-semibold mb-2">{getPlanName(subscription.plan)}</p>
                     <p className={`text-sm font-medium ${getStatusColor(subscription.status)}`}>
                       {subscription.status.toUpperCase()}
                     </p>
                   </div>
                   {subscription.status === 'active' && (
-                    <div className="text-right">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Current Period</p>
-                      <p className="text-sm font-medium">
+                    <div className="text-left sm:text-right">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Current Billing Period</p>
+                      <p className="text-base font-medium">
                         {formatDate(subscription.current_period_start)} - {formatDate(subscription.current_period_end)}
                       </p>
                     </div>
                   )}
                 </div>
 
+                {/* Cancellation Warning */}
                 {subscription.cancel_at_period_end && (
                   <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                    <p className="text-yellow-800 dark:text-yellow-200 text-sm">
-                      ⚠️ Your subscription will be canceled at the end of the current billing period ({formatDate(subscription.current_period_end)}).
-                    </p>
+                    <div className="flex items-start gap-3">
+                      <svg className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      <div className="flex-1">
+                        <p className="text-yellow-800 dark:text-yellow-200 font-medium mb-1">
+                          Subscription Scheduled for Cancellation
+                        </p>
+                        <p className="text-yellow-700 dark:text-yellow-300 text-sm mb-3">
+                          Your subscription will be canceled on {formatDate(subscription.current_period_end)}. You'll continue to have access until then.
+                        </p>
+                        <Button
+                          onClick={handleResumeSubscription}
+                          disabled={resuming}
+                          variant="success"
+                          size="sm"
+                          isLoading={resuming}
+                          className="min-h-[44px]"
+                        >
+                          Resume Subscription
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 )}
 
+                {/* Cancel Button */}
                 {subscription.status === 'active' && !subscription.cancel_at_period_end && (
                   <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                     <Button
-                      onClick={handleCancelSubscription}
+                      onClick={() => setShowCancelModal(true)}
                       disabled={canceling}
                       variant="danger"
-                      isLoading={canceling}
+                      size="md"
+                      className="min-h-[44px]"
                     >
                       Cancel Subscription
                     </Button>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
                       You will continue to have access until {formatDate(subscription.current_period_end)}.
                     </p>
                   </div>

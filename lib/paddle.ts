@@ -143,6 +143,36 @@ export async function cancelSubscription(subscriptionId: string): Promise<boolea
 }
 
 /**
+ * Resume subscription (reactivate canceled subscription)
+ * This updates the subscription to remove the cancellation
+ */
+export async function resumeSubscription(subscriptionId: string): Promise<boolean> {
+  if (!PADDLE_API_KEY) {
+    return false;
+  }
+
+  try {
+    // Paddle API: Update subscription to remove cancellation
+    // We need to update the subscription to set cancel_at_period_end to false
+    const response = await fetch(`https://api.paddle.com/subscriptions/${subscriptionId}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${PADDLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        scheduled_change: null, // Remove scheduled cancellation
+      }),
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error('Error resuming Paddle subscription:', error);
+    return false;
+  }
+}
+
+/**
  * Get payment transactions for a subscription
  */
 export async function getTransactions(subscriptionId: string): Promise<any[]> {
