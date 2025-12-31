@@ -55,12 +55,23 @@ export async function POST(request: NextRequest) {
 
     // Save feedback to database
     await db.createFeedback(feedbackData);
+    console.log('✅ Feedback saved to database');
 
     // Send notification email to admin (non-blocking)
-    sendFeedbackNotification(feedbackData).catch((error) => {
-      console.error('Failed to send feedback notification email:', error);
-      // Don't fail the request if email fails
-    });
+    console.log('📧 Attempting to send feedback notification email...');
+    sendFeedbackNotification(feedbackData)
+      .then((result) => {
+        if (result.success) {
+          console.log('✅ Feedback notification email sent successfully');
+        } else {
+          console.error('❌ Failed to send feedback notification email:', result.error);
+        }
+      })
+      .catch((error) => {
+        console.error('❌ Exception while sending feedback notification email:', error);
+        console.error('❌ Error details:', JSON.stringify(error, null, 2));
+        // Don't fail the request if email fails
+      });
 
     return NextResponse.json({
       success: true,

@@ -84,16 +84,30 @@ export async function sendFeedbackNotification(feedback: {
   message: string;
   userEmail?: string;
 }) {
+  console.log('📧 Attempting to send feedback notification email...');
+  console.log('📧 RESEND_API_KEY exists:', !!process.env.RESEND_API_KEY);
+  console.log('📧 RESEND_API_KEY length:', process.env.RESEND_API_KEY?.length || 0);
+  console.log('📧 ADMIN_EMAIL:', process.env.ADMIN_EMAIL || 'NOT SET');
+  console.log('📧 RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL || 'NOT SET');
+
   if (!process.env.RESEND_API_KEY) {
-    console.error('RESEND_API_KEY is not set');
+    console.error('❌ RESEND_API_KEY is not set - cannot send email');
     return { success: false, error: 'Email service not configured' };
+  }
+
+  // Validate API key format
+  if (process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.startsWith('re_')) {
+    console.error('⚠️ WARNING: RESEND_API_KEY does not start with "re_" - may be invalid');
   }
 
   const adminEmail = process.env.ADMIN_EMAIL || process.env.RESEND_FROM_EMAIL;
   if (!adminEmail) {
-    console.warn('ADMIN_EMAIL not set, skipping feedback notification');
+    console.error('❌ ADMIN_EMAIL and RESEND_FROM_EMAIL both not set - cannot send email');
+    console.error('❌ Please set ADMIN_EMAIL environment variable');
     return { success: false, error: 'Admin email not configured' };
   }
+
+  console.log('📧 Sending email to:', adminEmail);
 
   const typeLabels: Record<string, string> = {
     bug: '🐛 Bug Report',
@@ -151,14 +165,22 @@ This feedback has been saved to the database and is available in the admin panel
     });
 
     if (error) {
-      console.error('Resend error:', error);
+      console.error('❌ Resend API error:', error);
+      console.error('❌ Error details:', JSON.stringify(error, null, 2));
+      console.error('❌ Error message:', error.message);
+      console.error('❌ Error name:', error.name);
       return { success: false, error: error.message };
     }
 
-    console.log('Feedback notification email sent successfully. Email ID:', data?.id);
+    console.log('✅ Feedback notification email sent successfully!');
+    console.log('✅ Email ID:', data?.id);
+    console.log('✅ Sent to:', adminEmail);
     return { success: true, data };
   } catch (error: any) {
-    console.error('Email send error:', error);
+    console.error('❌ Email send exception:', error);
+    console.error('❌ Error type:', error?.constructor?.name);
+    console.error('❌ Error message:', error?.message);
+    console.error('❌ Error stack:', error?.stack);
     return { success: false, error: error.message || 'Failed to send email' };
   }
 }
