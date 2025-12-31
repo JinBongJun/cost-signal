@@ -245,17 +245,24 @@ This link will expire in 1 hour. If you didn't request this change, you can safe
       console.error('❌ RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL);
       
       // Check for specific Resend errors
-      if (error.message?.includes('domain') || error.message?.includes('Domain')) {
+      if (error.message?.includes('domain') || error.message?.includes('Domain') || error.message?.includes('verify a domain')) {
         return { 
           success: false, 
-          error: 'Email domain not verified. Please contact support or use a verified email address.' 
+          error: 'Email domain not verified. Currently, we can only send verification emails to registered email addresses. Please contact support or use your registered email address (bongjun0289@daum.net) for now.' 
         };
       }
       
-      if (error.message?.includes('testing') || error.message?.includes('test')) {
+      if (error.message?.includes('testing') || error.message?.includes('test') || error.message?.includes('only send testing emails')) {
         return { 
           success: false, 
-          error: 'This email address cannot receive emails from the test domain. Please contact support.' 
+          error: 'This email address cannot receive emails from the test domain. Please use your registered email address (bongjun0289@daum.net) or contact support to verify the domain.' 
+        };
+      }
+      
+      if (error.statusCode === 403) {
+        return { 
+          success: false, 
+          error: 'Email sending is currently limited to registered addresses. Please contact support to enable email changes to other addresses.' 
         };
       }
       
