@@ -88,14 +88,23 @@ async function handleSubscriptionUpdate(data: PaddleSubscriptionData, db: Databa
     plan = 'early_bird';
   }
 
+  // Get billing period dates, fallback to current time if not available
+  const now = Math.floor(Date.now() / 1000);
+  const currentPeriodStart = subscription.current_billing_period?.starts_at
+    ? Math.floor(new Date(subscription.current_billing_period.starts_at).getTime() / 1000)
+    : now;
+  const currentPeriodEnd = subscription.current_billing_period?.ends_at
+    ? Math.floor(new Date(subscription.current_billing_period.ends_at).getTime() / 1000)
+    : now + 30 * 24 * 60 * 60; // Default to 30 days from now if not available
+
   await db.saveSubscription({
     user_id: userId,
     stripe_subscription_id: subscription.id,
     stripe_customer_id: subscription.customer_id,
     status: subscription.status === 'active' ? 'active' : 'canceled',
     plan,
-    current_period_start: new Date(subscription.current_billing_period?.starts_at).getTime() / 1000,
-    current_period_end: new Date(subscription.current_billing_period?.ends_at).getTime() / 1000,
+    current_period_start: currentPeriodStart,
+    current_period_end: currentPeriodEnd,
     cancel_at_period_end: subscription.scheduled_change?.action === 'cancel',
   });
 }
