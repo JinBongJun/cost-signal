@@ -457,6 +457,11 @@ export default function AccountPage() {
                       placeholder="New email address"
                       autoFocus
                     />
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                      <p className="text-sm text-blue-800 dark:text-blue-200">
+                        <strong>Note:</strong> Due to email service limitations, verification emails can currently only be sent to registered email addresses. To change to a different email address, please contact support.
+                      </p>
+                    </div>
                     <div className="flex gap-2">
                       <Button
                         onClick={handleRequestEmailChange}
