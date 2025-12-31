@@ -368,43 +368,6 @@ export default function Home() {
     }
   }
 
-  async function handleTestNotification() {
-    try {
-      if (!('serviceWorker' in navigator)) {
-        alert('❌ Your browser does not support Service Workers.');
-        return;
-      }
-
-      const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
-
-      if (!subscription) {
-        toast.error('Push subscription not found. Please enable notifications again.');
-        return;
-      }
-
-      // Send test notification
-      const response = await fetch('/api/push/test', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          endpoint: subscription.endpoint,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to send test notification');
-      }
-
-      toast.success('Test notification sent! You should see a notification shortly.');
-    } catch (error) {
-      console.error('Error sending test notification:', error);
-      toast.error(`Failed to send test notification: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  }
 
   async function handleInstall() {
     if (!deferredPrompt) {
