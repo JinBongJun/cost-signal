@@ -97,15 +97,8 @@ export default function Home() {
     };
     window.addEventListener('beforeinstallprompt', handler);
 
-    // Listen for showLearnMore event from WelcomeModal
-    const showLearnMoreHandler = () => {
-      setShowLearnMore(true);
-    };
-    window.addEventListener('showLearnMore', showLearnMoreHandler);
-
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
-      window.removeEventListener('showLearnMore', showLearnMoreHandler);
     };
   }, [tier, session]);
 
