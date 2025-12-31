@@ -76,7 +76,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tier, setTier] = useState<'free' | 'paid'>('free');
-  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState<boolean | null>(null); // null = checking, true/false = known state
   const [isInstalled, setIsInstalled] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
@@ -141,6 +141,9 @@ export default function Home() {
         console.error('Error checking subscription status:', error);
         setIsSubscribed(false);
       }
+    } else {
+      // Service Worker not supported
+      setIsSubscribed(false);
     }
   }
 
@@ -518,6 +521,12 @@ export default function Home() {
   }
 
   async function handleNotificationClick() {
+    // If still checking, wait a bit or show loading
+    if (isSubscribed === null) {
+      toast.info('Checking notification status...');
+      return;
+    }
+
     if (isSubscribed) {
       // Open notification settings page
       window.location.href = '/account/notifications';
