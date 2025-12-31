@@ -17,15 +17,29 @@ interface ToastProps {
 }
 
 function ToastItem({ toast, onClose }: ToastProps) {
+  const [isClosing, setIsClosing] = useState(false);
+
   useEffect(() => {
     if (toast.duration !== 0) {
       const timer = setTimeout(() => {
-        onClose(toast.id);
+        setIsClosing(true);
+        // Wait for animation to complete before removing
+        setTimeout(() => {
+          onClose(toast.id);
+        }, 300); // Match animation duration
       }, toast.duration || 5000);
 
       return () => clearTimeout(timer);
     }
   }, [toast.id, toast.duration, onClose]);
+
+  const handleClose = () => {
+    setIsClosing(true);
+    // Wait for animation to complete before removing
+    setTimeout(() => {
+      onClose(toast.id);
+    }, 300); // Match animation duration
+  };
 
   const bgColors = {
     success: 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800',
@@ -50,13 +64,17 @@ function ToastItem({ toast, onClose }: ToastProps) {
 
   return (
     <div
-      className={`${bgColors[toast.type]} ${textColors[toast.type]} border rounded-lg p-4 shadow-lg mb-3 flex items-start gap-3 animate-slide-in-right`}
+      className={`${bgColors[toast.type]} ${textColors[toast.type]} border rounded-lg p-4 shadow-lg mb-3 flex items-start gap-3 transition-all duration-300 ${
+        isClosing 
+          ? 'animate-slide-out-right opacity-0' 
+          : 'animate-slide-in-right opacity-100'
+      }`}
       role="alert"
     >
       <span className="text-xl flex-shrink-0">{icons[toast.type]}</span>
       <p className="flex-1 text-sm font-medium">{toast.message}</p>
       <button
-        onClick={() => onClose(toast.id)}
+        onClick={handleClose}
         className="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
         aria-label="Close notification"
       >

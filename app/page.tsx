@@ -270,6 +270,12 @@ export default function Home() {
         return;
       }
 
+      // Check notification permission
+      if (Notification.permission !== 'granted') {
+        // Permission should already be granted by handleNotificationClick, but check just in case
+        console.warn('Notification permission not granted, but proceeding...');
+      }
+
       // Check VAPID key
       const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
       if (!vapidKey) {
@@ -294,7 +300,7 @@ export default function Home() {
       await navigator.serviceWorker.ready;
       console.log('Service Worker is ready');
 
-      // Subscribe to push notifications
+      // Subscribe to push notifications (permission is already granted)
       console.log('Subscribing to push notifications...');
       const subscription = await subscribeToPushNotifications();
       
@@ -548,12 +554,47 @@ export default function Home() {
     );
   }
 
-  function handleNotificationClick() {
-    if (!isSubscribed) {
-      handleSubscribe();
-    } else {
+  async function handleNotificationClick() {
+    if (isSubscribed) {
       // Open notification settings page
       window.location.href = '/account/notifications';
+      return;
+    }
+
+    // Check if notification permission is already granted
+    if ('Notification' in window && Notification.permission === 'granted') {
+      // Permission already granted, proceed with subscription
+      handleSubscribe();
+      return;
+    }
+
+    // Permission not granted yet, request it first
+    if (!('Notification' in window)) {
+      toast.error('Your browser does not support notifications.');
+      return;
+    }
+
+    if (Notification.permission === 'denied') {
+      toast.error('Notification permission denied. Please enable notifications in your browser settings.');
+      return;
+    }
+
+    // Request permission first (this will show browser popup immediately)
+    try {
+      const permission = await Notification.requestPermission();
+      
+      if (permission === 'granted') {
+        // Permission granted, now proceed with subscription
+        toast.info('Permission granted! Setting up notifications...');
+        handleSubscribe();
+      } else if (permission === 'denied') {
+        toast.error('Notification permission denied. Please allow notifications in your browser settings.');
+      } else {
+        toast.warning('Notification permission request was canceled. Please try again to enable notifications.');
+      }
+    } catch (error) {
+      console.error('Error requesting notification permission:', error);
+      toast.error('An error occurred while requesting notification permission.');
     }
   }
 
