@@ -340,25 +340,56 @@ class Database {
 
   // Email change token methods
   async createEmailChangeToken(userId: string, newEmail: string, token: string, expiresAt: Date): Promise<void> {
-    // Invalidate any existing tokens for this user
-    await supabase
-      .from('email_change_tokens')
-      .update({ used: true })
-      .eq('user_id', userId)
-      .eq('used', false);
+    try {
+      // Invalidate any existing tokens for this user
+      const { error: updateError } = await supabase
+        .from('email_change_tokens')
+        .update({ used: true })
+        .eq('user_id', userId)
+        .eq('used', false);
 
-    const { error } = await supabase
-      .from('email_change_tokens')
-      .insert({
-        user_id: userId,
-        new_email: newEmail,
-        token,
-        expires_at: expiresAt.toISOString(),
-        used: false,
-      });
+      if (updateError && updateError.code !== 'PGRST116') { // PGRST116 = no rows updated, which is OK
+        console.error('Error invalidating existing tokens:', updateError);
+        // Continue anyway - not critical
+      }
 
-    if (error) {
-      throw new Error(`Failed to create email change token: ${error.message}`);
+      const { error } = await supabase
+        .from('email_change_tokens')
+        .insert({
+          user_id: userId,
+          new_email: newEmail,
+          token,
+          expires_at: expiresAt.toISOString(),
+          used: false,
+        });
+
+      if (error) {
+        console.error('Supabase error creating email change token:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        console.error('Error details:', error.details);
+        console.error('Error hint:', error.hint);
+        
+        // Check if it's a table not found error
+        if (error.code === '42P01' || error.message?.includes('does not exist') || error.message?.includes('relation')) {
+          throw new Error('Email change tokens table not found. Please run the database migration.');
+        }
+        
+        // Check if it's an RLS policy error
+        if (error.code === '42501' || error.message?.includes('permission denied') || error.message?.includes('policy')) {
+          throw new Error('Database permission error. Please check Row Level Security policies.');
+        }
+        
+        throw new Error(`Failed to create email change token: ${error.message}`);
+      }
+    } catch (error) {
+      // Re-throw with more context if it's already our custom error
+      if (error instanceof Error && error.message.includes('Email change tokens table')) {
+        throw error;
+      }
+      // Otherwise wrap it
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to create email change token: ${errorMessage}`);
     }
   }
 
