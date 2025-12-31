@@ -113,8 +113,12 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error requesting email change:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Error details:', errorMessage);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: errorMessage.includes('relation') || errorMessage.includes('does not exist') 
+        ? 'Database table not found. Please contact support.' 
+        : 'Internal server error' },
       { status: 500 }
     );
   }

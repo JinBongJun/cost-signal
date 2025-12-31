@@ -431,17 +431,23 @@ export default function AccountPage() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Email
                 </label>
-                <p className="text-gray-600 dark:text-gray-400">{session.user.email}</p>
-                {!editingEmail && (
-                  <Button
-                    onClick={() => setEditingEmail(true)}
-                    variant="ghost"
-                    size="sm"
-                    className="mt-2"
-                  >
-                    Change Email
-                  </Button>
+                {!editingEmail ? (
+                  <div className="flex items-center gap-2">
+                    <p className="text-gray-600 dark:text-gray-400 flex-1">
+                      {session.user.email}
+                    </p>
+                    <Button
+                      onClick={() => setEditingEmail(true)}
+                      variant="secondary"
+                      size="sm"
+                    >
+                      Change Email
+                    </Button>
+                  </div>
+                ) : (
+                  <p className="text-gray-600 dark:text-gray-400 mb-2">{session.user.email}</p>
                 )}
+                {editingEmail && (
                 {editingEmail && (
                   <div className="mt-2 space-y-2">
                     <input
