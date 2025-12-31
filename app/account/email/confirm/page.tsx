@@ -23,6 +23,8 @@ function EmailConfirmContent() {
       return;
     }
 
+    let isMounted = true;
+
     async function confirmEmailChange() {
       try {
         const response = await fetch('/api/account/email/confirm', {
@@ -35,6 +37,8 @@ function EmailConfirmContent() {
 
         const data = await response.json();
 
+        if (!isMounted) return;
+
         if (!response.ok) {
           setStatus('error');
           setMessage(data.error || 'Failed to confirm email change');
@@ -46,14 +50,22 @@ function EmailConfirmContent() {
         setMessage(data.message || 'Your email has been changed successfully.');
         toast.success('Email changed successfully! Please sign in again with your new email.');
 
-        // Sign out to clear session with old email
-        await signOut({ redirect: false });
+        // Sign out to clear session with old email (with error handling)
+        try {
+          await signOut({ redirect: false, callbackUrl: '/login' });
+        } catch (signOutError) {
+          console.error('Error signing out:', signOutError);
+          // Continue with redirect even if signOut fails
+        }
 
-        // Redirect to login after 2 seconds
+        // Redirect to login after 1.5 seconds
         setTimeout(() => {
-          router.push('/login');
-        }, 2000);
+          if (isMounted) {
+            router.push('/login');
+          }
+        }, 1500);
       } catch (error) {
+        if (!isMounted) return;
         console.error('Error confirming email change:', error);
         setStatus('error');
         setMessage('An error occurred. Please try again later.');
@@ -62,7 +74,11 @@ function EmailConfirmContent() {
     }
 
     confirmEmailChange();
-  }, [searchParams, router, toast]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [searchParams, router]);
 
   return (
     <>
