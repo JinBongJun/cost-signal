@@ -81,7 +81,13 @@ export const authOptions: NextAuthOptions = {
           const existingUser = await db.getUserByEmail(user.email!);
           
           // Get oauth_mode from authOptions (set by API route)
-          const oauthMode = (authOptions as any).currentOAuthMode as 'login' | 'signup' | null;
+          // Try multiple sources for reliability
+          let oauthMode = (authOptions as any).currentOAuthMode as 'login' | 'signup' | null;
+          
+          // Fallback: check cookie value stored in authOptions
+          if (!oauthMode) {
+            oauthMode = (authOptions as any).oauthModeCookieValue as 'login' | 'signup' | null;
+          }
           
           // 정석: 로그인 모드인데 사용자가 없으면 바로 에러
           if (oauthMode === 'login' && !existingUser) {
