@@ -273,6 +273,10 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).id = token.id as string;
         session.user.email = token.email as string;
         session.user.name = token.name as string | null | undefined;
+        // Pass isNewUser to session for client-side notification
+        if ((token as any).isNewUser !== undefined) {
+          (session.user as any).isNewUser = (token as any).isNewUser;
+        }
       }
       return session;
     },

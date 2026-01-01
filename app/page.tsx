@@ -107,6 +107,7 @@ function HomeContent() {
   }, [tier, session]);
 
 
+
   async function checkUserSubscription() {
     if (session?.user) {
       try {
