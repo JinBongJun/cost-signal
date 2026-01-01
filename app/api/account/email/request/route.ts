@@ -31,8 +31,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user signed in with Google OAuth
     const db = getDb();
+
+    // Check if user signed in with Google OAuth
     const accounts = await db.getUserAccounts(userId);
     const hasGoogleAccount = accounts.some((acc: { provider: string }) => acc.provider === 'google');
     
@@ -79,8 +80,6 @@ export async function POST(request: NextRequest) {
         { status: 429 }
       );
     }
-
-    const db = getDb();
     
     // Check if new email is already in use
     const existingUser = await db.getUserByEmail(newEmail);
