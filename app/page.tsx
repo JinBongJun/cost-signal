@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
@@ -87,60 +87,17 @@ function HomeContent() {
   const [historyLoading, setHistoryLoading] = useState(false);
   const toast = useToast();
 
-  // Check oauth_mode query parameter and show appropriate message
+  // Remove oauth_mode query parameter from URL (server already handled validation)
   useEffect(() => {
     const oauthMode = searchParams?.get('oauth_mode');
     if (oauthMode && session?.user) {
-      // User just logged in/signed up via Google OAuth
-      // Check if the user was just created or already existed
-      const checkUserStatus = async () => {
-        try {
-          const response = await fetch('/api/auth/check-user');
-          if (!response.ok) {
-            // If check fails, just remove the parameter and continue
-            const url = new URL(window.location.href);
-            url.searchParams.delete('oauth_mode');
-            router.replace(url.pathname + url.search);
-            return;
-          }
-
-          const data = await response.json();
-          const isNewUser = data.isNewUser;
-
-          // Validate oauth_mode against user status
-          if (oauthMode === 'login' && isNewUser) {
-            // User tried to login but account didn't exist, so it was auto-created
-            // Show error message and redirect to login page
-            toast.error('This account is not registered. Please sign up first.');
-            // Sign out the auto-created user
-            await signOut({ redirect: false });
-            // Redirect to signup page
-            setTimeout(() => {
-              router.push('/signup');
-            }, 2000);
-            return;
-          } else if (oauthMode === 'signup' && !isNewUser) {
-            // User tried to signup but account already exists
-            // Show info message
-            toast.info('This account already exists. You have been logged in.');
-          }
-
-          // Remove the query parameter from URL
-          const url = new URL(window.location.href);
-          url.searchParams.delete('oauth_mode');
-          router.replace(url.pathname + url.search);
-        } catch (error) {
-          console.error('Error checking user status:', error);
-          // On error, just remove the parameter and continue
-          const url = new URL(window.location.href);
-          url.searchParams.delete('oauth_mode');
-          router.replace(url.pathname + url.search);
-        }
-      };
-
-      checkUserStatus();
+      // Server-side validation already handled all cases
+      // Just clean up the URL parameter
+      const url = new URL(window.location.href);
+      url.searchParams.delete('oauth_mode');
+      router.replace(url.pathname + url.search);
     }
-  }, [searchParams, session, router, toast]);
+  }, [searchParams, session, router]);
 
   useEffect(() => {
     fetchSignal();
