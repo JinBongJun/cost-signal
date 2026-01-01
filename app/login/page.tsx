@@ -236,9 +236,12 @@ function LoginForm() {
                   />
                 </svg>
                 <span className="text-gray-700 dark:text-gray-300 font-medium">
-                  Continue with Google
+                  Sign in with Google
                 </span>
               </button>
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
+                If you don't have an account, you'll be automatically signed up
+              </p>
             </div>
           )}
 

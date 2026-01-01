@@ -306,9 +306,12 @@ export default function SignupPage() {
                   />
                 </svg>
                 <span className="text-gray-700 dark:text-gray-300 font-medium">
-                  Continue with Google
+                  Sign up with Google
                 </span>
               </button>
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
+                If you already have an account, you'll be automatically signed in
+              </p>
             </div>
           )}
 
