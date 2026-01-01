@@ -72,8 +72,22 @@ export default function AccountPage() {
 
     if (session?.user) {
       fetchSubscription();
+      fetchAccountInfo();
     }
   }, [session, status, router]);
+
+  async function fetchAccountInfo() {
+    try {
+      const response = await fetch('/api/account/info');
+      if (response.ok) {
+        const data = await response.json();
+        setHasPassword(data.hasPassword);
+        setHasGoogleAccount(data.hasGoogleAccount);
+      }
+    } catch (error) {
+      console.error('Error fetching account info:', error);
+    }
+  }
 
   async function fetchSubscription() {
     try {
@@ -431,7 +445,29 @@ export default function AccountPage() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Email
                 </label>
-                {!editingEmail ? (
+                {hasGoogleAccount ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <p className="text-gray-600 dark:text-gray-400 flex-1">
+                        {session.user.email}
+                      </p>
+                    </div>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                      <p className="text-sm text-blue-800 dark:text-blue-200">
+                        <strong>Google Account:</strong> Your email is managed by your Google account. 
+                        To change your email, please update it in your{' '}
+                        <a 
+                          href="https://myaccount.google.com/profile" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="underline font-medium hover:text-blue-900 dark:hover:text-blue-100"
+                        >
+                          Google Account settings
+                        </a>.
+                      </p>
+                    </div>
+                  </div>
+                ) : !editingEmail ? (
                   <div className="flex items-center gap-2">
                     <p className="text-gray-600 dark:text-gray-400 flex-1">
                       {session.user.email}
@@ -445,10 +481,8 @@ export default function AccountPage() {
                     </Button>
                   </div>
                 ) : (
-                  <p className="text-gray-600 dark:text-gray-400 mb-2">{session.user.email}</p>
-                )}
-                {editingEmail && (
-                  <div className="mt-2 space-y-3">
+                  <div className="space-y-3">
+                    <p className="text-gray-600 dark:text-gray-400 mb-2">{session.user.email}</p>
                     <input
                       type="email"
                       value={newEmail}

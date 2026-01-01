@@ -31,6 +31,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if user signed in with Google OAuth
+    const db = getDb();
+    const accounts = await db.getUserAccounts(userId);
+    const hasGoogleAccount = accounts.some((acc: { provider: string }) => acc.provider === 'google');
+    
+    if (hasGoogleAccount) {
+      return NextResponse.json(
+        { error: 'Email cannot be changed for Google accounts. Please update your email in your Google Account settings.' },
+        { status: 400 }
+      );
+    }
+
     let body;
     try {
       body = await request.json();
