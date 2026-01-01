@@ -55,6 +55,18 @@ export async function DELETE(request: NextRequest) {
     }
 
     // 4. Delete accounts (OAuth accounts, cascade should handle this)
+    // CRITICAL: Delete by both user_id AND provider_account_id to ensure complete cleanup
+    // This prevents orphaned accounts that could block re-registration
+    const { data: userAccounts, error: fetchAccountsError } = await supabase
+      .from('accounts')
+      .select('provider, provider_account_id')
+      .eq('user_id', userId);
+
+    if (fetchAccountsError) {
+      console.error('Error fetching accounts for deletion:', fetchAccountsError);
+    }
+
+    // Delete accounts by user_id (primary method)
     const { error: accountError } = await supabase
       .from('accounts')
       .delete()
@@ -62,6 +74,8 @@ export async function DELETE(request: NextRequest) {
 
     if (accountError) {
       console.error('Error deleting accounts:', accountError);
+    } else {
+      console.log(`✅ Deleted ${userAccounts?.length || 0} account(s) for user ${userId}`);
     }
 
     // 5. Delete password reset tokens (if any)

@@ -83,9 +83,20 @@ export const authOptions: NextAuthOptions = {
           // Get oauth_mode from authOptions (set by API route from cookie)
           const oauthMode = (authOptions as any).currentOAuthMode as 'login' | 'signup' | null;
           
+          console.log('🔍 signIn callback debug:');
+          console.log('  - Email:', user.email);
+          console.log('  - oauthMode:', oauthMode);
+          console.log('  - existingUser:', !!existingUser);
+          if (existingUser) {
+            console.log('  - existingUser.id:', existingUser.id);
+            console.log('  - existingUser.email:', existingUser.email);
+          }
+          
           // 정석: 로그인 모드인데 사용자가 없으면 바로 에러
           if (oauthMode === 'login' && !existingUser) {
             console.log('❌ Login attempt with non-existent user:', user.email);
+            // Store error type for error page
+            (authOptions as any).lastError = { type: 'login', email: user.email };
             // Access Denied - 바로 에러!
             // NextAuth will redirect to /api/auth/error?error=AccessDenied
             return false;
@@ -94,9 +105,19 @@ export const authOptions: NextAuthOptions = {
           // 정석: 회원가입 모드인데 사용자가 이미 있으면 바로 에러
           if (oauthMode === 'signup' && existingUser) {
             console.log('❌ Signup attempt with existing user:', user.email);
+            console.log('  - This account already exists. User should use login instead.');
+            // Store error type for error page
+            (authOptions as any).lastError = { type: 'signup', email: user.email };
             // Access Denied - 바로 에러!
             // NextAuth will redirect to /api/auth/error?error=AccessDenied
             return false;
+          }
+          
+          // oauth_mode가 null인 경우 로그
+          if (!oauthMode) {
+            console.log('⚠️ oauth_mode is null. Allowing default behavior.');
+            console.log('  - existingUser:', !!existingUser);
+            console.log('  - Will proceed with:', existingUser ? 'login' : 'signup');
           }
           
           // Store user existence status in user object for redirect callback
@@ -140,7 +161,19 @@ export const authOptions: NextAuthOptions = {
                 account.providerAccountId
               );
               
-              if (!existingAccount) {
+              // Check if account exists but user is different (orphaned account scenario)
+              // This can happen if a user was deleted but the account record wasn't cleaned up
+              if (existingAccount && existingAccount.user_id !== existingUser.id) {
+                console.log('⚠️ Found orphaned account. User ID mismatch:', {
+                  accountUserId: existingAccount.user_id,
+                  currentUserId: existingUser.id,
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId
+                });
+                // Treat as if account doesn't exist - will create new link
+              }
+              
+              if (!existingAccount || (existingAccount.user_id !== existingUser.id)) {
                 await db.linkAccount({
                   id: uuidv4(),
                   userId: existingUser.id,

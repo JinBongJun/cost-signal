@@ -20,12 +20,12 @@ function ErrorContent() {
 
   if (error === 'AccessDenied') {
     // Check if this is a login or signup error
-    if (errorDescription?.includes('login') || errorDescription?.includes('not registered')) {
+    if (errorDescription?.includes('login') || errorDescription?.includes('not registered') || errorDescription === 'login_attempt_with_non_existent_user') {
       title = 'Account Not Found';
       message = 'This account is not registered. Please sign up first.';
       actionLabel = 'Go to Sign Up';
       actionUrl = '/signup';
-    } else if (errorDescription?.includes('signup') || errorDescription?.includes('already exists')) {
+    } else if (errorDescription?.includes('signup') || errorDescription?.includes('already exists') || errorDescription === 'signup_attempt_with_existing_user') {
       title = 'Account Already Exists';
       message = 'This account already exists. Please sign in instead.';
       actionLabel = 'Go to Login';

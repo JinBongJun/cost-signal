@@ -430,12 +430,20 @@ class Database {
   async getAccountByProvider(provider: string, providerAccountId: string): Promise<any | null> {
     const { data, error } = await supabase
       .from('accounts')
-      .select('*')
+      .select('*, users!inner(*)')
       .eq('provider', provider)
       .eq('provider_account_id', providerAccountId)
       .single();
 
     if (error || !data) return null;
+    
+    // Verify that the user still exists (in case of orphaned accounts)
+    const userExists = await this.getUserById(data.user_id);
+    if (!userExists) {
+      console.log('⚠️ Found orphaned account for provider:', provider, 'accountId:', providerAccountId);
+      return null;
+    }
+    
     return data;
   }
 
