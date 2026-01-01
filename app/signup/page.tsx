@@ -283,7 +283,7 @@ export default function SignupPage() {
               <button
                 type="button"
                 onClick={() => {
-                  signIn('google', { callbackUrl: '/?oauth_mode=signup' });
+                  signIn('google', { callbackUrl: '/' });
                 }}
                 className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
@@ -306,7 +306,7 @@ export default function SignupPage() {
                   />
                 </svg>
                 <span className="text-gray-700 dark:text-gray-300 font-medium">
-                  Sign up with Google
+                  Continue with Google
                 </span>
               </button>
             </div>

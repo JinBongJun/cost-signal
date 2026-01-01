@@ -74,57 +74,17 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account, profile }) {
-      // Handle Google OAuth sign in
+      // Handle Google OAuth sign in - Standard approach: auto-detect login vs signup
       if (account?.provider === 'google') {
         try {
           const db = getDb();
           const existingUser = await db.getUserByEmail(user.email!);
           
-          // Get oauth_mode from authOptions (set by API route from cookie)
-          const oauthMode = (authOptions as any).currentOAuthMode as 'login' | 'signup' | null;
-          
-          console.log('🔍 signIn callback debug:');
-          console.log('  - Email:', user.email);
-          console.log('  - oauthMode:', oauthMode);
-          console.log('  - existingUser:', !!existingUser);
-          if (existingUser) {
-            console.log('  - existingUser.id:', existingUser.id);
-            console.log('  - existingUser.email:', existingUser.email);
-          }
-          
-          // 정석: 로그인 모드인데 사용자가 없으면 바로 에러
-          if (oauthMode === 'login' && !existingUser) {
-            console.log('❌ Login attempt with non-existent user:', user.email);
-            // Store error type for error page
-            (authOptions as any).lastError = { type: 'login', email: user.email };
-            // Access Denied - 바로 에러!
-            // NextAuth will redirect to /api/auth/error?error=AccessDenied
-            return false;
-          }
-          
-          // 정석: 회원가입 모드인데 사용자가 이미 있으면 바로 에러
-          if (oauthMode === 'signup' && existingUser) {
-            console.log('❌ Signup attempt with existing user:', user.email);
-            console.log('  - This account already exists. User should use login instead.');
-            // Store error type for error page
-            (authOptions as any).lastError = { type: 'signup', email: user.email };
-            // Access Denied - 바로 에러!
-            // NextAuth will redirect to /api/auth/error?error=AccessDenied
-            return false;
-          }
-          
-          // oauth_mode가 null인 경우 로그
-          if (!oauthMode) {
-            console.log('⚠️ oauth_mode is null. Allowing default behavior.');
-            console.log('  - existingUser:', !!existingUser);
-            console.log('  - Will proceed with:', existingUser ? 'login' : 'signup');
-          }
-          
-          // Store user existence status in user object for redirect callback
-          (user as any).isNewUser = !existingUser;
+          // Standard OAuth flow: automatically handle login or signup
+          // If user exists → login, if not → signup (just like GitHub, Slack, etc.)
           
           if (!existingUser) {
-            // New user - signup flow (only allow if oauth_mode is signup or not set)
+            // New user - automatically create account (signup)
             const userId = uuidv4();
             await db.createUser({
               id: userId,
@@ -150,9 +110,11 @@ export const authOptions: NextAuthOptions = {
             }
 
             user.id = userId;
+            (user as any).isNewUser = true;
           } else {
-            // Existing user - login flow (only allow if oauth_mode is login or not set)
+            // Existing user - login
             user.id = existingUser.id;
+            (user as any).isNewUser = false;
             
             // Link Google account if not already linked
             if (account) {
@@ -162,9 +124,8 @@ export const authOptions: NextAuthOptions = {
               );
               
               // Check if account exists but user is different (orphaned account scenario)
-              // This can happen if a user was deleted but the account record wasn't cleaned up
               if (existingAccount && existingAccount.user_id !== existingUser.id) {
-                console.log('⚠️ Found orphaned account. User ID mismatch:', {
+                console.log('⚠️ Found orphaned account. Re-linking to current user:', {
                   accountUserId: existingAccount.user_id,
                   currentUserId: existingUser.id,
                   provider: account.provider,
@@ -200,20 +161,12 @@ export const authOptions: NextAuthOptions = {
     },
     async redirect({ url, baseUrl }) {
       // NextAuth automatically uses NEXTAUTH_URL for baseUrl if set
-      // Just clean up oauth_mode parameter from URL (already handled by API route)
-      try {
-        const urlObj = new URL(url, baseUrl);
-        urlObj.searchParams.delete('oauth_mode');
-        
-        if (url.startsWith('/')) {
-          return `${baseUrl}${urlObj.pathname}${urlObj.search}`;
-        } else if (urlObj.origin === baseUrl) {
-          return urlObj.toString();
-        }
-      } catch (error) {
-        console.error('Error parsing redirect URL:', error);
+      // Standard redirect - no special handling needed
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      } else if (new URL(url).origin === baseUrl) {
+        return url;
       }
-      
       return baseUrl;
     },
     async jwt({ token, user, account, trigger }) {

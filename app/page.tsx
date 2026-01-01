@@ -87,17 +87,6 @@ function HomeContent() {
   const [historyLoading, setHistoryLoading] = useState(false);
   const toast = useToast();
 
-  // Remove oauth_mode query parameter from URL (server already handled validation)
-  useEffect(() => {
-    const oauthMode = searchParams?.get('oauth_mode');
-    if (oauthMode && session?.user) {
-      // Server-side validation already handled all cases
-      // Just clean up the URL parameter
-      const url = new URL(window.location.href);
-      url.searchParams.delete('oauth_mode');
-      router.replace(url.pathname + url.search);
-    }
-  }, [searchParams, session, router]);
 
   useEffect(() => {
     fetchSignal();

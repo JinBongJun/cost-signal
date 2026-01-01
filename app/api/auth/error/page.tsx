@@ -19,18 +19,11 @@ function ErrorContent() {
   let actionUrl = '/login';
 
   if (error === 'AccessDenied') {
-    // Check if this is a login or signup error
-    if (errorDescription?.includes('login') || errorDescription?.includes('not registered') || errorDescription === 'login_attempt_with_non_existent_user') {
-      title = 'Account Not Found';
-      message = 'This account is not registered. Please sign up first.';
-      actionLabel = 'Go to Sign Up';
-      actionUrl = '/signup';
-    } else if (errorDescription?.includes('signup') || errorDescription?.includes('already exists') || errorDescription === 'signup_attempt_with_existing_user') {
-      title = 'Account Already Exists';
-      message = 'This account already exists. Please sign in instead.';
-      actionLabel = 'Go to Login';
-      actionUrl = '/login';
-    }
+    // Generic access denied message
+    // In standard OAuth flow, this shouldn't happen often
+    // But we keep it simple and clear
+    title = 'Access Denied';
+    message = 'Unable to sign in. Please try again or contact support if the problem persists.';
   }
 
   return (

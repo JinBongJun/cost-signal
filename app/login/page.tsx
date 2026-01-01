@@ -213,7 +213,7 @@ function LoginForm() {
               <button
                 type="button"
                 onClick={() => {
-                  signIn('google', { callbackUrl: '/?oauth_mode=login' });
+                  signIn('google', { callbackUrl: '/' });
                 }}
                 className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
@@ -236,7 +236,7 @@ function LoginForm() {
                   />
                 </svg>
                 <span className="text-gray-700 dark:text-gray-300 font-medium">
-                  Sign in with Google
+                  Continue with Google
                 </span>
               </button>
             </div>
