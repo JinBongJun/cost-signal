@@ -276,3 +276,4 @@ Get a simple signal: 🟢 OK, 🟡 CAUTION, or 🔴 RISK
 4. **반복**: 데이터 기반 개선
 
 
+

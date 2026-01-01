@@ -80,3 +80,4 @@ CHECK (status IN ('ok', 'caution', 'risk'));
 3. 기존 데이터는 그대로 유지됩니다
 
 
+

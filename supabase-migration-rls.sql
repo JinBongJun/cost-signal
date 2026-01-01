@@ -149,3 +149,4 @@ WITH CHECK (true);
 -- 3. The service_role policies ensure your server-side code continues to work
 -- 4. For client-side direct access, users would need to authenticate via Supabase Auth
 
+

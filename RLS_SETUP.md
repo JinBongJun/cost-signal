@@ -119,3 +119,4 @@ SELECT * FROM feedback; -- 자신의 피드백만 보여야 함
 - [Supabase RLS 가이드](https://supabase.com/docs/guides/auth/row-level-security)
 - [PostgreSQL RLS 문서](https://www.postgresql.org/docs/current/ddl-rowsecurity.html)
 
+

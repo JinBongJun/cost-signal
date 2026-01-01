@@ -51,11 +51,6 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      authorization: {
-        params: {
-          prompt: 'select_account', // Always show account selection screen
-        },
-      },
     })
   );
 } else {
@@ -135,7 +130,11 @@ export const authOptions: NextAuthOptions = {
           }
         } catch (error) {
           console.error('Error in Google sign in:', error);
-          return false;
+          console.error('Error details:', error instanceof Error ? error.message : String(error));
+          console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+          // Don't block sign in on database errors - allow the user to sign in
+          // The error will be logged for debugging
+          // return false; // Commented out to allow sign in even if DB operations fail
         }
       }
       return true;
