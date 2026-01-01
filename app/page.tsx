@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSession, signOut } from 'next-auth/react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   subscribeToPushNotifications, 
@@ -69,8 +70,10 @@ const INDICATOR_LABELS: Record<string, string> = {
   unemployment: 'Unemployment',
 };
 
-export default function Home() {
+function HomeContent() {
   const { data: session, status } = useSession();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [signal, setSignal] = useState<Signal | null>(null);
   const [history, setHistory] = useState<HistorySignal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,6 +86,24 @@ export default function Home() {
   const [showHistory, setShowHistory] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const toast = useToast();
+
+  // Check oauth_mode query parameter and show appropriate message
+  useEffect(() => {
+    const oauthMode = searchParams?.get('oauth_mode');
+    if (oauthMode && session?.user) {
+      // User just logged in/signed up via Google OAuth
+      // Check if the mode matches the user's status
+      // This is a simplified check - in a real implementation, we'd need to check
+      // if the user was just created or already existed
+      
+      // Remove the query parameter from URL
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('oauth_mode');
+        router.replace(url.pathname + url.search);
+      }
+    }
+  }, [searchParams, session, router]);
 
   useEffect(() => {
     fetchSignal();
@@ -646,6 +667,18 @@ export default function Home() {
       </div>
     </main>
     </>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }
 

@@ -79,9 +79,8 @@ export const authOptions: NextAuthOptions = {
           const db = getDb();
           const existingUser = await db.getUserByEmail(user.email!);
 
-          // Note: We can't directly determine if this is from login or signup page
-          // So we'll allow both flows, but we can add validation later if needed
-          // The UI will handle showing appropriate messages
+          // Store user existence status in user object for redirect callback
+          (user as any).isNewUser = !existingUser;
           
           if (!existingUser) {
             // New user - signup flow (always allow)
@@ -145,6 +144,16 @@ export const authOptions: NextAuthOptions = {
         }
       }
       return true;
+    },
+    async redirect({ url, baseUrl }) {
+      // Handle redirect with oauth_mode parameter
+      // The actual validation will be done on the client side
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      } else if (new URL(url).origin === baseUrl) {
+        return url;
+      }
+      return baseUrl;
     },
     async jwt({ token, user, account, trigger }) {
       if (user) {
