@@ -9,6 +9,15 @@ const handler = async (req: NextRequest, context: any) => {
   const url = req.nextUrl;
   const pathname = url.pathname;
   
+  // Debug: Log redirect URI information
+  if (pathname.includes('/signin/google') || pathname.includes('/callback/google')) {
+    console.log('🔍 OAuth Request Debug:');
+    console.log('  - Request URL:', url.toString());
+    console.log('  - Request Host:', req.headers.get('host'));
+    console.log('  - NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
+    console.log('  - Expected redirect URI:', `${process.env.NEXTAUTH_URL || `https://${req.headers.get('host')}`}/api/auth/callback/google`);
+  }
+  
   // Check if this is the initial signin request (before Google redirect)
   if (pathname.includes('/signin/google')) {
     const callbackUrl = url.searchParams.get('callbackUrl');

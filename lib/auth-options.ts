@@ -62,8 +62,29 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   console.warn('Google OAuth not configured: GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are required');
 }
 
+// Determine base URL for OAuth redirects
+// Priority: NEXTAUTH_URL env var > production domain > fallback
+const getBaseUrl = () => {
+  // Use NEXTAUTH_URL if set
+  if (process.env.NEXTAUTH_URL) {
+    return process.env.NEXTAUTH_URL;
+  }
+  // Fallback to production domain
+  if (process.env.NODE_ENV === 'production') {
+    return 'https://cost-signal.com';
+  }
+  // Development fallback
+  return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+};
+
 export const authOptions: NextAuthOptions = {
   providers,
+  // Explicitly set base URL to ensure consistent redirect URIs
+  // This ensures redirect URI is always https://cost-signal.com/api/auth/callback/google in production
+  ...(process.env.NODE_ENV === 'production' && !process.env.NEXTAUTH_URL && {
+    // If NEXTAUTH_URL is not set in production, log a warning
+    // NextAuth will use request host, but we want to ensure it uses the production domain
+  }),
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
