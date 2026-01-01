@@ -70,6 +70,7 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/login',
+    error: '/api/auth/error', // Custom error page
   },
   callbacks: {
     async signIn({ user, account, profile }) {
@@ -78,12 +79,31 @@ export const authOptions: NextAuthOptions = {
         try {
           const db = getDb();
           const existingUser = await db.getUserByEmail(user.email!);
-
+          
+          // Get oauth_mode from authOptions (set by API route)
+          const oauthMode = (authOptions as any).currentOAuthMode as 'login' | 'signup' | null;
+          
+          // 정석: 로그인 모드인데 사용자가 없으면 바로 에러
+          if (oauthMode === 'login' && !existingUser) {
+            console.log('❌ Login attempt with non-existent user:', user.email);
+            // Access Denied - 바로 에러!
+            // NextAuth will redirect to /api/auth/error?error=AccessDenied
+            return false;
+          }
+          
+          // 정석: 회원가입 모드인데 사용자가 이미 있으면 바로 에러
+          if (oauthMode === 'signup' && existingUser) {
+            console.log('❌ Signup attempt with existing user:', user.email);
+            // Access Denied - 바로 에러!
+            // NextAuth will redirect to /api/auth/error?error=AccessDenied
+            return false;
+          }
+          
           // Store user existence status in user object for redirect callback
           (user as any).isNewUser = !existingUser;
           
           if (!existingUser) {
-            // New user - signup flow (always allow)
+            // New user - signup flow (only allow if oauth_mode is signup or not set)
             const userId = uuidv4();
             await db.createUser({
               id: userId,
@@ -110,7 +130,7 @@ export const authOptions: NextAuthOptions = {
 
             user.id = userId;
           } else {
-            // Existing user - login flow (always allow)
+            // Existing user - login flow (only allow if oauth_mode is login or not set)
             user.id = existingUser.id;
             
             // Link Google account if not already linked
@@ -149,11 +169,12 @@ export const authOptions: NextAuthOptions = {
       // Parse URL to check for oauth_mode parameter
       try {
         const urlObj = new URL(url, baseUrl);
-        const oauthMode = urlObj.searchParams.get('oauth_mode');
+        const oauthMode = urlObj.searchParams.get('oauth_mode') as 'login' | 'signup' | null;
         
-        // If oauth_mode is present, validation will be done on client side
-        // The client will check if the user was just created or already existed
-        // and show appropriate message
+        // Store oauth_mode for signIn callback to access
+        if (oauthMode) {
+          (authOptions as any).currentOAuthMode = oauthMode;
+        }
         
         if (url.startsWith('/')) {
           return `${baseUrl}${url}`;
