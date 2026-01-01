@@ -62,29 +62,8 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   console.warn('Google OAuth not configured: GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are required');
 }
 
-// Determine base URL for OAuth redirects
-// Priority: NEXTAUTH_URL env var > production domain > fallback
-const getBaseUrl = () => {
-  // Use NEXTAUTH_URL if set
-  if (process.env.NEXTAUTH_URL) {
-    return process.env.NEXTAUTH_URL;
-  }
-  // Fallback to production domain
-  if (process.env.NODE_ENV === 'production') {
-    return 'https://cost-signal.com';
-  }
-  // Development fallback
-  return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-};
-
 export const authOptions: NextAuthOptions = {
   providers,
-  // Explicitly set base URL to ensure consistent redirect URIs
-  // This ensures redirect URI is always https://cost-signal.com/api/auth/callback/google in production
-  ...(process.env.NODE_ENV === 'production' && !process.env.NEXTAUTH_URL && {
-    // If NEXTAUTH_URL is not set in production, log a warning
-    // NextAuth will use request host, but we want to ensure it uses the production domain
-  }),
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -101,14 +80,8 @@ export const authOptions: NextAuthOptions = {
           const db = getDb();
           const existingUser = await db.getUserByEmail(user.email!);
           
-          // Get oauth_mode from authOptions (set by API route)
-          // Try multiple sources for reliability
-          let oauthMode = (authOptions as any).currentOAuthMode as 'login' | 'signup' | null;
-          
-          // Fallback: check cookie value stored in authOptions
-          if (!oauthMode) {
-            oauthMode = (authOptions as any).oauthModeCookieValue as 'login' | 'signup' | null;
-          }
+          // Get oauth_mode from authOptions (set by API route from cookie)
+          const oauthMode = (authOptions as any).currentOAuthMode as 'login' | 'signup' | null;
           
           // 정석: 로그인 모드인데 사용자가 없으면 바로 에러
           if (oauthMode === 'login' && !existingUser) {
@@ -193,27 +166,18 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     async redirect({ url, baseUrl }) {
-      // Parse URL to check for oauth_mode parameter
+      // NextAuth automatically uses NEXTAUTH_URL for baseUrl if set
+      // Just clean up oauth_mode parameter from URL (already handled by API route)
       try {
         const urlObj = new URL(url, baseUrl);
-        const oauthMode = urlObj.searchParams.get('oauth_mode') as 'login' | 'signup' | null;
-        
-        // Store oauth_mode for signIn callback to access
-        if (oauthMode) {
-          (authOptions as any).currentOAuthMode = oauthMode;
-        }
-        
-        // Remove oauth_mode from URL to avoid exposing it in the final redirect
         urlObj.searchParams.delete('oauth_mode');
-        const cleanUrl = urlObj.toString();
         
         if (url.startsWith('/')) {
           return `${baseUrl}${urlObj.pathname}${urlObj.search}`;
         } else if (urlObj.origin === baseUrl) {
-          return cleanUrl;
+          return urlObj.toString();
         }
       } catch (error) {
-        // If URL parsing fails, use default behavior
         console.error('Error parsing redirect URL:', error);
       }
       
