@@ -182,10 +182,14 @@ export const authOptions: NextAuthOptions = {
           (authOptions as any).currentOAuthMode = oauthMode;
         }
         
+        // Remove oauth_mode from URL to avoid exposing it in the final redirect
+        urlObj.searchParams.delete('oauth_mode');
+        const cleanUrl = urlObj.toString();
+        
         if (url.startsWith('/')) {
-          return `${baseUrl}${url}`;
+          return `${baseUrl}${urlObj.pathname}${urlObj.search}`;
         } else if (urlObj.origin === baseUrl) {
-          return url;
+          return cleanUrl;
         }
       } catch (error) {
         // If URL parsing fails, use default behavior
