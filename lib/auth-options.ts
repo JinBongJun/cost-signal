@@ -146,13 +146,25 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     async redirect({ url, baseUrl }) {
-      // Handle redirect with oauth_mode parameter
-      // The actual validation will be done on the client side
-      if (url.startsWith('/')) {
-        return `${baseUrl}${url}`;
-      } else if (new URL(url).origin === baseUrl) {
-        return url;
+      // Parse URL to check for oauth_mode parameter
+      try {
+        const urlObj = new URL(url, baseUrl);
+        const oauthMode = urlObj.searchParams.get('oauth_mode');
+        
+        // If oauth_mode is present, validation will be done on client side
+        // The client will check if the user was just created or already existed
+        // and show appropriate message
+        
+        if (url.startsWith('/')) {
+          return `${baseUrl}${url}`;
+        } else if (urlObj.origin === baseUrl) {
+          return url;
+        }
+      } catch (error) {
+        // If URL parsing fails, use default behavior
+        console.error('Error parsing redirect URL:', error);
       }
+      
       return baseUrl;
     },
     async jwt({ token, user, account, trigger }) {
@@ -160,6 +172,10 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
+        // Store isNewUser status from signIn callback
+        if ((user as any).isNewUser !== undefined) {
+          (token as any).isNewUser = (user as any).isNewUser;
+        }
       }
       
       // If session is being updated (e.g., after profile change), refresh user data from DB
