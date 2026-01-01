@@ -51,6 +51,11 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      authorization: {
+        params: {
+          prompt: 'select_account', // Always show account selection screen
+        },
+      },
     })
   );
 } else {
@@ -74,8 +79,12 @@ export const authOptions: NextAuthOptions = {
           const db = getDb();
           const existingUser = await db.getUserByEmail(user.email!);
 
+          // Note: We can't directly determine if this is from login or signup page
+          // So we'll allow both flows, but we can add validation later if needed
+          // The UI will handle showing appropriate messages
+          
           if (!existingUser) {
-            // Create new user for Google sign in
+            // New user - signup flow (always allow)
             const userId = uuidv4();
             await db.createUser({
               id: userId,
@@ -102,7 +111,7 @@ export const authOptions: NextAuthOptions = {
 
             user.id = userId;
           } else {
-            // User exists, check if Google account is linked
+            // Existing user - login flow (always allow)
             user.id = existingUser.id;
             
             // Link Google account if not already linked
@@ -132,9 +141,7 @@ export const authOptions: NextAuthOptions = {
           console.error('Error in Google sign in:', error);
           console.error('Error details:', error instanceof Error ? error.message : String(error));
           console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-          // Don't block sign in on database errors - allow the user to sign in
-          // The error will be logged for debugging
-          // return false; // Commented out to allow sign in even if DB operations fail
+          return false; // Block sign in on database errors
         }
       }
       return true;

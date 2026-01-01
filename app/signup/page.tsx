@@ -282,7 +282,13 @@ export default function SignupPage() {
 
               <button
                 type="button"
-                onClick={() => signIn('google', { callbackUrl: '/' })}
+                onClick={() => {
+                  // Store mode in sessionStorage to distinguish between login and signup
+                  if (typeof window !== 'undefined') {
+                    sessionStorage.setItem('oauth_mode', 'signup');
+                  }
+                  signIn('google', { callbackUrl: '/' });
+                }}
                 className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
