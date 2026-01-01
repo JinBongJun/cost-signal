@@ -428,9 +428,10 @@ class Database {
   }
 
   async getAccountByProvider(provider: string, providerAccountId: string): Promise<any | null> {
+    // Don't use inner join - it fails if user doesn't exist (orphaned account)
     const { data, error } = await supabase
       .from('accounts')
-      .select('*, users!inner(*)')
+      .select('*')
       .eq('provider', provider)
       .eq('provider_account_id', providerAccountId)
       .single();

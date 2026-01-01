@@ -78,41 +78,99 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === 'google') {
         try {
           const db = getDb();
+          console.log('🔍 Google OAuth sign in attempt:', {
+            email: user.email,
+            provider: account.provider,
+            providerAccountId: account.providerAccountId
+          });
+          
           const existingUser = await db.getUserByEmail(user.email!);
+          console.log('  - Existing user found:', !!existingUser);
           
           // Standard OAuth flow: automatically handle login or signup
           // If user exists → login, if not → signup (just like GitHub, Slack, etc.)
           
           if (!existingUser) {
             // New user - automatically create account (signup)
+            console.log('  - Creating new user account...');
             const userId = uuidv4();
-            await db.createUser({
-              id: userId,
-              email: user.email!,
-              name: user.name || undefined,
-              emailVerified: new Date(),
-            });
+            
+            try {
+              await db.createUser({
+                id: userId,
+                email: user.email!,
+                name: user.name || undefined,
+                emailVerified: new Date(),
+              });
+              console.log('  - ✅ User created:', userId);
+            } catch (createError) {
+              console.error('  - ❌ Failed to create user:', createError);
+              throw createError;
+            }
 
             // Link Google account
             if (account) {
-              await db.linkAccount({
-                id: uuidv4(),
-                userId,
-                type: account.type,
-                provider: account.provider,
-                providerAccountId: account.providerAccountId,
-                access_token: account.access_token,
-                expires_at: account.expires_at,
-                token_type: account.token_type,
-                scope: account.scope,
-                id_token: account.id_token,
-              });
+              try {
+                await db.linkAccount({
+                  id: uuidv4(),
+                  userId,
+                  type: account.type,
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                  access_token: account.access_token,
+                  expires_at: account.expires_at,
+                  token_type: account.token_type,
+                  scope: account.scope,
+                  id_token: account.id_token,
+                });
+                console.log('  - ✅ Google account linked');
+              } catch (linkError: any) {
+                console.error('  - ❌ Failed to link account:', linkError);
+                // Check if it's a duplicate key error (account already exists)
+                if (linkError.message?.includes('duplicate') || linkError.message?.includes('unique') || linkError.code === '23505') {
+                  console.log('  - ⚠️ Account already exists, trying to find and update...');
+                  // Try to find the existing account and update it
+                  const existingAccount = await db.getAccountByProvider(
+                    account.provider,
+                    account.providerAccountId
+                  );
+                  if (existingAccount && existingAccount.user_id !== userId) {
+                    // Orphaned account - delete it and create new one
+                    console.log('  - Deleting orphaned account and creating new link...');
+                    const { supabase } = await import('@/lib/supabase');
+                    await supabase
+                      .from('accounts')
+                      .delete()
+                      .eq('provider', account.provider)
+                      .eq('provider_account_id', account.providerAccountId);
+                    
+                    // Retry linking
+                    await db.linkAccount({
+                      id: uuidv4(),
+                      userId,
+                      type: account.type,
+                      provider: account.provider,
+                      providerAccountId: account.providerAccountId,
+                      access_token: account.access_token,
+                      expires_at: account.expires_at,
+                      token_type: account.token_type,
+                      scope: account.scope,
+                      id_token: account.id_token,
+                    });
+                    console.log('  - ✅ Account re-linked successfully');
+                  }
+                } else {
+                  throw linkError;
+                }
+              }
             }
 
             user.id = userId;
             (user as any).isNewUser = true;
+            console.log('  - ✅ Signup completed successfully');
           } else {
             // Existing user - login
+            console.log('  - Logging in existing user:', existingUser.id);
             user.id = existingUser.id;
             (user as any).isNewUser = false;
             
@@ -135,25 +193,39 @@ export const authOptions: NextAuthOptions = {
               }
               
               if (!existingAccount || (existingAccount.user_id !== existingUser.id)) {
-                await db.linkAccount({
-                  id: uuidv4(),
-                  userId: existingUser.id,
-                  type: account.type,
-                  provider: account.provider,
-                  providerAccountId: account.providerAccountId,
-                  access_token: account.access_token,
-                  expires_at: account.expires_at,
-                  token_type: account.token_type,
-                  scope: account.scope,
-                  id_token: account.id_token,
-                });
+                try {
+                  await db.linkAccount({
+                    id: uuidv4(),
+                    userId: existingUser.id,
+                    type: account.type,
+                    provider: account.provider,
+                    providerAccountId: account.providerAccountId,
+                    access_token: account.access_token,
+                    expires_at: account.expires_at,
+                    token_type: account.token_type,
+                    scope: account.scope,
+                    id_token: account.id_token,
+                  });
+                  console.log('  - ✅ Google account linked to existing user');
+                } catch (linkError: any) {
+                  // If duplicate, that's OK - account already linked
+                  if (linkError.message?.includes('duplicate') || linkError.message?.includes('unique') || linkError.code === '23505') {
+                    console.log('  - ℹ️ Account already linked (this is OK)');
+                  } else {
+                    console.error('  - ⚠️ Failed to link account (non-critical):', linkError);
+                    // Don't throw - account linking is optional for existing users
+                  }
+                }
+              } else {
+                console.log('  - ℹ️ Account already linked');
               }
             }
+            console.log('  - ✅ Login completed successfully');
           }
         } catch (error) {
-          console.error('Error in Google sign in:', error);
-          console.error('Error details:', error instanceof Error ? error.message : String(error));
-          console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+          console.error('❌ Error in Google sign in:', error);
+          console.error('❌ Error details:', error instanceof Error ? error.message : String(error));
+          console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
           return false; // Block sign in on database errors
         }
       }
