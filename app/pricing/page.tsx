@@ -187,11 +187,11 @@ export default function PricingPage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-green-500 dark:text-green-400 text-lg flex-shrink-0">✓</span>
-                      <span>Basic explanation</span>
+                      <span>Push notifications</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-green-500 dark:text-green-400 text-lg flex-shrink-0">✓</span>
-                      <span>Push notifications</span>
+                      <span className="text-gray-400 dark:text-gray-600 text-lg flex-shrink-0">🔒</span>
+                      <span className="text-gray-500 dark:text-gray-500">Detailed explanation (locked)</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-gray-400 dark:text-gray-600 text-lg flex-shrink-0">🔒</span>

@@ -97,25 +97,38 @@ export function SignalCard({
         </p>
       </div>
 
-      {/* Explanation - Both tiers, but different styles */}
-      {signal.explanation && (
-        <div className={`rounded-lg p-4 mb-6 animate-fade-in ${
-          tier === 'paid' 
-            ? 'bg-gray-50 dark:bg-gray-900' 
-            : 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
-        }`}>
-          <p className={`leading-relaxed ${
-            tier === 'paid'
-              ? 'text-gray-700 dark:text-gray-300'
-              : 'text-blue-800 dark:text-blue-200'
-          }`}>
+      {/* Explanation - Paid tier only, locked for free tier */}
+      {tier === 'paid' && signal.explanation && (
+        <div className="rounded-lg p-4 mb-6 animate-fade-in bg-gray-50 dark:bg-gray-900">
+          <p className="leading-relaxed text-gray-700 dark:text-gray-300">
             {signal.explanation}
           </p>
-          {tier === 'free' && signal.explanation_type === 'basic' && (
-            <p className="text-blue-600 dark:text-blue-300 text-xs mt-2 italic">
-              Upgrade for AI-powered detailed analysis
+        </div>
+      )}
+      
+      {/* Locked Explanation Card - Free tier only */}
+      {tier === 'free' && (
+        <div className="rounded-lg p-4 mb-6 border-2 border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800/50 opacity-75 relative cursor-pointer hover:border-blue-400 dark:hover:border-blue-600 transition-colors animate-fade-in"
+          onClick={() => {
+            if (!session) {
+              window.location.href = '/login?redirect=/pricing';
+            } else {
+              window.location.href = '/pricing';
+            }
+          }}
+        >
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50 dark:bg-gray-900/70 rounded-lg z-10">
+            <div className="text-center">
+              <div className="text-3xl mb-2">🔒</div>
+              <p className="text-white text-sm font-semibold mb-1">Detailed Analysis Locked</p>
+              <p className="text-white/80 text-xs">Upgrade to unlock AI-powered explanation</p>
+            </div>
+          </div>
+          <div className="opacity-20">
+            <p className="leading-relaxed text-gray-700 dark:text-gray-300">
+              This week's economic indicators show...
             </p>
-          )}
+          </div>
         </div>
       )}
 

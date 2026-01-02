@@ -82,26 +82,7 @@ export async function GET(request: NextRequest) {
         })),
       });
     } else {
-      // Free tier: basic explanation (template-based) - NO indicators (completely hidden)
-      
-      // Generate basic explanation for free tier (template-based, no AI)
-      // Use overall_status to determine explanation (covers all cases including caution without risk)
-      const riskCount = signal.risk_count;
-      let basicExplanation = '';
-      
-      if (signal.overall_status === 'ok') {
-        basicExplanation = 'This week\'s economic indicators show typical patterns with no unusual cost pressures affecting everyday expenses.';
-      } else if (signal.overall_status === 'caution') {
-        if (riskCount === 1) {
-          basicExplanation = 'One economic indicator shows increased cost pressure this week, while others remain stable.';
-        } else {
-          // riskCount === 0 but cautionCount >= 1 (caution indicators without risk)
-          basicExplanation = 'Some economic indicators show moderate changes this week, while others remain stable.';
-        }
-      } else {
-        // overall_status === 'risk' (riskCount >= 2)
-        basicExplanation = 'Multiple economic indicators show increased cost pressure this week, suggesting broader changes in everyday expenses.';
-      }
+      // Free tier: NO explanation (locked), locked indicators only
       
       // Free tier: return locked indicators (show structure but hide status and values)
       const indicators = await db.getIndicatorsForWeek(signal.week_start);
@@ -110,8 +91,8 @@ export async function GET(request: NextRequest) {
         week_start: signal.week_start,
         overall_status: signal.overall_status,
         risk_count: signal.risk_count,
-        explanation: basicExplanation, // Basic template-based explanation
-        explanation_type: 'basic', // Indicate this is a basic explanation
+        // No explanation for free tier - it's locked (paid feature)
+        explanation: null,
         // Return indicators as locked (no status, no values) - shows what they're missing
         indicators: indicators.map(ind => ({
           type: ind.indicator_type,
