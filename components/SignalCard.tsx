@@ -152,7 +152,8 @@ export function SignalCard({
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {signal.indicators.map((indicator, idx) => {
-              const isLocked = indicator.locked || tier === 'free';
+              // Paid tier: indicators are never locked (only for preview mode if needed)
+              const isLocked = indicator.locked || false;
               const statusColors = {
                 risk: isLocked 
                   ? 'border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800/50 opacity-75'
