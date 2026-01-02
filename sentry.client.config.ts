@@ -45,3 +45,6 @@ try {
   console.log('Sentry not configured, skipping client-side initialization...');
 }
 
+// Export empty object to make this a valid module
+export {};
+

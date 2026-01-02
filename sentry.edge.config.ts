@@ -17,5 +17,8 @@ try {
   console.log('Sentry not configured, skipping edge initialization...');
 }
 
+// Export empty object to make this a valid module
+export {};
+
 
 

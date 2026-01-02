@@ -13,13 +13,14 @@ export default function Error({
 }) {
   useEffect(() => {
     // Log error to Sentry if available
-    try {
-      const Sentry = require('@sentry/nextjs');
-      Sentry.captureException(error);
-    } catch (e) {
-      // Sentry not available, just log to console
-      console.error('Error:', error);
-    }
+    import('@sentry/nextjs')
+      .then((Sentry) => {
+        Sentry.captureException(error);
+      })
+      .catch(() => {
+        // Sentry not available, just log to console
+        console.error('Error:', error);
+      });
   }, [error]);
 
   return (
