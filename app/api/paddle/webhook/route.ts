@@ -84,8 +84,6 @@ async function handleSubscriptionUpdate(data: PaddleSubscriptionData, db: Databa
   let plan = 'monthly';
   if (subscription.items?.[0]?.price_id === process.env.PADDLE_PRICE_ID_YEARLY) {
     plan = 'yearly';
-  } else if (subscription.items?.[0]?.price_id === process.env.PADDLE_PRICE_ID_EARLY_BIRD) {
-    plan = 'early_bird';
   }
 
   // Get billing period dates, fallback to current time if not available

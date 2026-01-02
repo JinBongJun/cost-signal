@@ -16,7 +16,7 @@ export default function PricingPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const toast = useToast();
 
-  async function handleSubscribe(plan: 'monthly' | 'yearly' | 'early_bird') {
+  async function handleSubscribe(plan: 'monthly' | 'yearly') {
     if (!session) {
       router.push('/login?redirect=/pricing');
       return;
@@ -55,22 +55,6 @@ export default function PricingPage() {
 
   const plans = [
     {
-      id: 'early_bird',
-      name: 'Early Bird',
-      price: '$3.99',
-      period: '/month',
-      description: 'Limited time offer - 20% off',
-      badge: 'Best Value',
-      popular: true,
-      features: [
-        'Weekly economic signal with detailed explanations',
-        'Individual indicator breakdowns (Gas, CPI, Interest Rates, Unemployment)',
-        'Historical signal trends (12+ weeks)',
-        'Push notifications for weekly updates',
-        'Early access to new features',
-      ],
-    },
-    {
       id: 'monthly',
       name: 'Monthly',
       price: '$4.99',
@@ -89,6 +73,8 @@ export default function PricingPage() {
       price: '$39.99',
       period: '/year',
       description: 'Save 33% with annual plan',
+      badge: 'Best Value',
+      popular: true,
       originalPrice: '$59.88',
       savings: 'Save $19.89/year',
       features: [
@@ -118,7 +104,7 @@ export default function PricingPage() {
             </p>
           </header>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-12 max-w-4xl mx-auto">
             {plans.map((plan, idx) => (
               <Card
                 key={plan.id}
@@ -169,7 +155,7 @@ export default function PricingPage() {
                 </ul>
 
                 <Button
-                  onClick={() => handleSubscribe(plan.id as 'monthly' | 'yearly' | 'early_bird')}
+                  onClick={() => handleSubscribe(plan.id as 'monthly' | 'yearly')}
                   disabled={loading !== null}
                   isLoading={loading === plan.id}
                   variant={plan.popular ? 'primary' : 'secondary'}

@@ -9,7 +9,7 @@ import type { SessionUser } from '@/lib/types';
  * Create a Paddle checkout session for subscription
  * 
  * Body:
- * - plan: 'monthly' | 'yearly' | 'early_bird'
+ * - plan: 'monthly' | 'yearly'
  */
 export async function POST(request: NextRequest) {
   try {
@@ -45,7 +45,6 @@ export async function POST(request: NextRequest) {
     const priceIdMap: Record<string, string> = {
       monthly: process.env.PADDLE_PRICE_ID_MONTHLY || '',
       yearly: process.env.PADDLE_PRICE_ID_YEARLY || '',
-      early_bird: process.env.PADDLE_PRICE_ID_EARLY_BIRD || process.env.PADDLE_PRICE_ID_MONTHLY || '',
     };
 
     const priceId = priceIdMap[plan];
