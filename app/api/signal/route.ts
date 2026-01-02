@@ -82,13 +82,32 @@ export async function GET(request: NextRequest) {
         })),
       });
     } else {
-      // Free tier: only overall signal (no explanation, no indicators)
+      // Free tier: basic explanation (template-based) + locked indicators preview
+      const indicators = await db.getIndicatorsForWeek(signal.week_start);
+      
+      // Generate basic explanation for free tier (template-based, no AI)
+      const riskCount = signal.risk_count;
+      let basicExplanation = '';
+      if (riskCount === 0) {
+        basicExplanation = 'This week\'s economic indicators show typical patterns with no unusual cost pressures affecting everyday expenses.';
+      } else if (riskCount === 1) {
+        basicExplanation = 'One economic indicator shows increased cost pressure this week, while others remain stable.';
+      } else {
+        basicExplanation = 'Multiple economic indicators show increased cost pressure this week, suggesting broader changes in everyday expenses.';
+      }
+      
+      // Return indicators as "locked" for free tier (show structure but not values)
       return NextResponse.json({
         week_start: signal.week_start,
         overall_status: signal.overall_status,
         risk_count: signal.risk_count,
-        // explanation: null, // Free tier doesn't get explanation
-        // indicators: [], // Free tier doesn't get indicators
+        explanation: basicExplanation, // Basic template-based explanation
+        explanation_type: 'basic', // Indicate this is a basic explanation
+        indicators: indicators.map(ind => ({
+          type: ind.indicator_type,
+          locked: true, // Mark as locked for free tier
+          status: ind.status, // Show status but not values
+        })),
       });
     }
   } catch (error) {

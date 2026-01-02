@@ -175,22 +175,60 @@ export default function PricingPage() {
             <div className="text-center">
               <h3 className="text-2xl font-semibold mb-2 text-gray-900 dark:text-white">Free Tier</h3>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Not ready to upgrade? You can still use Cost Signal for free:
+                Start with our free tier and upgrade when you need more insights:
               </p>
-              <ul className="space-y-3 text-gray-700 dark:text-gray-300 mb-6 max-w-md mx-auto">
-                <li className="flex items-center justify-center gap-2">
-                  <span className="text-green-500 dark:text-green-400 text-lg">✓</span>
-                  <span>Weekly economic signal (🟢🟡🔴)</span>
-                </li>
-                <li className="flex items-center justify-center gap-2">
-                  <span className="text-green-500 dark:text-green-400 text-lg">✓</span>
-                  <span>Push notifications for weekly updates</span>
-                </li>
-                <li className="flex items-center justify-center gap-2">
-                  <span className="text-green-500 dark:text-green-400 text-lg">✓</span>
-                  <span>Basic economic information</span>
-                </li>
-              </ul>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-6">
+                <div className="text-left">
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Free Tier Includes:</h4>
+                  <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 dark:text-green-400 text-lg flex-shrink-0">✓</span>
+                      <span>Weekly economic signal (🟢🟡🔴)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 dark:text-green-400 text-lg flex-shrink-0">✓</span>
+                      <span>Basic explanation</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 dark:text-green-400 text-lg flex-shrink-0">✓</span>
+                      <span>Push notifications</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-gray-400 dark:text-gray-600 text-lg flex-shrink-0">🔒</span>
+                      <span className="text-gray-500 dark:text-gray-500">Indicator details (locked)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-gray-400 dark:text-gray-600 text-lg flex-shrink-0">🔒</span>
+                      <span className="text-gray-500 dark:text-gray-500">Historical trends (locked)</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="text-left">
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Paid Tier Unlocks:</h4>
+                  <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-500 dark:text-blue-400 text-lg flex-shrink-0">✨</span>
+                      <span>AI-powered detailed explanations</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-500 dark:text-blue-400 text-lg flex-shrink-0">✨</span>
+                      <span>Individual indicator breakdowns</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-500 dark:text-blue-400 text-lg flex-shrink-0">✨</span>
+                      <span>Historical trends (12+ weeks)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-500 dark:text-blue-400 text-lg flex-shrink-0">✨</span>
+                      <span>Priority customer support</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-500 dark:text-blue-400 text-lg flex-shrink-0">✨</span>
+                      <span>Early access to new features</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
               <Link href="/">
                 <Button variant="primary" className="min-h-[48px]">
                   Continue with free tier →

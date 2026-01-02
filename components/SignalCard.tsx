@@ -10,12 +10,14 @@ interface SignalCardProps {
     overall_status: 'ok' | 'caution' | 'risk';
     risk_count: number;
     explanation?: string | null;
+    explanation_type?: 'basic' | 'detailed'; // 'basic' for free tier, 'detailed' for paid
     indicators?: Array<{
       type: string;
-      value: number;
-      previous_value: number | null;
-      change_percent: number | null;
+      value?: number;
+      previous_value?: number | null;
+      change_percent?: number | null;
       status: 'ok' | 'caution' | 'risk';
+      locked?: boolean; // true for free tier locked indicators
     }>;
   };
   tier: 'free' | 'paid';
@@ -95,25 +97,40 @@ export function SignalCard({
         </p>
       </div>
 
-      {/* Explanation - Paid tier only */}
-      {tier === 'paid' && signal.explanation && (
-        <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-6 animate-fade-in">
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{signal.explanation}</p>
+      {/* Explanation - Both tiers, but different styles */}
+      {signal.explanation && (
+        <div className={`rounded-lg p-4 mb-6 animate-fade-in ${
+          tier === 'paid' 
+            ? 'bg-gray-50 dark:bg-gray-900' 
+            : 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
+        }`}>
+          <p className={`leading-relaxed ${
+            tier === 'paid'
+              ? 'text-gray-700 dark:text-gray-300'
+              : 'text-blue-800 dark:text-blue-200'
+          }`}>
+            {signal.explanation}
+          </p>
+          {tier === 'free' && signal.explanation_type === 'basic' && (
+            <p className="text-blue-600 dark:text-blue-300 text-xs mt-2 italic">
+              Upgrade for AI-powered detailed analysis
+            </p>
+          )}
         </div>
       )}
 
-      {/* Free tier upgrade prompt */}
-      {tier === 'free' && (
+      {/* Free tier upgrade prompt - only if no locked indicators shown */}
+      {tier === 'free' && (!signal.indicators || signal.indicators.length === 0) && (
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6 animate-fade-in">
           <p className="text-blue-800 dark:text-blue-200 text-sm mb-2">
-            <strong>Want to understand why?</strong>
+            <strong>Want to see the details?</strong>
           </p>
           <p className="text-blue-700 dark:text-blue-300 text-sm mb-3">
-            Upgrade to see detailed explanations, indicator breakdowns, and historical trends.
+            Upgrade to unlock individual indicator breakdowns, historical trends, and AI-powered insights.
           </p>
           <div className="flex gap-2 flex-wrap">
             <Button onClick={onPreviewClick} variant="primary" size="sm">
-              Preview: View Paid Features
+              Preview Paid Features
             </Button>
             <Link href="/pricing">
               <Button variant="secondary" size="sm">
@@ -124,106 +141,146 @@ export function SignalCard({
         </div>
       )}
 
-      {/* Individual Indicators (Paid tier only) */}
-      {tier === 'paid' && (
+      {/* Individual Indicators - Both tiers (locked for free) */}
+      {signal.indicators && signal.indicators.length > 0 && (
         <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold mb-4">Indicator Details</h3>
-          {signal.indicators && signal.indicators.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {signal.indicators.map((indicator, idx) => {
-                const statusColors = {
-                  risk: 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20',
-                  caution: 'border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20',
-                  ok: 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20',
-                };
-                
-                const statusTextColors = {
-                  risk: 'text-red-600 dark:text-red-400',
-                  caution: 'text-yellow-600 dark:text-yellow-400',
-                  ok: 'text-green-600 dark:text-green-400',
-                };
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Indicator Details</h3>
+            {tier === 'free' && (
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                🔒 Locked - Upgrade to unlock
+              </span>
+            )}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {signal.indicators.map((indicator, idx) => {
+              const isLocked = indicator.locked || tier === 'free';
+              const statusColors = {
+                risk: isLocked 
+                  ? 'border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800/50 opacity-75'
+                  : 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20',
+                caution: isLocked
+                  ? 'border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800/50 opacity-75'
+                  : 'border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20',
+                ok: isLocked
+                  ? 'border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800/50 opacity-75'
+                  : 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20',
+              };
+              
+              const statusTextColors = {
+                risk: 'text-red-600 dark:text-red-400',
+                caution: 'text-yellow-600 dark:text-yellow-400',
+                ok: 'text-green-600 dark:text-green-400',
+              };
 
-                return (
-                  <div
-                    key={idx}
-                    className={`rounded-lg p-4 border-2 transition-smooth hover:shadow-md ${statusColors[indicator.status]}`}
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-gray-700 dark:text-gray-300">
-                          {INDICATOR_LABELS[indicator.type] || indicator.type}
-                        </span>
-                        {DATA_SOURCES[indicator.type] && (
-                          <a
-                            href={DATA_SOURCES[indicator.type].url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
-                            title={DATA_SOURCES[indicator.type].fullName}
-                          >
-                            {DATA_SOURCES[indicator.type].name}
-                          </a>
-                        )}
+              return (
+                <div
+                  key={idx}
+                  className={`rounded-lg p-4 border-2 transition-smooth relative ${
+                    isLocked ? 'cursor-pointer hover:border-blue-400 dark:hover:border-blue-600' : 'hover:shadow-md'
+                  } ${statusColors[indicator.status]}`}
+                  onClick={isLocked ? () => {
+                    if (!session) {
+                      window.location.href = '/login?redirect=/pricing';
+                    } else {
+                      window.location.href = '/pricing';
+                    }
+                  } : undefined}
+                >
+                  {isLocked && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50 dark:bg-gray-900/70 rounded-lg z-10">
+                      <div className="text-center">
+                        <div className="text-3xl mb-2">🔒</div>
+                        <p className="text-white text-sm font-semibold mb-1">Locked</p>
+                        <p className="text-white/80 text-xs">Upgrade to unlock</p>
                       </div>
-                      <span
-                        className={`text-xs font-bold px-2 py-1 rounded-full ${
-                          indicator.status === 'risk'
-                            ? 'bg-red-600 text-white'
-                            : indicator.status === 'caution'
-                            ? 'bg-yellow-600 text-white'
-                            : 'bg-green-600 text-white'
-                        }`}
-                      >
-                        {indicator.status === 'risk'
-                          ? 'RISK'
-                          : indicator.status === 'caution'
-                          ? 'CAUTION'
-                          : 'OK'}
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-gray-700 dark:text-gray-300">
+                        {INDICATOR_LABELS[indicator.type] || indicator.type}
                       </span>
-                    </div>
-                    <div className={`text-3xl font-bold mb-2 ${statusTextColors[indicator.status]}`}>
-                      {formatValue(indicator.type, indicator.value)}
-                    </div>
-                    {indicator.previous_value !== null && indicator.change_percent !== null && (
-                      <div className={`text-sm font-medium ${
-                        indicator.change_percent > 0
-                          ? indicator.status === 'risk'
-                            ? 'text-red-700 dark:text-red-300'
-                            : indicator.status === 'caution'
-                            ? 'text-yellow-700 dark:text-yellow-300'
-                            : 'text-gray-600 dark:text-gray-400'
-                          : 'text-gray-600 dark:text-gray-400'
-                      }`}>
-                        {indicator.change_percent > 0 ? '↑' : indicator.change_percent < 0 ? '↓' : '→'} {indicator.change_percent > 0 ? '+' : ''}
-                        {indicator.change_percent.toFixed(2)}% from previous
-                      </div>
-                    )}
-                    {DATA_SOURCES[indicator.type] && (
-                      <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                        Data from{' '}
+                      {DATA_SOURCES[indicator.type] && !isLocked && (
                         <a
                           href={DATA_SOURCES[indicator.type].url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="underline hover:text-gray-700 dark:hover:text-gray-300"
+                          className="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                          title={DATA_SOURCES[indicator.type].fullName}
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          {DATA_SOURCES[indicator.type].fullName}
+                          {DATA_SOURCES[indicator.type].name}
                         </a>
-                      </div>
-                    )}
+                      )}
+                    </div>
+                    <span
+                      className={`text-xs font-bold px-2 py-1 rounded-full ${
+                        indicator.status === 'risk'
+                          ? 'bg-red-600 text-white'
+                          : indicator.status === 'caution'
+                          ? 'bg-yellow-600 text-white'
+                          : 'bg-green-600 text-white'
+                      }`}
+                    >
+                      {indicator.status === 'risk'
+                        ? 'RISK'
+                        : indicator.status === 'caution'
+                        ? 'CAUTION'
+                        : 'OK'}
+                    </span>
                   </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-              <p className="text-yellow-800 dark:text-yellow-200 text-sm">
-                <strong>Preview Mode:</strong> A subscription is required to view detailed information for
-                individual indicators.
-              </p>
+                  
+                  {!isLocked && indicator.value !== undefined ? (
+                    <>
+                      <div className={`text-3xl font-bold mb-2 ${statusTextColors[indicator.status]}`}>
+                        {formatValue(indicator.type, indicator.value)}
+                      </div>
+                      {indicator.previous_value !== null && indicator.change_percent !== null && (
+                        <div className={`text-sm font-medium ${
+                          indicator.change_percent > 0
+                            ? indicator.status === 'risk'
+                              ? 'text-red-700 dark:text-red-300'
+                              : indicator.status === 'caution'
+                              ? 'text-yellow-700 dark:text-yellow-300'
+                              : 'text-gray-600 dark:text-gray-400'
+                            : 'text-gray-600 dark:text-gray-400'
+                        }`}>
+                          {indicator.change_percent > 0 ? '↑' : indicator.change_percent < 0 ? '↓' : '→'} {indicator.change_percent > 0 ? '+' : ''}
+                          {indicator.change_percent.toFixed(2)}% from previous
+                        </div>
+                      )}
+                      {DATA_SOURCES[indicator.type] && (
+                        <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                          Data from{' '}
+                          <a
+                            href={DATA_SOURCES[indicator.type].url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline hover:text-gray-700 dark:hover:text-gray-300"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {DATA_SOURCES[indicator.type].fullName}
+                          </a>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="text-gray-400 dark:text-gray-500 text-sm">
+                      Value hidden - Upgrade to view
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          
+          {tier === 'free' && (
+            <div className="mt-4 text-center">
               <Link href="/pricing">
-                <Button variant="primary" size="sm" className="mt-3">
-                  Subscribe
+                <Button variant="primary" className="w-full md:w-auto">
+                  Unlock All Indicators - Subscribe Now
                 </Button>
               </Link>
             </div>

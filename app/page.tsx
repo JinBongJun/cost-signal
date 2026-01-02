@@ -22,13 +22,15 @@ interface Signal {
   week_start: string;
   overall_status: 'ok' | 'caution' | 'risk';
   risk_count: number;
-  explanation?: string | null; // Only for paid tier
+  explanation?: string | null;
+  explanation_type?: 'basic' | 'detailed'; // 'basic' for free tier, 'detailed' for paid
   indicators?: Array<{
     type: string;
-    value: number;
-    previous_value: number | null;
-    change_percent: number | null;
+    value?: number;
+    previous_value?: number | null;
+    change_percent?: number | null;
     status: 'ok' | 'caution' | 'risk';
+    locked?: boolean; // true for free tier locked indicators
   }>;
 }
 
