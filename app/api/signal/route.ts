@@ -103,14 +103,21 @@ export async function GET(request: NextRequest) {
         basicExplanation = 'Multiple economic indicators show increased cost pressure this week, suggesting broader changes in everyday expenses.';
       }
       
-      // Free tier: return NO indicators (completely hidden to maintain value proposition)
+      // Free tier: return locked indicators (show structure but hide status and values)
+      const indicators = await db.getIndicatorsForWeek(signal.week_start);
+      
       return NextResponse.json({
         week_start: signal.week_start,
         overall_status: signal.overall_status,
         risk_count: signal.risk_count,
         explanation: basicExplanation, // Basic template-based explanation
         explanation_type: 'basic', // Indicate this is a basic explanation
-        // No indicators returned for free tier
+        // Return indicators as locked (no status, no values) - shows what they're missing
+        indicators: indicators.map(ind => ({
+          type: ind.indicator_type,
+          locked: true, // Mark as locked for free tier
+          // No status, no values - completely hidden to maintain value proposition
+        })),
       });
     }
   } catch (error) {

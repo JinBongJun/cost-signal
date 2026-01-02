@@ -119,65 +119,52 @@ export function SignalCard({
         </div>
       )}
 
-      {/* Free tier upgrade prompt - indicators are completely hidden */}
-      {tier === 'free' && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-6 animate-fade-in">
-          <div className="text-center">
-            <div className="text-4xl mb-3">🔒</div>
-            <p className="text-blue-900 dark:text-blue-100 text-lg font-semibold mb-2">
-              Unlock Detailed Insights
-            </p>
-            <p className="text-blue-800 dark:text-blue-200 text-sm mb-4">
-              See individual indicator breakdowns (Gas, CPI, Interest Rates, Unemployment), historical trends, and AI-powered detailed analysis.
-            </p>
-            <div className="flex gap-3 justify-center flex-wrap">
-              <Button onClick={onPreviewClick} variant="primary" size="md" className="min-h-[44px]">
-                Preview Paid Features
-              </Button>
-              <Link href="/pricing">
-                <Button variant="secondary" size="md" className="min-h-[44px]">
-                  Subscribe Now
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Individual Indicators - Paid tier only (completely hidden for free tier) */}
-      {tier === 'paid' && signal.indicators && signal.indicators.length > 0 && (
+      {/* Individual Indicators - Both tiers (locked for free, unlocked for paid) */}
+      {signal.indicators && signal.indicators.length > 0 && (
         <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Indicator Details</h3>
+            {tier === 'free' && (
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                🔒 Locked - Upgrade to unlock
+              </span>
+            )}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {signal.indicators.map((indicator, idx) => {
-              // Paid tier: indicators are never locked (only for preview mode if needed)
-              const isLocked = indicator.locked || false;
-              const statusColors = {
-                risk: isLocked 
-                  ? 'border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800/50 opacity-75'
-                  : 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20',
-                caution: isLocked
-                  ? 'border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800/50 opacity-75'
-                  : 'border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20',
-                ok: isLocked
-                  ? 'border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800/50 opacity-75'
-                  : 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20',
-              };
+              // Free tier: indicators are locked (no status, no values)
+              // Paid tier: indicators are unlocked (full access)
+              const isLocked = indicator.locked || tier === 'free';
+              
+              // Free tier: always use gray colors (status hidden)
+              // Paid tier: use status-based colors
+              const statusColors = isLocked
+                ? {
+                    risk: 'border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800/50 opacity-75',
+                    caution: 'border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800/50 opacity-75',
+                    ok: 'border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800/50 opacity-75',
+                  }
+                : {
+                    risk: 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20',
+                    caution: 'border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20',
+                    ok: 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20',
+                  };
               
               const statusTextColors = {
                 risk: 'text-red-600 dark:text-red-400',
                 caution: 'text-yellow-600 dark:text-yellow-400',
                 ok: 'text-green-600 dark:text-green-400',
               };
+              
+              // Free tier: status is hidden, use 'ok' as default for styling
+              const displayStatus = (indicator.status || 'ok') as 'ok' | 'caution' | 'risk';
 
               return (
                 <div
                   key={idx}
                   className={`rounded-lg p-4 border-2 transition-smooth relative ${
                     isLocked ? 'cursor-pointer hover:border-blue-400 dark:hover:border-blue-600' : 'hover:shadow-md'
-                  } ${statusColors[indicator.status]}`}
+                  } ${statusColors[displayStatus]}`}
                   onClick={isLocked ? () => {
                     if (!session) {
                       window.location.href = '/login?redirect=/pricing';
@@ -214,34 +201,37 @@ export function SignalCard({
                         </a>
                       )}
                     </div>
-                    <span
-                      className={`text-xs font-bold px-2 py-1 rounded-full ${
-                        indicator.status === 'risk'
-                          ? 'bg-red-600 text-white'
+                    {/* Status badge - hidden for free tier (locked indicators) */}
+                    {!isLocked && indicator.status && (
+                      <span
+                        className={`text-xs font-bold px-2 py-1 rounded-full ${
+                          indicator.status === 'risk'
+                            ? 'bg-red-600 text-white'
+                            : indicator.status === 'caution'
+                            ? 'bg-yellow-600 text-white'
+                            : 'bg-green-600 text-white'
+                        }`}
+                      >
+                        {indicator.status === 'risk'
+                          ? 'RISK'
                           : indicator.status === 'caution'
-                          ? 'bg-yellow-600 text-white'
-                          : 'bg-green-600 text-white'
-                      }`}
-                    >
-                      {indicator.status === 'risk'
-                        ? 'RISK'
-                        : indicator.status === 'caution'
-                        ? 'CAUTION'
-                        : 'OK'}
-                    </span>
+                          ? 'CAUTION'
+                          : 'OK'}
+                      </span>
+                    )}
                   </div>
                   
                   {!isLocked && indicator.value !== undefined ? (
                     <>
-                      <div className={`text-3xl font-bold mb-2 ${statusTextColors[indicator.status]}`}>
+                      <div className={`text-3xl font-bold mb-2 ${statusTextColors[displayStatus]}`}>
                         {formatValue(indicator.type, indicator.value)}
                       </div>
                       {indicator.previous_value !== null && indicator.change_percent != null && (
                         <div className={`text-sm font-medium ${
                           indicator.change_percent > 0
-                            ? indicator.status === 'risk'
+                            ? displayStatus === 'risk'
                               ? 'text-red-700 dark:text-red-300'
-                              : indicator.status === 'caution'
+                              : displayStatus === 'caution'
                               ? 'text-yellow-700 dark:text-yellow-300'
                               : 'text-gray-600 dark:text-gray-400'
                             : 'text-gray-600 dark:text-gray-400'
@@ -274,6 +264,17 @@ export function SignalCard({
               );
             })}
           </div>
+          
+          {/* Free tier upgrade CTA */}
+          {tier === 'free' && (
+            <div className="mt-6 text-center">
+              <Link href="/pricing">
+                <Button variant="primary" className="w-full md:w-auto min-h-[44px]">
+                  Unlock All Indicators - Subscribe Now
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </Card>
