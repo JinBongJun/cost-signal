@@ -1,6 +1,7 @@
-import * as Sentry from '@sentry/nextjs';
-
-Sentry.init({
+try {
+  const Sentry = require('@sentry/nextjs');
+  
+  Sentry.init({
   dsn: process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN,
   
   // Adjust this value in production, or use tracesSampler for greater control
@@ -32,7 +33,11 @@ Sentry.init({
     
     return event;
   },
-});
+  });
+} catch (e) {
+  // Sentry not available, skip initialization
+  console.log('Sentry not configured, skipping server-side initialization...');
+}
 
 
 
