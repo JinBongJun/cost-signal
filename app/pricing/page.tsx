@@ -82,8 +82,6 @@ export default function PricingPage() {
         'Individual indicator breakdowns (Gas, CPI, Interest Rates, Unemployment)',
         'Historical signal trends (12+ weeks)',
         'Push notifications for weekly updates',
-        'Priority customer support',
-        'Early access to new features',
       ],
     },
   ];
@@ -217,14 +215,6 @@ export default function PricingPage() {
                     <li className="flex items-start gap-2">
                       <span className="text-blue-500 dark:text-blue-400 text-lg flex-shrink-0">✨</span>
                       <span>Historical trends (12+ weeks)</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-500 dark:text-blue-400 text-lg flex-shrink-0">✨</span>
-                      <span>Priority customer support</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-500 dark:text-blue-400 text-lg flex-shrink-0">✨</span>
-                      <span>Early access to new features</span>
                     </li>
                   </ul>
                 </div>
