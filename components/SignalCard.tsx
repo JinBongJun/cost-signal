@@ -108,7 +108,7 @@ export function SignalCard({
       
       {/* Locked Explanation Card - Free tier only */}
       {tier === 'free' && (
-        <div className="rounded-lg p-4 mb-6 border-2 border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800/50 opacity-75 relative cursor-pointer hover:border-blue-400 dark:hover:border-blue-600 transition-colors animate-fade-in"
+        <div className="rounded-lg p-6 mb-6 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800/50 relative cursor-pointer hover:border-blue-400 dark:hover:border-blue-600 transition-all animate-fade-in overflow-hidden"
           onClick={() => {
             if (!session) {
               window.location.href = '/login?redirect=/pricing';
@@ -117,16 +117,16 @@ export function SignalCard({
             }
           }}
         >
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50 dark:bg-gray-900/70 rounded-lg z-10">
-            <div className="text-center">
-              <div className="text-3xl mb-2">🔒</div>
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-900/60 dark:bg-gray-900/75 rounded-lg z-10 backdrop-blur-sm">
+            <div className="text-center px-4">
+              <div className="text-4xl mb-3">🔒</div>
               <p className="text-white text-sm font-semibold mb-1">Detailed Analysis Locked</p>
-              <p className="text-white/80 text-xs">Upgrade to unlock AI-powered explanation</p>
+              <p className="text-white/90 text-xs">Upgrade to unlock AI-powered explanation</p>
             </div>
           </div>
-          <div className="opacity-20">
-            <p className="leading-relaxed text-gray-700 dark:text-gray-300">
-              This week's economic indicators show...
+          <div className="opacity-30 pointer-events-none">
+            <p className="leading-relaxed text-gray-700 dark:text-gray-300 text-base">
+              This week's economic indicators show typical patterns with no unusual cost pressures affecting everyday expenses. The analysis provides insights into individual indicators and their impact on consumer costs.
             </p>
           </div>
         </div>
