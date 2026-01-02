@@ -84,27 +84,32 @@ export async function GET(request: NextRequest) {
     } else {
       // Free tier: basic explanation (template-based) + locked indicators
       
+      // Get indicators first to calculate cautionCount
+      const indicators = await db.getIndicatorsForWeek(signal.week_start);
+      
       // Generate basic explanation for free tier (template-based, no AI)
       // Use overall_status to determine explanation (covers all cases including caution without risk)
       const riskCount = signal.risk_count;
+      const cautionCount = indicators.filter(ind => ind.status === 'caution').length;
       let basicExplanation = '';
       
       if (signal.overall_status === 'ok') {
         basicExplanation = 'This week\'s economic indicators show typical patterns with no unusual cost pressures affecting everyday expenses.';
       } else if (signal.overall_status === 'caution') {
         if (riskCount === 1) {
+          // One risk indicator → caution
           basicExplanation = 'One economic indicator shows increased cost pressure this week, while others remain stable.';
+        } else if (cautionCount === 1) {
+          // One caution indicator (no risk) → caution
+          basicExplanation = 'One economic indicator shows moderate changes this week, while others remain stable.';
         } else {
-          // riskCount === 0 but cautionCount >= 1 (caution indicators without risk)
+          // Multiple caution indicators (no risk) → caution
           basicExplanation = 'Some economic indicators show moderate changes this week, while others remain stable.';
         }
       } else {
         // overall_status === 'risk' (riskCount >= 2)
         basicExplanation = 'Multiple economic indicators show increased cost pressure this week, suggesting broader changes in everyday expenses.';
       }
-      
-      // Free tier: return locked indicators (show structure but hide status and values)
-      const indicators = await db.getIndicatorsForWeek(signal.week_start);
       
       return NextResponse.json({
         week_start: signal.week_start,
