@@ -30,7 +30,7 @@ export default function RefundPage() {
                 </h2>
                 <div className="space-y-3 text-gray-600 dark:text-gray-300 leading-7">
                   <p className="text-base md:text-lg">
-                    We offer refunds on a case-by-case basis. If you are not satisfied with your subscription, please contact us within 30 days of your purchase to request a refund.
+                    We offer refunds on a case-by-case basis. If you are not satisfied with your subscription, please contact us within <strong className="text-gray-900 dark:text-gray-100">30 days</strong> of your purchase to request a refund. The refund window is <strong className="text-gray-900 dark:text-gray-100">30 days</strong> from the date of purchase.
                   </p>
                   <p className="text-base md:text-lg">
                     Refund requests are reviewed individually, and we will work with you to resolve any issues. Approved refunds will be processed within 5-10 business days.
@@ -88,7 +88,7 @@ export default function RefundPage() {
                     Refunds are generally not available for:
                   </p>
                   <ul className="list-disc list-outside space-y-2 ml-5">
-                    <li>Subscriptions that have been active for more than 30 days</li>
+                    <li>Subscriptions that have been active for more than <strong className="text-gray-900 dark:text-gray-100">30 days</strong> from the date of purchase</li>
                     <li>Subscriptions that have been cancelled and then reactivated</li>
                     <li>Cases where the service was used in violation of our Terms of Service</li>
                   </ul>

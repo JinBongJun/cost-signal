@@ -20,6 +20,15 @@ export default function TermsPage() {
             <div className="p-6 md:p-10 lg:p-12 space-y-8 md:space-y-10">
               <section className="pb-6 md:pb-8 border-b border-gray-100 dark:border-gray-700 last:border-b-0">
                 <h2 className="text-xl md:text-2xl font-semibold mb-3 text-gray-900 dark:text-gray-100 mb-4">
+                  Legal Business Name
+                </h2>
+                <p className="text-gray-600 dark:text-gray-300 leading-7 text-base md:text-lg">
+                  These Terms of Service are provided by <strong className="text-gray-900 dark:text-gray-100">Cost Signal</strong> ("Cost Signal", "we", "us", or "our").
+                </p>
+              </section>
+
+              <section className="pb-6 md:pb-8 border-b border-gray-100 dark:border-gray-700 last:border-b-0">
+                <h2 className="text-xl md:text-2xl font-semibold mb-3 text-gray-900 dark:text-gray-100 mb-4">
                   1. Acceptance of Terms
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300 leading-7 text-base md:text-lg">
@@ -32,7 +41,7 @@ export default function TermsPage() {
                   2. Service Description
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300 leading-7 text-base md:text-lg">
-                  Cost Signal provides weekly economic signals for U.S. consumers. The service is informational only and does not constitute financial advice.
+                  Cost Signal ("Cost Signal", "we", "us", or "our") provides weekly economic signals for U.S. consumers. The service is informational only and does not constitute financial advice.
                 </p>
               </section>
 
