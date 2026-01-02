@@ -237,18 +237,19 @@ This link will expire in 1 hour. If you didn't request this change, you can safe
     });
 
     if (error) {
+      const errorAny = error as any;
       console.error('❌ Resend API error:', error);
       console.error('❌ Error details:', JSON.stringify(error, null, 2));
-      console.error('❌ Error message:', error.message);
-      console.error('❌ Error name:', error.name);
-      console.error('❌ Error statusCode:', error.statusCode);
+      console.error('❌ Error message:', errorAny.message);
+      console.error('❌ Error name:', errorAny.name);
+      console.error('❌ Error statusCode:', errorAny.statusCode);
       console.error('❌ Attempted to send to:', newEmail);
       console.error('❌ RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL);
       
       // Check for specific Resend errors
-      if (error.message?.includes('domain') || error.message?.includes('Domain') || error.message?.includes('verify a domain')) {
+      if (errorAny.message?.includes('domain') || errorAny.message?.includes('Domain') || errorAny.message?.includes('verify a domain')) {
         // Domain might be verified but error message is generic - check statusCode
-        if (error.statusCode === 403) {
+        if (errorAny.statusCode === 403) {
           return { 
             success: false, 
             error: 'Email sending failed. Please check that the domain is verified in Resend and try again.' 
@@ -260,14 +261,14 @@ This link will expire in 1 hour. If you didn't request this change, you can safe
         };
       }
       
-      if (error.message?.includes('testing') || error.message?.includes('test') || error.message?.includes('only send testing emails')) {
+      if (errorAny.message?.includes('testing') || errorAny.message?.includes('test') || errorAny.message?.includes('only send testing emails')) {
         return { 
           success: false, 
           error: 'This email address cannot receive emails from the test domain. Please verify your domain in Resend.' 
         };
       }
       
-      if (error.statusCode === 403) {
+      if (errorAny.statusCode === 403) {
         return { 
           success: false, 
           error: 'Email sending failed. Please verify your domain is properly configured in Resend.' 
@@ -275,7 +276,7 @@ This link will expire in 1 hour. If you didn't request this change, you can safe
       }
       
       // Return the actual error message from Resend
-      return { success: false, error: error.message || 'Failed to send email' };
+      return { success: false, error: errorAny.message || 'Failed to send email' };
     }
 
     console.log('✅ Email change confirmation email sent successfully. Email ID:', data?.id);
