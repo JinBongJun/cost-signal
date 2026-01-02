@@ -237,7 +237,7 @@ export function SignalCard({
                       <div className={`text-3xl font-bold mb-2 ${statusTextColors[indicator.status]}`}>
                         {formatValue(indicator.type, indicator.value)}
                       </div>
-                      {indicator.previous_value !== null && indicator.change_percent !== null && (
+                      {indicator.previous_value !== null && indicator.change_percent != null && (
                         <div className={`text-sm font-medium ${
                           indicator.change_percent > 0
                             ? indicator.status === 'risk'
