@@ -274,16 +274,6 @@ export function SignalCard({
               );
             })}
           </div>
-          
-          {tier === 'free' && (
-            <div className="mt-4 text-center">
-              <Link href="/pricing">
-                <Button variant="primary" className="w-full md:w-auto">
-                  Unlock All Indicators - Subscribe Now
-                </Button>
-              </Link>
-            </div>
-          )}
         </div>
       )}
     </Card>
