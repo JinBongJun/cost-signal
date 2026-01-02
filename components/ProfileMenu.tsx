@@ -160,33 +160,6 @@ export function ProfileMenu({ hasActiveSubscription, isSubscribed, onNotificatio
             </div>
           </div>
 
-          {/* Legal Links */}
-          <div className="border-t border-gray-200 dark:border-gray-700 mt-2 pt-2 px-2">
-            <div className="flex flex-wrap gap-2">
-              <Link
-                href="/terms"
-                className="flex-1 text-center px-3 py-2 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                onClick={() => setIsOpen(false)}
-              >
-                Terms
-              </Link>
-              <Link
-                href="/privacy"
-                className="flex-1 text-center px-3 py-2 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                onClick={() => setIsOpen(false)}
-              >
-                Privacy
-              </Link>
-              <Link
-                href="/refund"
-                className="flex-1 text-center px-3 py-2 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                onClick={() => setIsOpen(false)}
-              >
-                Refund
-              </Link>
-            </div>
-          </div>
-
           {/* Sign Out */}
           <div className="border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
             <button
