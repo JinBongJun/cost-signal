@@ -119,38 +119,36 @@ export function SignalCard({
         </div>
       )}
 
-      {/* Free tier upgrade prompt - only if no locked indicators shown */}
-      {tier === 'free' && (!signal.indicators || signal.indicators.length === 0) && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6 animate-fade-in">
-          <p className="text-blue-800 dark:text-blue-200 text-sm mb-2">
-            <strong>Want to see the details?</strong>
-          </p>
-          <p className="text-blue-700 dark:text-blue-300 text-sm mb-3">
-            Upgrade to unlock individual indicator breakdowns, historical trends, and AI-powered insights.
-          </p>
-          <div className="flex gap-2 flex-wrap">
-            <Button onClick={onPreviewClick} variant="primary" size="sm">
-              Preview Paid Features
-            </Button>
-            <Link href="/pricing">
-              <Button variant="secondary" size="sm">
-                Subscribe Now
+      {/* Free tier upgrade prompt - indicators are completely hidden */}
+      {tier === 'free' && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-6 animate-fade-in">
+          <div className="text-center">
+            <div className="text-4xl mb-3">🔒</div>
+            <p className="text-blue-900 dark:text-blue-100 text-lg font-semibold mb-2">
+              Unlock Detailed Insights
+            </p>
+            <p className="text-blue-800 dark:text-blue-200 text-sm mb-4">
+              See individual indicator breakdowns (Gas, CPI, Interest Rates, Unemployment), historical trends, and AI-powered detailed analysis.
+            </p>
+            <div className="flex gap-3 justify-center flex-wrap">
+              <Button onClick={onPreviewClick} variant="primary" size="md" className="min-h-[44px]">
+                Preview Paid Features
               </Button>
-            </Link>
+              <Link href="/pricing">
+                <Button variant="secondary" size="md" className="min-h-[44px]">
+                  Subscribe Now
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Individual Indicators - Both tiers (locked for free) */}
-      {signal.indicators && signal.indicators.length > 0 && (
+      {/* Individual Indicators - Paid tier only (completely hidden for free tier) */}
+      {tier === 'paid' && signal.indicators && signal.indicators.length > 0 && (
         <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Indicator Details</h3>
-            {tier === 'free' && (
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                🔒 Locked - Upgrade to unlock
-              </span>
-            )}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {signal.indicators.map((indicator, idx) => {
