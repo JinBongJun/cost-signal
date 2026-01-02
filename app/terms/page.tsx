@@ -5,7 +5,7 @@ export default function TermsPage() {
     <>
       <Header />
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold mb-8 text-gray-900 dark:text-white">
           Terms of Service
         </h1>
@@ -79,6 +79,7 @@ export default function TermsPage() {
               Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
             </p>
           </div>
+        </div>
         </div>
       </div>
     </>

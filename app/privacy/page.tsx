@@ -5,7 +5,7 @@ export default function PrivacyPage() {
     <>
       <Header />
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold mb-8 text-gray-900 dark:text-white">
           Privacy Policy
         </h1>
@@ -148,6 +148,7 @@ export default function PrivacyPage() {
               If you have questions about this Privacy Policy, please contact us through your account settings or email support.
             </p>
           </section>
+        </div>
         </div>
       </div>
     </>
