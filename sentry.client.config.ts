@@ -18,7 +18,7 @@ try {
   environment: process.env.NODE_ENV || 'development',
   
   // Filter out health check endpoints and other noise
-  beforeSend(event, hint) {
+  beforeSend(event: any, hint: any) {
     // Don't send events in development unless explicitly enabled
     if (process.env.NODE_ENV === 'development' && !process.env.SENTRY_ENABLE_IN_DEV) {
       return null;
