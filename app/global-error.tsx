@@ -10,15 +10,13 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log error to Sentry if available
-    import('@sentry/nextjs')
-      .then((Sentry) => {
-        Sentry.captureException(error);
-      })
-      .catch(() => {
-        // Sentry not available, just log to console
-        console.error('Global error:', error);
-      });
+    // Log error to console
+    console.error('Global error:', error);
+    
+    // Sentry logging can be added later if needed
+    // if (typeof window !== 'undefined' && (window as any).Sentry) {
+    //   (window as any).Sentry.captureException(error);
+    // }
   }, [error]);
 
   return (
