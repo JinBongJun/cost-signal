@@ -108,7 +108,7 @@ export function SignalCard({
       
       {/* Locked Explanation Card - Free tier only */}
       {tier === 'free' && (
-        <div className="rounded-lg p-6 mb-6 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800/50 relative cursor-pointer hover:border-blue-400 dark:hover:border-blue-600 transition-all animate-fade-in overflow-hidden"
+        <div className="rounded-lg p-4 mb-6 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800/50 relative cursor-pointer hover:border-blue-400 dark:hover:border-blue-600 transition-all animate-fade-in overflow-hidden"
           onClick={() => {
             if (!session) {
               window.location.href = '/login?redirect=/pricing';
@@ -117,11 +117,11 @@ export function SignalCard({
             }
           }}
         >
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-900/60 dark:bg-gray-900/75 rounded-lg z-10 backdrop-blur-sm">
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-900/60 dark:bg-gray-900/70 rounded-lg z-10 backdrop-blur-sm">
             <div className="text-center px-4">
-              <div className="text-4xl mb-3">🔒</div>
+              <div className="text-3xl mb-2">🔒</div>
               <p className="text-white text-sm font-semibold mb-1">Detailed Analysis Locked</p>
-              <p className="text-white/90 text-xs">Upgrade to unlock AI-powered explanation</p>
+              <p className="text-white/80 text-xs">Upgrade to unlock AI-powered explanation</p>
             </div>
           </div>
           <div className="opacity-30 pointer-events-none">
@@ -175,7 +175,7 @@ export function SignalCard({
               return (
                 <div
                   key={idx}
-                  className={`rounded-lg p-4 border-2 transition-smooth relative ${
+                  className={`rounded-lg p-4 border transition-smooth relative overflow-hidden ${
                     isLocked ? 'cursor-pointer hover:border-blue-400 dark:hover:border-blue-600' : 'hover:shadow-md'
                   } ${statusColors[displayStatus]}`}
                   onClick={isLocked ? () => {
@@ -187,7 +187,7 @@ export function SignalCard({
                   } : undefined}
                 >
                   {isLocked && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50 dark:bg-gray-900/70 rounded-lg z-10">
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-900/60 dark:bg-gray-900/70 rounded-lg z-10 backdrop-blur-sm">
                       <div className="text-center">
                         <div className="text-3xl mb-2">🔒</div>
                         <p className="text-white text-sm font-semibold mb-1">Locked</p>
