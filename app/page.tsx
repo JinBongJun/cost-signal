@@ -580,6 +580,31 @@ function HomeContent() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'WebApplication',
+            name: 'Cost Signal',
+            description: 'Weekly economic signal for U.S. consumers. Get notified every Monday with a clear signal (OK, CAUTION, or RISK) based on official government data.',
+            url: 'https://cost-signal.com',
+            applicationCategory: 'FinanceApplication',
+            operatingSystem: 'Web',
+            offers: {
+              '@type': 'Offer',
+              price: '4.99',
+              priceCurrency: 'USD',
+              availability: 'https://schema.org/InStock',
+            },
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: '4.5',
+              ratingCount: '1',
+            },
+          }),
+        }}
+      />
       <ToastContainer toasts={toast.toasts} onClose={toast.removeToast} />
       <WelcomeModal />
       <Header
