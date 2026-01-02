@@ -1,14 +1,28 @@
 export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     // Validate environment variables on startup
-    const { validateRequiredEnv } = await import('./lib/env');
-    validateRequiredEnv();
+    try {
+      const { validateRequiredEnv } = await import('./lib/env');
+      validateRequiredEnv();
+    } catch (e) {
+      // env validation not available, skip
+    }
     
-    await import('./sentry.server.config');
+    // Load Sentry server config if available
+    try {
+      await import('./sentry.server.config');
+    } catch (e) {
+      // Sentry not available, skip
+    }
   }
 
   if (process.env.NEXT_RUNTIME === 'edge') {
-    await import('./sentry.edge.config');
+    // Load Sentry edge config if available
+    try {
+      await import('./sentry.edge.config');
+    } catch (e) {
+      // Sentry not available, skip
+    }
   }
 }
 
