@@ -46,25 +46,6 @@ export function Header({
             >
               Learn More
             </Link>
-            <div className="hidden md:flex items-center gap-2 text-gray-400">|</div>
-            <Link 
-              href="/terms" 
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-            >
-              Terms
-            </Link>
-            <Link 
-              href="/privacy" 
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-            >
-              Privacy
-            </Link>
-            <Link 
-              href="/refund" 
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-            >
-              Refund
-            </Link>
             <ThemeToggle />
             {session?.user ? (
               <ProfileMenu

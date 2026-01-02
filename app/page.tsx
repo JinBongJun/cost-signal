@@ -16,6 +16,7 @@ import { SignalCard } from '@/components/SignalCard';
 import { HistorySection } from '@/components/HistorySection';
 import { WelcomeModal } from '@/components/WelcomeModal';
 import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
 interface Signal {
   week_start: string;
@@ -634,20 +635,7 @@ function HomeContent() {
           />
         )}
 
-        {/* Footer (Google Style - Simple) */}
-        <footer className="mt-12 pt-6 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-600 dark:text-gray-400">
-            <Link href="/terms" className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
-              Terms
-            </Link>
-            <Link href="/privacy" className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
-              Privacy
-            </Link>
-            <span className="text-gray-500 dark:text-gray-500">
-              Updated every Monday
-            </span>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </main>
     </>

@@ -1,4 +1,5 @@
 import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
 export default function RefundPage() {
   return (
@@ -115,6 +116,7 @@ export default function RefundPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 }
