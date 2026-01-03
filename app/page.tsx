@@ -17,6 +17,7 @@ import { HistorySection } from '@/components/HistorySection';
 import { WelcomeModal } from '@/components/WelcomeModal';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import type { SessionUser } from '@/lib/types';
 
 interface Signal {
   week_start: string;
@@ -98,7 +99,7 @@ function HomeContent() {
     } else {
       setIsSubscribed(false);
     }
-  }, [session?.user?.id]); // Only depend on user ID, not tier
+  }, [(session?.user as SessionUser)?.id || session?.user?.email]); // Only depend on user ID or email, not tier
 
   // Check user subscription and install status
   useEffect(() => {
@@ -116,7 +117,7 @@ function HomeContent() {
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
     };
-  }, [session?.user?.id]); // Only depend on user ID, not tier
+  }, [(session?.user as SessionUser)?.id || session?.user?.email]); // Only depend on user ID or email, not tier
 
 
 
