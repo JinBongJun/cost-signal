@@ -79,9 +79,9 @@ export function HistorySection({
                 key={histSignal.week_start}
                 padding="md"
                 hover
-                className="animate-slide-up border-l-4 hover:animate-pulse-glow transition-all duration-300"
+                className="animate-slide-up border-l-4 transition-all duration-300"
                 style={{
-                  animationDelay: `${idx * 0.1}s`,
+                  animationDelay: `${idx * 0.08}s`,
                   borderLeftColor:
                     histSignal.overall_status === 'risk'
                       ? '#dc2626'

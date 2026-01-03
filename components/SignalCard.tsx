@@ -86,9 +86,9 @@ export function SignalCard({
   formatValue,
 }: SignalCardProps) {
   return (
-    <Card className="mb-6 animate-bounce-in">
+    <Card className="mb-6 animate-scale-in">
       <div className="text-center mb-6">
-        <div className="text-6xl mb-4 animate-float">{STATUS_EMOJI[signal.overall_status]}</div>
+        <div className="text-6xl mb-4 animate-fade-in">{STATUS_EMOJI[signal.overall_status]}</div>
         <h2 className={`text-3xl md:text-4xl font-bold mb-2 ${STATUS_COLOR[signal.overall_status]}`}>
           {STATUS_LABEL[signal.overall_status]}
         </h2>

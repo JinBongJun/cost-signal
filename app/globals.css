@@ -84,14 +84,11 @@ body {
 
 @keyframes bounce-in {
   0% {
-    transform: scale(0.3);
+    transform: scale(0.9);
     opacity: 0;
   }
   50% {
-    transform: scale(1.05);
-  }
-  70% {
-    transform: scale(0.9);
+    transform: scale(1.02);
   }
   100% {
     transform: scale(1);
@@ -104,16 +101,16 @@ body {
     transform: translateY(0px);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-5px);
   }
 }
 
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 0 2px rgba(37, 99, 235, 0.2);
   }
   50% {
-    box-shadow: 0 0 20px rgba(37, 99, 235, 0.6);
+    box-shadow: 0 0 8px rgba(37, 99, 235, 0.4);
   }
 }
 
@@ -146,7 +143,7 @@ body {
 }
 
 .animate-fade-in {
-  animation: fade-in 0.6s ease-out;
+  animation: fade-in 0.4s ease-out;
 }
 
 .animate-fade-out {
@@ -154,27 +151,27 @@ body {
 }
 
 .animate-scale-in {
-  animation: scale-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: scale-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .animate-slide-up {
-  animation: slide-up 0.6s ease-out;
+  animation: slide-up 0.4s ease-out;
 }
 
 .animate-bounce-in {
-  animation: bounce-in 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation: bounce-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .animate-float {
-  animation: float 3s ease-in-out infinite;
+  animation: float 4s ease-in-out infinite;
 }
 
 .animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
+  animation: pulse-glow 3s ease-in-out infinite;
 }
 
 .animate-rotate-in {
-  animation: rotate-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: rotate-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Focus styles for accessibility */
