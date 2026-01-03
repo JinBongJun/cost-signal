@@ -45,7 +45,7 @@ export function WelcomeModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
-      <Card className="max-w-lg w-full animate-scale-in" padding="lg">
+      <Card className="max-w-lg w-full animate-bounce-in" padding="lg">
         {step === 1 ? (
           <>
             <div className="text-center mb-6">
