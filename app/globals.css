@@ -62,7 +62,7 @@ body {
 
 @keyframes scale-in {
   from {
-    transform: scale(0.95);
+    transform: scale(0.9);
     opacity: 0;
   }
   to {
@@ -72,15 +72,15 @@ body {
 }
 
 .animate-slide-in-right {
-  animation: slide-in-right 0.3s ease-out;
+  animation: slide-in-right 0.4s ease-out;
 }
 
 .animate-slide-out-right {
-  animation: slide-out-right 0.3s ease-out;
+  animation: slide-out-right 0.4s ease-out;
 }
 
 .animate-fade-in {
-  animation: fade-in 0.3s ease-out;
+  animation: fade-in 0.5s ease-out;
 }
 
 .animate-fade-out {
@@ -88,7 +88,7 @@ body {
 }
 
 .animate-scale-in {
-  animation: scale-in 0.3s ease-out;
+  animation: scale-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* Focus styles for accessibility */
