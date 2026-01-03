@@ -84,8 +84,6 @@ function HomeContent() {
   const [error, setError] = useState<string | null>(null);
   const [tier, setTier] = useState<'free' | 'paid'>('free');
   const [isSubscribed, setIsSubscribed] = useState<boolean | null>(null); // null = checking, true/false = known state
-  const [isInstalled, setIsInstalled] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -101,22 +99,10 @@ function HomeContent() {
     }
   }, [(session?.user as SessionUser)?.id || session?.user?.email]); // Only depend on user ID or email, not tier
 
-  // Check user subscription and install status
+  // Check user subscription
   useEffect(() => {
     fetchSignal();
-    checkInstallStatus();
     checkUserSubscription();
-    
-    // Listen for beforeinstallprompt event
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-    window.addEventListener('beforeinstallprompt', handler);
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handler);
-    };
   }, [(session?.user as SessionUser)?.id || session?.user?.email]); // Only depend on user ID or email, not tier
 
 
@@ -169,12 +155,6 @@ function HomeContent() {
     }
   }
 
-  function checkInstallStatus() {
-    // Check if app is installed (standalone mode)
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-    const isIOSStandalone = (window.navigator as any).standalone === true;
-    setIsInstalled(isStandalone || isIOSStandalone);
-  }
 
   async function fetchSignal() {
     setLoading(true);
@@ -394,23 +374,6 @@ function HomeContent() {
   }
 
 
-  async function handleInstall() {
-    if (!deferredPrompt) {
-      toast.info('App is already installed or installation is not available.');
-      return;
-    }
-
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-      setIsInstalled(true);
-      setDeferredPrompt(null);
-      toast.success('App installed successfully!');
-    } else {
-      toast.info('App installation was cancelled.');
-    }
-  }
 
   // Show loading state if:
   // 1. Initial data is loading
@@ -637,15 +600,6 @@ function HomeContent() {
                 👋 <strong>Welcome!</strong> You can browse for free. <Link href="/signup" className="underline font-medium">Sign up</Link> for full features.
               </p>
             </div>
-          </div>
-        )}
-
-        {/* PWA Install Prompt (minimal) */}
-        {!isInstalled && deferredPrompt && (
-          <div className="mb-4 text-center">
-            <Button onClick={handleInstall} variant="ghost" size="sm">
-              📱 Install App
-            </Button>
           </div>
         )}
 
