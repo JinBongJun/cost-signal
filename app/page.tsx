@@ -91,9 +91,18 @@ function HomeContent() {
   const toast = useToast();
 
 
+  // Check subscription status only once when session changes
+  useEffect(() => {
+    if (session?.user) {
+      checkSubscriptionStatus();
+    } else {
+      setIsSubscribed(false);
+    }
+  }, [session?.user?.id]); // Only depend on user ID, not tier
+
+  // Check user subscription and install status
   useEffect(() => {
     fetchSignal();
-    checkSubscriptionStatus();
     checkInstallStatus();
     checkUserSubscription();
     
@@ -107,7 +116,7 @@ function HomeContent() {
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
     };
-  }, [tier, session]);
+  }, [session?.user?.id]); // Only depend on user ID, not tier
 
 
 
@@ -118,14 +127,15 @@ function HomeContent() {
         const response = await fetch('/api/signal?tier=paid');
         if (response.ok) {
           setHasActiveSubscription(true);
-          if (tier === 'free') {
-            setTier('paid'); // Auto-upgrade if user has subscription
-          }
+          // Only update tier if it's currently free (avoid infinite loop)
+          setTier((currentTier) => currentTier === 'free' ? 'paid' : currentTier);
         } else {
           setHasActiveSubscription(false);
+          setTier('free');
         }
       } catch (err) {
         setHasActiveSubscription(false);
+        setTier('free');
       }
     } else {
       setHasActiveSubscription(false);
@@ -134,6 +144,9 @@ function HomeContent() {
   }
 
   async function checkSubscriptionStatus() {
+    // Set to checking state first
+    setIsSubscribed(null);
+    
     if ('serviceWorker' in navigator) {
       try {
         const subscribed = await isSubscribedToPushNotifications();
