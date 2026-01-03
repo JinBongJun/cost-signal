@@ -5,6 +5,7 @@ import Link from 'next/link';
 export function Footer() {
   const appVersion = process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0';
   const buildTime = process.env.NEXT_PUBLIC_BUILD_TIME || '';
+  const gitCommit = process.env.NEXT_PUBLIC_GIT_COMMIT || '';
 
   return (
     <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-auto">
@@ -14,17 +15,22 @@ export function Footer() {
             <div className="text-sm text-gray-600 dark:text-gray-400">
               © {new Date().getFullYear()} Cost Signal. All rights reserved.
             </div>
-            {(appVersion || buildTime) && (
+            {(appVersion || buildTime || gitCommit) && (
               <div className="text-xs text-gray-400 dark:text-gray-500">
                 {appVersion && `v${appVersion}`}
-                {appVersion && buildTime && ' • '}
-                {buildTime && `Built ${new Date(buildTime).toLocaleString('en-US', { 
-                  month: 'short', 
-                  day: 'numeric', 
-                  hour: '2-digit', 
-                  minute: '2-digit',
-                  timeZoneName: 'short'
-                })}`}
+                {gitCommit && ` (${gitCommit})`}
+                {buildTime && (
+                  <>
+                    {appVersion && ' • '}
+                    Built {new Date(buildTime).toLocaleString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric', 
+                      hour: '2-digit', 
+                      minute: '2-digit',
+                      timeZoneName: 'short'
+                    })}
+                  </>
+                )}
               </div>
             )}
           </div>
