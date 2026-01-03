@@ -1,6 +1,12 @@
+const packageJson = require('./package.json');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  env: {
+    NEXT_PUBLIC_APP_VERSION: packageJson.version,
+    NEXT_PUBLIC_BUILD_TIME: new Date().toISOString(),
+  },
 }
 
 // Conditionally wrap with PWA if available
