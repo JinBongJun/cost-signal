@@ -23,11 +23,11 @@ export type PaddleWebhookEvent =
       data: PaddleSubscriptionData;
     }
   | {
-      event_type: 'subscription.canceled';
+      event_type: 'subscription.canceled' | 'subscription.past_due' | 'subscription.paused';
       data: PaddleSubscriptionData;
     }
   | {
-      event_type: 'transaction.completed';
+      event_type: 'transaction.completed' | 'transaction.refunded' | 'transaction.payment_failed';
       data: PaddleTransactionData;
     };
 
@@ -49,6 +49,7 @@ export interface PaddleSubscriptionData {
   custom_data?: {
     user_id?: string;
   };
+  next_billed_at?: string;
 }
 
 export interface PaddleTransactionData {
@@ -57,8 +58,13 @@ export interface PaddleTransactionData {
   customer_id: string;
   status: string;
   total: string;
+  totals?: {
+    total: string;
+    currency_code?: string;
+  };
   currency_code: string;
   created_at: string;
+  refunded?: boolean;
 }
 
 /**
