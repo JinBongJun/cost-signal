@@ -29,6 +29,7 @@ export async function hasActiveSubscription(userId: string): Promise<boolean> {
   }
 
   // Check if subscription is active and not expired
+  // past_due subscriptions should not have access
   if (subscription.status !== 'active' && subscription.status !== 'trialing') {
     return false;
   }
@@ -42,6 +43,21 @@ export async function hasActiveSubscription(userId: string): Promise<boolean> {
   }
 
   return true;
+}
+
+/**
+ * Check if subscription is in a problematic state (past_due, paused, etc.)
+ */
+export async function isSubscriptionProblematic(userId: string): Promise<boolean> {
+  const db = getDb();
+  const subscription = await db.getSubscriptionByUserId(userId);
+  
+  if (!subscription) {
+    return false;
+  }
+
+  // Check for problematic statuses
+  return subscription.status === 'past_due' || subscription.status === 'paused';
 }
 
 export async function requirePaidTier() {

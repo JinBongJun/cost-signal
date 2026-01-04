@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "cron": "tsx scripts/run-cron.ts"
+    "cron": "tsx scripts/run-cron.ts",
+    "backup-db": "tsx scripts/backup-db.ts"
   },
   "dependencies": {
     "next": "^14.0.0",

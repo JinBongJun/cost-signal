@@ -62,6 +62,14 @@ export default function AccountPage() {
   const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong' | ''>('');
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [resuming, setResuming] = useState(false);
+  const [refundEligible, setRefundEligible] = useState<{
+    eligible: boolean;
+    daysRemaining?: number;
+    amount?: string;
+    currency?: string;
+  } | null>(null);
+  const [checkingRefund, setCheckingRefund] = useState(false);
+  const [requestingRefund, setRequestingRefund] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -359,6 +367,55 @@ export default function AccountPage() {
       toast.error(error instanceof Error ? error.message : 'Failed to resume subscription');
     } finally {
       setResuming(false);
+    }
+  }
+
+  async function checkRefundEligibility() {
+    if (!subscription) return;
+
+    setCheckingRefund(true);
+    try {
+      const response = await fetch('/api/refund');
+      if (response.ok) {
+        const data = await response.json();
+        setRefundEligible(data);
+      }
+    } catch (error) {
+      console.error('Error checking refund eligibility:', error);
+    } finally {
+      setCheckingRefund(false);
+    }
+  }
+
+  async function handleRequestRefund() {
+    if (!subscription || !refundEligible?.eligible) {
+      return;
+    }
+
+    if (!confirm('Are you sure you want to request a refund? Your subscription will be canceled immediately.')) {
+      return;
+    }
+
+    setRequestingRefund(true);
+    try {
+      const response = await fetch('/api/refund', {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to process refund');
+      }
+
+      const data = await response.json();
+      toast.success('Refund processed successfully! You will receive a confirmation email shortly.');
+      await fetchSubscription(); // Refresh subscription data
+      setRefundEligible(null);
+    } catch (error) {
+      console.error('Error requesting refund:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to process refund');
+    } finally {
+      setRequestingRefund(false);
     }
   }
 
@@ -869,8 +926,40 @@ export default function AccountPage() {
                   </div>
                 )}
 
+                {/* Refund Request */}
+                {subscription.status === 'active' && refundEligible?.eligible && (
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className="flex-1">
+                        <p className="text-blue-800 dark:text-blue-200 font-medium mb-1">
+                          Refund Available
+                        </p>
+                        <p className="text-blue-700 dark:text-blue-300 text-sm mb-3">
+                          You can request a full refund within {refundEligible.daysRemaining} days of your purchase.
+                          {refundEligible.amount && (
+                            <> Refund amount: {refundEligible.currency === 'USD' ? '$' : ''}{refundEligible.amount}{refundEligible.currency !== 'USD' ? ` ${refundEligible.currency}` : ''}</>
+                          )}
+                        </p>
+                        <Button
+                          onClick={handleRequestRefund}
+                          disabled={requestingRefund}
+                          variant="primary"
+                          size="sm"
+                          isLoading={requestingRefund}
+                          className="min-h-[44px]"
+                        >
+                          Request Refund
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Cancel Button */}
-                {subscription.status === 'active' && !subscription.cancel_at_period_end && (
+                {subscription.status === 'active' && !subscription.cancel_at_period_end && !refundEligible?.eligible && (
                   <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                     <Button
                       onClick={() => setShowCancelModal(true)}

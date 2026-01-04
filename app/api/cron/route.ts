@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { runWeeklyUpdate } from '@/scripts/run-cron';
 import { rateLimit } from '@/lib/rate-limit';
+import { sendCronFailureAlert } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
@@ -73,6 +74,19 @@ async function handleCron(request: NextRequest) {
     return NextResponse.json({ success: true, message: 'Weekly update completed' });
   } catch (error) {
     console.error('Error in cron endpoint:', error);
+    
+    // Send alert email to admin
+    try {
+      await sendCronFailureAlert({
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString(),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+    } catch (emailError) {
+      console.error('Failed to send cron failure alert:', emailError);
+      // Don't fail the response if email fails
+    }
+    
     return NextResponse.json(
       { error: 'Update failed', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

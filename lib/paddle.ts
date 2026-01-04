@@ -204,6 +204,98 @@ export async function getTransactions(subscriptionId: string): Promise<any[]> {
 }
 
 /**
+ * Refund a transaction
+ * @param transactionId - Paddle transaction ID
+ * @param amount - Optional amount to refund (partial refund). If not provided, full refund.
+ * @param reason - Optional reason for refund
+ * @returns true if refund was successful, false otherwise
+ */
+export async function refundTransaction(
+  transactionId: string,
+  amount?: number,
+  reason?: string
+): Promise<{ success: boolean; error?: string; refundId?: string }> {
+  if (!PADDLE_API_KEY) {
+    return { success: false, error: 'PADDLE_API_KEY not configured' };
+  }
+
+  try {
+    const body: any = {};
+    
+    // Add amount if partial refund
+    if (amount) {
+      body.amount = {
+        amount: amount.toString(),
+        currency_code: 'USD',
+      };
+    }
+    
+    // Add reason if provided
+    if (reason) {
+      body.reason = reason;
+    }
+
+    const response = await fetch(
+      `https://api.paddle.com/transactions/${transactionId}/refund`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${PADDLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return { 
+        success: false, 
+        error: errorData.error?.message || `Refund failed: ${response.status}` 
+      };
+    }
+
+    const data = await response.json();
+    return { success: true, refundId: data.id };
+  } catch (error) {
+    console.error('Error refunding transaction:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Failed to process refund' 
+    };
+  }
+}
+
+/**
+ * Get transaction details by ID
+ */
+export async function getTransaction(transactionId: string): Promise<any | null> {
+  if (!PADDLE_API_KEY) {
+    return null;
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.paddle.com/transactions/${transactionId}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${PADDLE_API_KEY}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching transaction:', error);
+    return null;
+  }
+}
+
+/**
  * Verify Paddle webhook signature
  * 
  * Paddle webhook signature format:

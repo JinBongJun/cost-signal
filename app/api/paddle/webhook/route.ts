@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { verifyWebhookSignature } from '@/lib/paddle';
+import { sendPaymentFailedEmail, sendSubscriptionCreatedEmail, sendSubscriptionCanceledEmail } from '@/lib/email';
 import type { PaddleWebhookEvent, PaddleSubscriptionData, PaddleTransactionData, Database } from '@/lib/types';
 
 /**
@@ -11,7 +12,11 @@ import type { PaddleWebhookEvent, PaddleSubscriptionData, PaddleTransactionData,
  * - subscription.created
  * - subscription.updated
  * - subscription.canceled
+ * - subscription.past_due
+ * - subscription.paused
  * - transaction.completed
+ * - transaction.refunded
+ * - transaction.payment_failed
  */
 export async function POST(request: NextRequest) {
   try {
@@ -50,8 +55,24 @@ export async function POST(request: NextRequest) {
         await handleSubscriptionCanceled(event.data, db);
         break;
 
+      case 'subscription.past_due':
+        await handleSubscriptionPastDue(event.data, db);
+        break;
+
+      case 'subscription.paused':
+        await handleSubscriptionPaused(event.data, db);
+        break;
+
       case 'transaction.completed':
         await handleTransactionCompleted(event.data, db);
+        break;
+
+      case 'transaction.refunded':
+        await handleTransactionRefunded(event.data, db);
+        break;
+
+      case 'transaction.payment_failed':
+        await handleTransactionPaymentFailed(event.data, db);
         break;
 
       default: {
@@ -95,6 +116,10 @@ async function handleSubscriptionUpdate(data: PaddleSubscriptionData, db: Databa
     ? Math.floor(new Date(subscription.current_billing_period.ends_at).getTime() / 1000)
     : now + 30 * 24 * 60 * 60; // Default to 30 days from now if not available
 
+  // Check if this is a new subscription
+  const existing = await db.getSubscriptionByStripeId(subscription.id);
+  const isNewSubscription = !existing;
+
   await db.saveSubscription({
     user_id: userId,
     stripe_subscription_id: subscription.id,
@@ -105,6 +130,30 @@ async function handleSubscriptionUpdate(data: PaddleSubscriptionData, db: Databa
     current_period_end: currentPeriodEnd,
     cancel_at_period_end: subscription.scheduled_change?.action === 'cancel',
   });
+
+  // Send welcome email for new subscriptions
+  if (isNewSubscription && subscription.status === 'active') {
+    try {
+      const user = await db.getUserById(userId);
+      if (user?.email) {
+        const amount = subscription.items?.[0]?.price?.unit_amount 
+          ? (parseInt(subscription.items[0].price.unit_amount) / 100).toFixed(2)
+          : '0';
+        const currency = subscription.items?.[0]?.price?.unit_amount?.currency_code || 'USD';
+        const billingPeriod = plan === 'yearly' ? 'year' : 'month';
+        
+        await sendSubscriptionCreatedEmail(user.email, {
+          plan: plan.charAt(0).toUpperCase() + plan.slice(1),
+          amount,
+          currency,
+          billingPeriod,
+        });
+      }
+    } catch (emailError) {
+      console.error('Error sending subscription created email:', emailError);
+      // Don't fail webhook if email fails
+    }
+  }
 }
 
 async function handleSubscriptionCanceled(data: PaddleSubscriptionData, db: Database) {
@@ -123,6 +172,24 @@ async function handleSubscriptionCanceled(data: PaddleSubscriptionData, db: Data
       current_period_end: existing.current_period_end,
       cancel_at_period_end: false,
     });
+
+    // Send cancellation email
+    try {
+      const user = await db.getUserById(existing.user_id);
+      if (user?.email) {
+        const accessUntil = existing.current_period_end 
+          ? new Date(existing.current_period_end * 1000).toISOString()
+          : new Date().toISOString();
+        
+        await sendSubscriptionCanceledEmail(user.email, {
+          plan: existing.plan.charAt(0).toUpperCase() + existing.plan.slice(1),
+          accessUntil,
+        });
+      }
+    } catch (emailError) {
+      console.error('Error sending subscription canceled email:', emailError);
+      // Don't fail webhook if email fails
+    }
   }
 }
 
@@ -130,6 +197,140 @@ async function handleTransactionCompleted(data: PaddleTransactionData, db: Datab
   // Transaction completed - subscription should already be created
   // Just log for now
   console.log('Transaction completed:', data.id);
+}
+
+async function handleSubscriptionPastDue(data: PaddleSubscriptionData, db: Database) {
+  const subscription = data;
+  const existing = await db.getSubscriptionByStripeId(subscription.id);
+
+  if (existing) {
+    await db.saveSubscription({
+      id: existing.id,
+      user_id: existing.user_id,
+      stripe_subscription_id: subscription.id,
+      stripe_customer_id: subscription.customer_id,
+      status: 'past_due',
+      plan: existing.plan,
+      current_period_start: existing.current_period_start,
+      current_period_end: existing.current_period_end,
+      cancel_at_period_end: existing.cancel_at_period_end === 1,
+    });
+    console.log('Subscription marked as past_due:', subscription.id);
+
+    // Send email notification
+    try {
+      const user = await db.getUserById(existing.user_id);
+      if (user?.email) {
+        const amount = subscription.items?.[0]?.price?.unit_amount 
+          ? (parseInt(subscription.items[0].price.unit_amount) / 100).toFixed(2)
+          : '0';
+        const currency = subscription.items?.[0]?.price?.unit_amount?.currency_code || 'USD';
+        
+        await sendPaymentFailedEmail(user.email, {
+          subscriptionId: subscription.id,
+          amount,
+          currency,
+          nextRetryDate: subscription.next_billed_at || undefined,
+        });
+      }
+    } catch (emailError) {
+      console.error('Error sending payment failed email:', emailError);
+      // Don't fail webhook if email fails
+    }
+  }
+}
+
+async function handleSubscriptionPaused(data: PaddleSubscriptionData, db: Database) {
+  const subscription = data;
+  const existing = await db.getSubscriptionByStripeId(subscription.id);
+
+  if (existing) {
+    // Paused subscriptions should still be marked as active but with a note
+    // For now, we'll keep status as active but could add a paused flag later
+    await db.saveSubscription({
+      id: existing.id,
+      user_id: existing.user_id,
+      stripe_subscription_id: subscription.id,
+      stripe_customer_id: subscription.customer_id,
+      status: 'active', // Keep as active but access will be restricted
+      plan: existing.plan,
+      current_period_start: existing.current_period_start,
+      current_period_end: existing.current_period_end,
+      cancel_at_period_end: existing.cancel_at_period_end === 1,
+    });
+    console.log('Subscription paused:', subscription.id);
+  }
+}
+
+async function handleTransactionRefunded(data: PaddleTransactionData, db: Database) {
+  // Find subscription by transaction
+  const subscriptionId = data.subscription_id;
+  if (!subscriptionId) {
+    console.log('Transaction refunded but no subscription ID:', data.id);
+    return;
+  }
+
+  const existing = await db.getSubscriptionByStripeId(subscriptionId);
+  if (existing) {
+    // Update subscription status to canceled after refund
+    await db.saveSubscription({
+      id: existing.id,
+      user_id: existing.user_id,
+      stripe_subscription_id: existing.stripe_subscription_id,
+      stripe_customer_id: existing.stripe_customer_id,
+      status: 'canceled',
+      plan: existing.plan,
+      current_period_start: existing.current_period_start,
+      current_period_end: existing.current_period_end,
+      cancel_at_period_end: false,
+    });
+    console.log('Subscription canceled due to refund:', subscriptionId);
+  } else {
+    console.log('Subscription not found for refunded transaction:', subscriptionId);
+  }
+}
+
+async function handleTransactionPaymentFailed(data: PaddleTransactionData, db: Database) {
+  const subscriptionId = data.subscription_id;
+  if (!subscriptionId) {
+    console.log('Payment failed but no subscription ID:', data.id);
+    return;
+  }
+
+  const existing = await db.getSubscriptionByStripeId(subscriptionId);
+  if (existing) {
+    // Mark subscription as past_due
+    await db.saveSubscription({
+      id: existing.id,
+      user_id: existing.user_id,
+      stripe_subscription_id: existing.stripe_subscription_id,
+      stripe_customer_id: existing.stripe_customer_id,
+      status: 'past_due',
+      plan: existing.plan,
+      current_period_start: existing.current_period_start,
+      current_period_end: existing.current_period_end,
+      cancel_at_period_end: existing.cancel_at_period_end === 1,
+    });
+    console.log('Subscription marked as past_due due to payment failure:', subscriptionId);
+
+    // Send email notification
+    try {
+      const user = await db.getUserById(existing.user_id);
+      if (user?.email) {
+        const amount = data.totals?.total || data.total || '0';
+        const currency = data.currency_code || 'USD';
+        
+        await sendPaymentFailedEmail(user.email, {
+          subscriptionId: subscriptionId,
+          amount: typeof amount === 'string' ? amount : amount.toString(),
+          currency,
+        });
+      }
+    } catch (emailError) {
+      console.error('Error sending payment failed email:', emailError);
+      // Don't fail webhook if email fails
+    }
+  }
 }
 
 
