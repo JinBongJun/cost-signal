@@ -323,12 +323,12 @@ async function handleTransactionPaymentFailed(data: PaddleTransactionData, db: D
     try {
       const user = await db.getUserById(existing.user_id);
       if (user?.email) {
-        const amount = data.totals?.total || data.total || '0';
+        const amount: string = data.totals?.total || data.total || '0';
         const currency = data.currency_code || 'USD';
         
         await sendPaymentFailedEmail(user.email, {
           subscriptionId: subscriptionId,
-          amount: typeof amount === 'string' ? amount : amount.toString(),
+          amount,
           currency,
         });
       }
