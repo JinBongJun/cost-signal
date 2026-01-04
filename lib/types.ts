@@ -84,5 +84,6 @@ export interface Database {
     cancel_at_period_end: boolean;
   }): Promise<void>;
   getSubscriptionByStripeId(subscriptionId: string): Promise<any>;
+  getUserById(userId: string): Promise<any | null>;
 }
 
