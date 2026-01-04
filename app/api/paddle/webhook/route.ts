@@ -136,10 +136,13 @@ async function handleSubscriptionUpdate(data: PaddleSubscriptionData, db: Databa
     try {
       const user = await db.getUserById(userId);
       if (user?.email) {
-        const amount = subscription.items?.[0]?.price?.unit_amount 
-          ? (parseInt(subscription.items[0].price.unit_amount) / 100).toFixed(2)
-          : '0';
-        const currency = subscription.items?.[0]?.price?.unit_amount?.currency_code || 'USD';
+        // Get amount from plan type (estimate based on plan)
+        const planAmounts: Record<string, string> = {
+          monthly: '5.99',
+          yearly: '59.99',
+        };
+        const amount = planAmounts[plan] || '0';
+        const currency = 'USD';
         const billingPeriod = plan === 'yearly' ? 'year' : 'month';
         
         await sendSubscriptionCreatedEmail(user.email, {
@@ -221,10 +224,13 @@ async function handleSubscriptionPastDue(data: PaddleSubscriptionData, db: Datab
     try {
       const user = await db.getUserById(existing.user_id);
       if (user?.email) {
-        const amount = subscription.items?.[0]?.price?.unit_amount 
-          ? (parseInt(subscription.items[0].price.unit_amount) / 100).toFixed(2)
-          : '0';
-        const currency = subscription.items?.[0]?.price?.unit_amount?.currency_code || 'USD';
+        // Get amount from subscription plan (estimate based on plan type)
+        const planAmounts: Record<string, string> = {
+          monthly: '5.99',
+          yearly: '59.99',
+        };
+        const amount = planAmounts[existing.plan] || '0';
+        const currency = 'USD';
         
         await sendPaymentFailedEmail(user.email, {
           subscriptionId: subscription.id,

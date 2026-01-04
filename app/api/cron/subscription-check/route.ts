@@ -91,10 +91,14 @@ export async function POST(request: NextRequest) {
             if (paddleSubscription.status === 'past_due') {
               const user = await db.getUserById(subscription.user_id);
               if (user?.email) {
-                const amount = paddleSubscription.items?.[0]?.price?.unit_amount 
-                  ? (parseInt(paddleSubscription.items[0].price.unit_amount) / 100).toFixed(2)
-                  : '0';
-                const currency = paddleSubscription.items?.[0]?.price?.unit_amount?.currency_code || 'USD';
+                // Get amount from subscription plan (estimate based on plan type)
+                // In production, you might want to fetch transaction details for exact amount
+                const planAmounts: Record<string, string> = {
+                  monthly: '5.99',
+                  yearly: '59.99',
+                };
+                const amount = planAmounts[subscription.plan] || '0';
+                const currency = 'USD';
                 
                 await sendPaymentFailedEmail(user.email, {
                   subscriptionId: subscription.stripe_subscription_id,
