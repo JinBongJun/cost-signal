@@ -138,8 +138,8 @@ async function handleSubscriptionUpdate(data: PaddleSubscriptionData, db: Databa
       if (user?.email) {
         // Get amount from plan type (estimate based on plan)
         const planAmounts: Record<string, string> = {
-          monthly: '5.99',
-          yearly: '59.99',
+          monthly: '4.99',
+          yearly: '39.99',
         };
         const amount = planAmounts[plan] || '0';
         const currency = 'USD';
@@ -226,8 +226,8 @@ async function handleSubscriptionPastDue(data: PaddleSubscriptionData, db: Datab
       if (user?.email) {
         // Get amount from subscription plan (estimate based on plan type)
         const planAmounts: Record<string, string> = {
-          monthly: '5.99',
-          yearly: '59.99',
+          monthly: '4.99',
+          yearly: '39.99',
         };
         const amount = planAmounts[existing.plan] || '0';
         const currency = 'USD';

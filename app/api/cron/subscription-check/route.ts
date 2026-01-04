@@ -94,8 +94,8 @@ export async function POST(request: NextRequest) {
                 // Get amount from subscription plan (estimate based on plan type)
                 // In production, you might want to fetch transaction details for exact amount
                 const planAmounts: Record<string, string> = {
-                  monthly: '5.99',
-                  yearly: '59.99',
+                  monthly: '4.99',
+                  yearly: '39.99',
                 };
                 const amount = planAmounts[subscription.plan] || '0';
                 const currency = 'USD';
