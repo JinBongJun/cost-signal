@@ -176,15 +176,19 @@ function HomeContent() {
       const minLoadingTime = 800; // 800ms minimum
       const startTime = Date.now();
       
-      // Try to fetch paid tier data first if tier is 'paid'
+      // If user has subscription or is admin, always fetch paid tier
+      const shouldFetchPaid = hasActiveSubscription || (signal?.isAdmin);
+      const actualTier = shouldFetchPaid ? 'paid' : tier;
+      
+      // Try to fetch paid tier data first if tier is 'paid' or user has subscription
       // Use preview mode if user doesn't have subscription (or not logged in)
-      const isPreviewMode = tier === 'paid' && (!session?.user || !hasActiveSubscription);
-      let response = await fetch(`/api/signal?tier=${tier}${isPreviewMode ? '&preview=true' : ''}`, {
+      const isPreviewMode = actualTier === 'paid' && (!session?.user || !hasActiveSubscription) && !signal?.isAdmin;
+      let response = await fetch(`/api/signal?tier=${actualTier}${isPreviewMode ? '&preview=true' : ''}`, {
         cache: 'no-store',
       });
       
       // If paid tier fails (no subscription), fall back to preview mode
-      if (!response.ok && tier === 'paid' && !isPreviewMode) {
+      if (!response.ok && actualTier === 'paid' && !isPreviewMode && !signal?.isAdmin) {
         console.log('Paid tier not available, trying preview mode');
         response = await fetch('/api/signal?tier=paid&preview=true', {
           cache: 'no-store',

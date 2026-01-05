@@ -136,7 +136,8 @@ export function SignalCard({
               // Free tier: indicators are locked (no status, no values)
               // Paid tier: indicators are unlocked (full access)
               // Admin users always have access (even if tier is 'free' due to API response)
-              const isLocked = (indicator.locked || tier === 'free') && !signal.isAdmin;
+              // If user has active subscription, indicators should be unlocked
+              const isLocked = (indicator.locked || tier === 'free') && !signal.isAdmin && !hasActiveSubscription;
               
               // Free tier: always use gray colors (status hidden)
               // Paid tier: use status-based colors
@@ -168,8 +169,8 @@ export function SignalCard({
                     isLocked ? 'cursor-pointer hover:border-blue-400 dark:hover:border-blue-600' : 'hover:shadow-md'
                   } ${statusColors[displayStatus]}`}
                   onClick={isLocked ? () => {
-                    // Don't redirect if user is admin
-                    if (signal.isAdmin) {
+                    // Don't redirect if user is admin or has active subscription
+                    if (signal.isAdmin || hasActiveSubscription) {
                       return;
                     }
                     if (!session) {
