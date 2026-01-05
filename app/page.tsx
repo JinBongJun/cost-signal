@@ -25,6 +25,7 @@ interface Signal {
   risk_count: number;
   explanation?: string | null;
   explanation_type?: 'basic' | 'detailed'; // 'basic' for free tier, 'detailed' for paid
+  isAdmin?: boolean; // Admin status from API
   indicators?: Array<{
     type: string;
     value?: number;
@@ -195,6 +196,12 @@ function HomeContent() {
         throw new Error(errorData.error || 'Failed to fetch signal');
       }
       const data = await response.json();
+      
+      // If user is admin, automatically set tier to paid
+      if (data.isAdmin) {
+        setTier('paid');
+        setHasActiveSubscription(true);
+      }
       
       // Ensure minimum loading time for better UX
       const elapsed = Date.now() - startTime;

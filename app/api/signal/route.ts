@@ -81,6 +81,30 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Check if user is admin for frontend
+    let userIsAdmin = false;
+    if (requestedTier === 'paid') {
+      const user = await getCurrentUser();
+      if (user) {
+        const userId = (user as any).id;
+        if (userId) {
+          const { isAdmin } = await import('@/lib/auth');
+          userIsAdmin = await isAdmin(userId);
+        }
+      }
+    }
+
+    // Check if user is admin for frontend
+    let userIsAdmin = false;
+    const user = await getCurrentUser();
+    if (user) {
+      const userId = (user as any).id;
+      if (userId) {
+        const { isAdmin } = await import('@/lib/auth');
+        userIsAdmin = await isAdmin(userId);
+      }
+    }
+
     if (tier === 'paid') {
       // Paid tier: include individual indicators
       const indicators = await db.getIndicatorsForWeek(signal.week_start);
@@ -90,6 +114,8 @@ export async function GET(request: NextRequest) {
         overall_status: signal.overall_status,
         risk_count: signal.risk_count,
         explanation: signal.explanation,
+        explanation_type: 'detailed',
+        isAdmin: userIsAdmin, // Include admin status for frontend
         indicators: indicators.map(ind => ({
           type: ind.indicator_type,
           value: ind.value,
@@ -134,6 +160,7 @@ export async function GET(request: NextRequest) {
         risk_count: signal.risk_count,
         explanation: basicExplanation, // Basic template-based explanation
         explanation_type: 'basic', // Indicate this is a basic explanation
+        isAdmin: userIsAdmin, // Include admin status for frontend
         // Return indicators as locked (no status, no values) - shows what they're missing
         indicators: indicators.map(ind => ({
           type: ind.indicator_type,

@@ -11,6 +11,7 @@ interface SignalCardProps {
     risk_count: number;
     explanation?: string | null;
     explanation_type?: 'basic' | 'detailed'; // 'basic' for free tier, 'detailed' for paid
+    isAdmin?: boolean; // Admin status from API
     indicators?: Array<{
       type: string;
       value?: number;
@@ -134,7 +135,8 @@ export function SignalCard({
             {signal.indicators.map((indicator, idx) => {
               // Free tier: indicators are locked (no status, no values)
               // Paid tier: indicators are unlocked (full access)
-              const isLocked = indicator.locked || tier === 'free';
+              // Admin users always have access (even if tier is 'free' due to API response)
+              const isLocked = (indicator.locked || tier === 'free') && !signal.isAdmin;
               
               // Free tier: always use gray colors (status hidden)
               // Paid tier: use status-based colors
@@ -166,6 +168,10 @@ export function SignalCard({
                     isLocked ? 'cursor-pointer hover:border-blue-400 dark:hover:border-blue-600' : 'hover:shadow-md'
                   } ${statusColors[displayStatus]}`}
                   onClick={isLocked ? () => {
+                    // Don't redirect if user is admin
+                    if (signal.isAdmin) {
+                      return;
+                    }
                     if (!session) {
                       window.location.href = '/login?redirect=/pricing';
                     } else {
