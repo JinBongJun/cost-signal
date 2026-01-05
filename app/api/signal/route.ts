@@ -77,14 +77,30 @@ export async function GET(request: NextRequest) {
     }
 
     const db = getDb();
-    const signal = await db.getLatestWeeklySignal();
-
-    if (!signal) {
-      console.error('No signal found in database');
-      return NextResponse.json(
-        { error: 'No signal data available yet' },
-        { status: 404 }
-      );
+    
+    // Check if a specific week_start is requested
+    const weekStart = searchParams.get('week_start');
+    let signal;
+    
+    if (weekStart) {
+      // Get signal for specific week
+      signal = await db.getWeeklySignal(weekStart);
+      if (!signal) {
+        return NextResponse.json(
+          { error: 'Signal not found for the specified week' },
+          { status: 404 }
+        );
+      }
+    } else {
+      // Get latest signal
+      signal = await db.getLatestWeeklySignal();
+      if (!signal) {
+        console.error('No signal found in database');
+        return NextResponse.json(
+          { error: 'No signal data available yet' },
+          { status: 404 }
+        );
+      }
     }
 
 

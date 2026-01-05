@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { Button } from './Button';
 import { Card } from './Card';
 
@@ -57,6 +58,12 @@ export function HistorySection({
   formatDate,
   isLoading = false,
 }: HistorySectionProps) {
+  const router = useRouter();
+
+  const handleHistoryClick = (weekStart: string) => {
+    router.push(`/history/${weekStart}`);
+  };
+
   return (
     <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
       <div className="flex items-center justify-between mb-4">
@@ -79,7 +86,7 @@ export function HistorySection({
                 key={histSignal.week_start}
                 padding="md"
                 hover
-                className="animate-slide-up border-l-4 transition-all duration-300"
+                className="animate-slide-up border-l-4 transition-all duration-300 cursor-pointer"
                 style={{
                   animationDelay: `${idx * 0.08}s`,
                   borderLeftColor:
@@ -89,6 +96,7 @@ export function HistorySection({
                       ? '#eab308'
                       : '#16a34a',
                 }}
+                onClick={() => handleHistoryClick(histSignal.week_start)}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
