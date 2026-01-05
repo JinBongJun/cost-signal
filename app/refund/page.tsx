@@ -30,7 +30,7 @@ export default function RefundPage() {
                 </h2>
                 <div className="space-y-3 text-gray-600 dark:text-gray-300 leading-7">
                   <p className="text-base md:text-lg">
-                    If you are not satisfied with your subscription, you may request a refund within <strong className="text-gray-900 dark:text-gray-100">30 days</strong> of your purchase date. Refunds will be processed within 5-10 business days.
+                    We offer a <strong className="text-gray-900 dark:text-gray-100">30-day money-back guarantee</strong>. If you are not satisfied with your subscription, you will receive a full refund within 30 days of your purchase date. Refunds will be processed within 5-10 business days.
                   </p>
                 </div>
               </section>
@@ -71,7 +71,7 @@ export default function RefundPage() {
                     <strong className="text-gray-900 dark:text-gray-100">Cancellation:</strong> You can cancel your subscription at any time. Cancellation stops future charges but does not refund past payments. You will continue to have access until the end of your current billing period.
                   </p>
                   <p className="text-base md:text-lg">
-                    <strong className="text-gray-900 dark:text-gray-100">Refund:</strong> A refund returns money for a past payment. You may request a refund within 30 days of your purchase date.
+                    <strong className="text-gray-900 dark:text-gray-100">Refund:</strong> A refund returns money for a past payment. Under our 30-day money-back guarantee, you will receive a full refund within 30 days of your purchase date.
                   </p>
                 </div>
               </section>

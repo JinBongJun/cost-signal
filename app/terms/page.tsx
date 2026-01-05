@@ -68,7 +68,7 @@ export default function TermsPage() {
                   5. Refund Policy
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300 leading-7 text-base md:text-lg">
-                  Refunds are handled on a case-by-case basis. Please contact support for refund requests. For more details, please see our{' '}
+                  We offer a 30-day money-back guarantee. If you are not satisfied with your subscription, you will receive a full refund within 30 days of your purchase date. For more details, please see our{' '}
                   <a href="/refund" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
                     Refund Policy
                   </a>.
