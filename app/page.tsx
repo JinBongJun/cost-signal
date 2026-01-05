@@ -271,7 +271,11 @@ function HomeContent() {
   }, [hasActiveSubscription, tier, showHistory]);
 
   function formatDate(dateString: string): string {
-    const date = new Date(dateString);
+    // week_start is always a Monday (YYYY-MM-DD format)
+    // Parse as local date to avoid timezone issues
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day); // month is 0-indexed
+    // Ensure it's displayed as Monday (week_start is always Monday)
     return date.toLocaleDateString('en-US', { 
       weekday: 'long', 
       year: 'numeric', 
