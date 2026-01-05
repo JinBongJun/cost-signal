@@ -65,12 +65,22 @@ export async function isAdmin(userId: string): Promise<boolean> {
   const user = await db.getUserById(userId);
   
   if (!user) {
+    console.log('isAdmin: User not found for userId:', userId);
     return false;
   }
   
   // Check if user email is in admin list (from environment variable)
-  const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(email => email.trim().toLowerCase()) || [];
+  const adminEmailsRaw = process.env.ADMIN_EMAILS || '';
+  const adminEmails = adminEmailsRaw.split(',').map(email => email.trim().toLowerCase()).filter(email => email.length > 0);
   const userEmail = user.email?.toLowerCase();
+  
+  console.log('isAdmin check:', {
+    userId,
+    userEmail,
+    adminEmailsRaw,
+    adminEmails,
+    isAdmin: userEmail ? adminEmails.includes(userEmail) : false
+  });
   
   return userEmail ? adminEmails.includes(userEmail) : false;
 }

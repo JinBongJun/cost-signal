@@ -38,7 +38,15 @@ export async function GET(request: NextRequest) {
           const { isAdmin } = await import('@/lib/auth');
           const userIsAdmin = await isAdmin(userId);
           
+          console.log('Signal API - Admin check:', {
+            userId,
+            userEmail: (user as any).email,
+            userIsAdmin,
+            ADMIN_EMAILS: process.env.ADMIN_EMAILS || 'NOT SET'
+          });
+          
           if (userIsAdmin) {
+            console.log('✅ Admin access granted to paid tier');
             tier = 'paid';
           } else {
             const hasSubscription = await hasActiveSubscription(userId);
