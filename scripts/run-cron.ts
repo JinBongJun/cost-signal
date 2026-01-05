@@ -21,19 +21,24 @@ import {
 import { generateExplanation } from '../lib/explainer';
 import { sendWeeklySignalNotification } from '../lib/push';
 
-async function runWeeklyUpdate() {
+async function runWeeklyUpdate(forceUpdate: boolean = false) {
   console.log('Starting weekly economic data update...');
   const weekStart = getCurrentWeekStart();
   console.log(`Week start: ${weekStart}`);
+  console.log(`Current date: ${new Date().toISOString()}`);
 
   const db = getDb();
 
   try {
     // Check if we already have data for this week
     const existingSignal = await db.getWeeklySignal(weekStart);
-    if (existingSignal) {
-      console.log(`Signal already computed for week ${weekStart}`);
+    if (existingSignal && !forceUpdate) {
+      console.log(`Signal already computed for week ${weekStart}. Use forceUpdate=true to override.`);
       return;
+    }
+    
+    if (existingSignal && forceUpdate) {
+      console.log(`Force update: Overwriting existing signal for week ${weekStart}`);
     }
 
     // Fetch all indicators

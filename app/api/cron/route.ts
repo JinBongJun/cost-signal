@@ -69,9 +69,16 @@ async function handleCron(request: NextRequest) {
       }
     }
 
-    await runWeeklyUpdate();
+    // Check for force update parameter
+    const forceUpdate = request.nextUrl.searchParams.get('force') === 'true';
+    
+    await runWeeklyUpdate(forceUpdate);
 
-    return NextResponse.json({ success: true, message: 'Weekly update completed' });
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Weekly update completed',
+      forceUpdate 
+    });
   } catch (error) {
     console.error('Error in cron endpoint:', error);
     
