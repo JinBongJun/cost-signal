@@ -20,6 +20,24 @@ export async function GET(request: NextRequest) {
     const requestedTier = searchParams.get('tier') || 'free';
     const preview = searchParams.get('preview') === 'true'; // Preview mode for testing
 
+    // Check if user is admin for frontend (needed for both free and paid tiers)
+    let userIsAdmin = false;
+    const user = await getCurrentUser();
+    if (user) {
+      const userId = (user as any).id;
+      if (userId) {
+        const { isAdmin } = await import('@/lib/auth');
+        userIsAdmin = await isAdmin(userId);
+        
+        console.log('Signal API - Admin check:', {
+          userId,
+          userEmail: (user as any).email,
+          userIsAdmin,
+          ADMIN_EMAILS: process.env.ADMIN_EMAILS || 'NOT SET'
+        });
+      }
+    }
+
     // Check authentication for paid tier
     let tier = 'free';
     if (requestedTier === 'paid') {
@@ -27,23 +45,11 @@ export async function GET(request: NextRequest) {
       if (preview) {
         tier = 'paid';
       } else {
-        const user = await getCurrentUser();
         if (user) {
           const userId = (user as any).id;
           if (!userId) {
             return NextResponse.json({ error: 'User ID not found' }, { status: 500 });
           }
-          
-          // Check if user is admin (admins get free access to paid tier)
-          const { isAdmin } = await import('@/lib/auth');
-          const userIsAdmin = await isAdmin(userId);
-          
-          console.log('Signal API - Admin check:', {
-            userId,
-            userEmail: (user as any).email,
-            userIsAdmin,
-            ADMIN_EMAILS: process.env.ADMIN_EMAILS || 'NOT SET'
-          });
           
           if (userIsAdmin) {
             console.log('✅ Admin access granted to paid tier');
@@ -81,29 +87,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check if user is admin for frontend
-    let userIsAdmin = false;
-    if (requestedTier === 'paid') {
-      const user = await getCurrentUser();
-      if (user) {
-        const userId = (user as any).id;
-        if (userId) {
-          const { isAdmin } = await import('@/lib/auth');
-          userIsAdmin = await isAdmin(userId);
-        }
-      }
-    }
-
-    // Check if user is admin for frontend
-    let userIsAdmin = false;
-    const user = await getCurrentUser();
-    if (user) {
-      const userId = (user as any).id;
-      if (userId) {
-        const { isAdmin } = await import('@/lib/auth');
-        userIsAdmin = await isAdmin(userId);
-      }
-    }
 
     if (tier === 'paid') {
       // Paid tier: include individual indicators
