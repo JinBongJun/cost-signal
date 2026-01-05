@@ -47,12 +47,9 @@ async function handleCron(request: NextRequest) {
           );
         }
       } else {
-        // Production mode without secret configured - deny
-        console.error('❌ CRON_SECRET not configured in production');
-        return NextResponse.json(
-          { error: 'Server configuration error' },
-          { status: 500 }
-        );
+        // Production mode without secret configured:
+        // Log a warning but allow the request so that Vercel Cron and manual runs still work.
+        console.warn('⚠️ CRON_SECRET not configured in production. Allowing /api/cron without auth.');
       }
 
       // Rate limiting for non-Vercel Cron requests
