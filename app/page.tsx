@@ -103,16 +103,16 @@ function HomeContent() {
   // Check user subscription first, then fetch signal
   useEffect(() => {
     async function initializeData() {
-      // First check subscription status
-      await checkUserSubscription();
-      // Then fetch signal (which will use the updated hasActiveSubscription state)
-      await fetchSignal();
+      // First check subscription status and get the result
+      const subscriptionStatus = await checkUserSubscription();
+      // Then fetch signal with the subscription status
+      await fetchSignal(subscriptionStatus);
     }
     
     initializeData();
   }, [(session?.user as SessionUser)?.id || session?.user?.email]); // Only depend on user ID or email, not tier
 
-  async function checkUserSubscription() {
+  async function checkUserSubscription(): Promise<{ hasSubscription: boolean; isAdmin: boolean; tier: 'free' | 'paid' }> {
     if (session?.user) {
       try {
         // Try to fetch paid tier data - if successful, user has subscription or is admin
@@ -124,24 +124,24 @@ function HomeContent() {
           setHasActiveSubscription(true);
           // Only update tier if it's currently free (avoid infinite loop)
           setTier((currentTier) => currentTier === 'free' ? 'paid' : currentTier);
-          // If user is admin, also set admin flag
-          if (data.isAdmin) {
-            // Admin status will be set when signal is fetched
-          }
+          return { hasSubscription: true, isAdmin: data.isAdmin || false, tier: 'paid' };
         } else {
           const errorData = await response.json().catch(() => ({}));
           console.log('Paid tier access denied:', errorData.error || response.status);
           setHasActiveSubscription(false);
           setTier('free');
+          return { hasSubscription: false, isAdmin: false, tier: 'free' };
         }
       } catch (err) {
         console.error('Error checking subscription:', err);
         setHasActiveSubscription(false);
         setTier('free');
+        return { hasSubscription: false, isAdmin: false, tier: 'free' };
       }
     } else {
       setHasActiveSubscription(false);
       setTier('free');
+      return { hasSubscription: false, isAdmin: false, tier: 'free' };
     }
   }
 
@@ -171,7 +171,7 @@ function HomeContent() {
   }
 
 
-  async function fetchSignal() {
+  async function fetchSignal(subscriptionStatus?: { hasSubscription: boolean; isAdmin: boolean; tier: 'free' | 'paid' }) {
     setLoading(true);
     setError(null);
     try {
@@ -185,9 +185,13 @@ function HomeContent() {
       const minLoadingTime = 800; // 800ms minimum
       const startTime = Date.now();
       
-      // If user has subscription, always fetch paid tier
-      // Use the current tier state (which should be updated by checkUserSubscription)
-      const actualTier = hasActiveSubscription ? 'paid' : tier;
+      // Use subscription status if provided, otherwise use state
+      const hasSub = subscriptionStatus?.hasSubscription ?? hasActiveSubscription;
+      const userTier = subscriptionStatus?.tier ?? tier;
+      const userIsAdmin = subscriptionStatus?.isAdmin ?? false;
+      
+      // If user has subscription or is admin, always fetch paid tier
+      const actualTier = hasSub || userIsAdmin ? 'paid' : userTier;
       
       let response = await fetch(`/api/signal?tier=${actualTier}`, {
         cache: 'no-store',
