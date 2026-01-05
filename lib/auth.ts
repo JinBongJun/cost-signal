@@ -60,12 +60,34 @@ export async function isSubscriptionProblematic(userId: string): Promise<boolean
   return subscription.status === 'past_due' || subscription.status === 'paused';
 }
 
+export async function isAdmin(userId: string): Promise<boolean> {
+  const db = getDb();
+  const user = await db.getUserById(userId);
+  
+  if (!user) {
+    return false;
+  }
+  
+  // Check if user email is in admin list (from environment variable)
+  const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(email => email.trim().toLowerCase()) || [];
+  const userEmail = user.email?.toLowerCase();
+  
+  return userEmail ? adminEmails.includes(userEmail) : false;
+}
+
 export async function requirePaidTier() {
   const user = await requireAuth();
   const userId = (user as any).id;
   if (!userId) {
     throw new Error('User ID not found');
   }
+  
+  // Check if user is admin first
+  const userIsAdmin = await isAdmin(userId);
+  if (userIsAdmin) {
+    return user;
+  }
+  
   const hasSubscription = await hasActiveSubscription(userId);
   
   if (!hasSubscription) {

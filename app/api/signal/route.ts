@@ -33,15 +33,24 @@ export async function GET(request: NextRequest) {
           if (!userId) {
             return NextResponse.json({ error: 'User ID not found' }, { status: 500 });
           }
-          const hasSubscription = await hasActiveSubscription(userId);
-          if (hasSubscription) {
+          
+          // Check if user is admin (admins get free access to paid tier)
+          const { isAdmin } = await import('@/lib/auth');
+          const userIsAdmin = await isAdmin(userId);
+          
+          if (userIsAdmin) {
             tier = 'paid';
           } else {
-            // User is authenticated but doesn't have active subscription
-            return NextResponse.json(
-              { error: 'Active subscription required for paid tier' },
-              { status: 403 }
-            );
+            const hasSubscription = await hasActiveSubscription(userId);
+            if (hasSubscription) {
+              tier = 'paid';
+            } else {
+              // User is authenticated but doesn't have active subscription
+              return NextResponse.json(
+                { error: 'Active subscription required for paid tier' },
+                { status: 403 }
+              );
+            }
           }
         } else {
           // User is not authenticated
