@@ -100,13 +100,17 @@ function HomeContent() {
     }
   }, [(session?.user as SessionUser)?.id || session?.user?.email]); // Only depend on user ID or email, not tier
 
-  // Check user subscription
+  // Check user subscription first, then fetch signal
   useEffect(() => {
-    fetchSignal();
-    checkUserSubscription();
+    async function initializeData() {
+      // First check subscription status
+      await checkUserSubscription();
+      // Then fetch signal (which will use the updated hasActiveSubscription state)
+      await fetchSignal();
+    }
+    
+    initializeData();
   }, [(session?.user as SessionUser)?.id || session?.user?.email]); // Only depend on user ID or email, not tier
-
-
 
   async function checkUserSubscription() {
     if (session?.user) {
@@ -116,9 +120,14 @@ function HomeContent() {
           cache: 'no-store',
         });
         if (response.ok) {
+          const data = await response.json();
           setHasActiveSubscription(true);
           // Only update tier if it's currently free (avoid infinite loop)
           setTier((currentTier) => currentTier === 'free' ? 'paid' : currentTier);
+          // If user is admin, also set admin flag
+          if (data.isAdmin) {
+            // Admin status will be set when signal is fetched
+          }
         } else {
           const errorData = await response.json().catch(() => ({}));
           console.log('Paid tier access denied:', errorData.error || response.status);
@@ -176,23 +185,25 @@ function HomeContent() {
       const minLoadingTime = 800; // 800ms minimum
       const startTime = Date.now();
       
-      // If user has subscription or is admin, always fetch paid tier
-      const shouldFetchPaid = hasActiveSubscription || (signal?.isAdmin);
-      const actualTier = shouldFetchPaid ? 'paid' : tier;
+      // If user has subscription, always fetch paid tier
+      // Use the current tier state (which should be updated by checkUserSubscription)
+      const actualTier = hasActiveSubscription ? 'paid' : tier;
       
-      // Try to fetch paid tier data first if tier is 'paid' or user has subscription
-      // Use preview mode if user doesn't have subscription (or not logged in)
-      const isPreviewMode = actualTier === 'paid' && (!session?.user || !hasActiveSubscription) && !signal?.isAdmin;
-      let response = await fetch(`/api/signal?tier=${actualTier}${isPreviewMode ? '&preview=true' : ''}`, {
+      let response = await fetch(`/api/signal?tier=${actualTier}`, {
         cache: 'no-store',
       });
       
-      // If paid tier fails (no subscription), fall back to preview mode
-      if (!response.ok && actualTier === 'paid' && !isPreviewMode && !signal?.isAdmin) {
-        console.log('Paid tier not available, trying preview mode');
-        response = await fetch('/api/signal?tier=paid&preview=true', {
+      // If paid tier fails (no subscription), fall back to free tier
+      if (!response.ok && actualTier === 'paid') {
+        console.log('Paid tier not available, falling back to free tier');
+        response = await fetch('/api/signal?tier=free', {
           cache: 'no-store',
         });
+        // Update state if paid tier access was denied
+        if (response.ok) {
+          setHasActiveSubscription(false);
+          setTier('free');
+        }
       }
       
       if (!response.ok) {
@@ -201,7 +212,7 @@ function HomeContent() {
       }
       const data = await response.json();
       
-      // If user is admin, automatically set tier to paid
+      // If user is admin, automatically set tier to paid and subscription status
       if (data.isAdmin) {
         setTier('paid');
         setHasActiveSubscription(true);
@@ -228,13 +239,14 @@ function HomeContent() {
   }
 
   async function fetchHistory() {
-    if (tier !== 'paid') return;
+    // Only fetch history if user has active subscription or is admin
+    if (!hasActiveSubscription && tier !== 'paid') return;
     
     setHistoryLoading(true);
     try {
-      // Use preview mode if user doesn't have subscription (or not logged in)
-      const isPreviewMode = !session?.user || !hasActiveSubscription;
-      const response = await fetch(`/api/history?limit=12${isPreviewMode ? '&preview=true' : ''}`);
+      const response = await fetch(`/api/history?limit=12`, {
+        cache: 'no-store',
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch history');
       }
@@ -249,10 +261,10 @@ function HomeContent() {
   }
 
   useEffect(() => {
-    if (tier === 'paid' && showHistory) {
+    if ((hasActiveSubscription || tier === 'paid') && showHistory) {
       fetchHistory();
     }
-  }, [tier, showHistory]);
+  }, [hasActiveSubscription, tier, showHistory]);
 
   function formatDate(dateString: string): string {
     const date = new Date(dateString);
