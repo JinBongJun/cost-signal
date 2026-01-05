@@ -110,17 +110,22 @@ function HomeContent() {
   async function checkUserSubscription() {
     if (session?.user) {
       try {
-        // Try to fetch paid tier data - if successful, user has subscription
-        const response = await fetch('/api/signal?tier=paid');
+        // Try to fetch paid tier data - if successful, user has subscription or is admin
+        const response = await fetch('/api/signal?tier=paid', {
+          cache: 'no-store',
+        });
         if (response.ok) {
           setHasActiveSubscription(true);
           // Only update tier if it's currently free (avoid infinite loop)
           setTier((currentTier) => currentTier === 'free' ? 'paid' : currentTier);
         } else {
+          const errorData = await response.json().catch(() => ({}));
+          console.log('Paid tier access denied:', errorData.error || response.status);
           setHasActiveSubscription(false);
           setTier('free');
         }
       } catch (err) {
+        console.error('Error checking subscription:', err);
         setHasActiveSubscription(false);
         setTier('free');
       }

@@ -26,7 +26,8 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '12', 10);
 
     const db = getDb();
-    const signals = await db.getWeeklySignalsHistory(limit);
+    // Exclude current week from history (current week is shown in main signal)
+    const signals = await db.getWeeklySignalsHistory(limit, true);
 
     // Include indicators for each week
     const signalsWithIndicators = await Promise.all(

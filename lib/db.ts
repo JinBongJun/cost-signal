@@ -155,12 +155,21 @@ class Database {
     })) as IndicatorData[];
   }
 
-  async getWeeklySignalsHistory(limit: number = 12): Promise<WeeklySignal[]> {
-    const { data, error } = await supabase
+  async getWeeklySignalsHistory(limit: number = 12, excludeCurrentWeek: boolean = true): Promise<WeeklySignal[]> {
+    const { getCurrentWeekStart } = await import('./utils');
+    const currentWeekStart = excludeCurrentWeek ? getCurrentWeekStart() : null;
+    
+    let query = supabase
       .from('weekly_signals')
       .select('*')
-      .order('week_start', { ascending: false })
-      .limit(limit);
+      .order('week_start', { ascending: false });
+    
+    // Exclude current week if requested
+    if (currentWeekStart) {
+      query = query.neq('week_start', currentWeekStart);
+    }
+    
+    const { data, error } = await query.limit(limit);
 
     if (error || !data) return [];
 
