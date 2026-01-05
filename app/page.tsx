@@ -17,6 +17,7 @@ import { HistorySection } from '@/components/HistorySection';
 import { WelcomeModal } from '@/components/WelcomeModal';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { ImpactBreakdown } from '@/components/ImpactBreakdown';
 import type { SessionUser } from '@/lib/types';
 
 interface Signal {
@@ -31,9 +32,18 @@ interface Signal {
     value?: number;
     previous_value?: number | null;
     change_percent?: number | null;
-    status: 'ok' | 'caution' | 'risk';
+    status?: 'ok' | 'caution' | 'risk'; // Optional for free tier
     locked?: boolean; // true for free tier locked indicators
+    direction?: 'up' | 'down' | 'neutral'; // For free tier: direction only
   }>;
+  impactAnalysis?: {
+    totalWeeklyChange: number;
+    breakdown: Array<{
+      indicator: 'gas' | 'cpi' | 'interest_rate' | 'unemployment';
+      impact: number;
+      level: 'HIGH' | 'MEDIUM' | 'LOW' | 'NONE';
+    }>;
+  };
 }
 
 interface HistorySignal {
@@ -652,6 +662,14 @@ function HomeContent() {
             }}
             formatDate={formatDate}
             formatValue={formatValue}
+          />
+        )}
+
+        {/* Impact Analysis (Paid tier only, if spending pattern is set) */}
+        {tier === 'paid' && signal?.impactAnalysis && (
+          <ImpactBreakdown
+            totalWeeklyChange={signal.impactAnalysis.totalWeeklyChange}
+            breakdown={signal.impactAnalysis.breakdown}
           />
         )}
 

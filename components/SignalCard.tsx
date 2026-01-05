@@ -17,8 +17,9 @@ interface SignalCardProps {
       value?: number;
       previous_value?: number | null;
       change_percent?: number | null;
-      status: 'ok' | 'caution' | 'risk';
+      status?: 'ok' | 'caution' | 'risk'; // Optional for free tier
       locked?: boolean; // true for free tier locked indicators
+      direction?: 'up' | 'down' | 'neutral'; // For free tier: direction only
     }>;
   };
   tier: 'free' | 'paid';
@@ -230,6 +231,7 @@ export function SignalCard({
                   
                   {!isLocked && indicator.value !== undefined ? (
                     <>
+                      {/* Paid tier: Full value display */}
                       <div className={`text-3xl font-bold mb-2 ${statusTextColors[displayStatus]}`}>
                         {formatValue(indicator.type, indicator.value)}
                       </div>
@@ -261,6 +263,16 @@ export function SignalCard({
                           </a>
                         </div>
                       )}
+                    </>
+                  ) : isLocked && indicator.direction !== undefined ? (
+                    <>
+                      {/* Free tier: Direction only (no values) */}
+                      <div className="text-2xl font-bold mb-2 text-gray-600 dark:text-gray-400">
+                        {indicator.direction === 'up' ? '▲' : indicator.direction === 'down' ? '▼' : '—'}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        Direction only - Upgrade to view details
+                      </div>
                     </>
                   ) : (
                     <div className="text-gray-400 dark:text-gray-500 text-sm">

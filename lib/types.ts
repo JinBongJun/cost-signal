@@ -87,3 +87,14 @@ export interface Database {
   getUserById(userId: string): Promise<any | null>;
 }
 
+/**
+ * Spending pattern types for personalized impact analysis
+ */
+export interface SpendingPattern {
+  gas_frequency?: 'daily' | 'weekly' | 'biweekly' | 'monthly' | null;
+  monthly_rent?: number | null;
+  food_ratio?: 'low' | 'medium' | 'high' | null;
+  transport_mode?: 'car' | 'public' | 'mixed' | null;
+  has_debt?: boolean | null;
+}
+

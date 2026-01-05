@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { getCurrentUser, hasActiveSubscription } from '@/lib/auth';
+import { calculateWeeklyImpact } from '@/lib/impact-calculator';
+import { generatePersonalizedExplanation } from '@/lib/explainer';
 
 export const dynamic = 'force-dynamic';
 
@@ -105,14 +107,52 @@ export async function GET(request: NextRequest) {
 
 
     if (tier === 'paid') {
-      // Paid tier: include individual indicators
+      // Paid tier: include individual indicators + personalized impact analysis
       const indicators = await db.getIndicatorsForWeek(signal.week_start);
+      
+      // Get user's spending pattern for personalized impact calculation and explanation
+      let impactAnalysis = null;
+      let personalizedExplanation = signal.explanation;
+      
+      if (user) {
+        const userId = (user as any).id;
+        if (userId) {
+          const spendingPattern = await db.getSpendingPattern(userId);
+          if (spendingPattern) {
+            const impact = calculateWeeklyImpact(indicators, {
+              gas_frequency: spendingPattern.gas_frequency,
+              monthly_rent: spendingPattern.monthly_rent,
+              food_ratio: spendingPattern.food_ratio,
+              transport_mode: spendingPattern.transport_mode,
+              has_debt: spendingPattern.has_debt,
+            });
+            impactAnalysis = {
+              totalWeeklyChange: impact.totalWeeklyChange,
+              breakdown: impact.breakdown,
+            };
+            
+            // Generate personalized explanation
+            personalizedExplanation = await generatePersonalizedExplanation(
+              signal,
+              indicators,
+              {
+                gas_frequency: spendingPattern.gas_frequency,
+                monthly_rent: spendingPattern.monthly_rent,
+                food_ratio: spendingPattern.food_ratio,
+                transport_mode: spendingPattern.transport_mode,
+                has_debt: spendingPattern.has_debt,
+              },
+              impact
+            );
+          }
+        }
+      }
       
       return NextResponse.json({
         week_start: signal.week_start,
         overall_status: signal.overall_status,
         risk_count: signal.risk_count,
-        explanation: signal.explanation,
+        explanation: personalizedExplanation,
         explanation_type: 'detailed',
         isAdmin: userIsAdmin, // Include admin status for frontend
         indicators: indicators.map(ind => ({
@@ -122,6 +162,7 @@ export async function GET(request: NextRequest) {
           change_percent: ind.change_percent,
           status: ind.status,
         })),
+        impactAnalysis, // Personalized impact analysis
       });
     } else {
       // Free tier: basic explanation (template-based) + locked indicators
@@ -160,12 +201,25 @@ export async function GET(request: NextRequest) {
         explanation: basicExplanation, // Basic template-based explanation
         explanation_type: 'basic', // Indicate this is a basic explanation
         isAdmin: userIsAdmin, // Include admin status for frontend
-        // Return indicators as locked (no status, no values) - shows what they're missing
-        indicators: indicators.map(ind => ({
-          type: ind.indicator_type,
-          locked: true, // Mark as locked for free tier
-          // No status, no values - completely hidden to maintain value proposition
-        })),
+        // Return indicators with direction only (no values, no percentages) for free tier
+        indicators: indicators.map(ind => {
+          // Calculate direction from change_percent
+          let direction: 'up' | 'down' | 'neutral' = 'neutral';
+          if (ind.change_percent !== null && ind.change_percent !== undefined) {
+            if (ind.change_percent > 0) {
+              direction = 'up';
+            } else if (ind.change_percent < 0) {
+              direction = 'down';
+            }
+          }
+          
+          return {
+            type: ind.indicator_type,
+            locked: true, // Mark as locked for free tier
+            direction, // Only direction, no values
+            // No status, no values, no change_percent - completely hidden to maintain value proposition
+          };
+        }),
       });
     }
   } catch (error) {

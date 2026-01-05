@@ -1047,9 +1047,293 @@ export default function AccountPage() {
               </div>
             )}
           </Card>
+
+          {/* Spending Pattern */}
+          <SpendingPatternCard />
         </div>
       </main>
     </>
+  );
+}
+
+// Spending Pattern Component
+function SpendingPatternCard() {
+  const { data: session } = useSession();
+  const [pattern, setPattern] = useState<{
+    gas_frequency?: 'daily' | 'weekly' | 'biweekly' | 'monthly' | null;
+    monthly_rent?: number | null;
+    food_ratio?: 'low' | 'medium' | 'high' | null;
+    transport_mode?: 'car' | 'public' | 'mixed' | null;
+    has_debt?: boolean | null;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const toast = useToast();
+
+  useEffect(() => {
+    if (session?.user) {
+      fetchSpendingPattern();
+    }
+  }, [session]);
+
+  async function fetchSpendingPattern() {
+    try {
+      const response = await fetch('/api/account/spending-pattern');
+      if (response.ok) {
+        const data = await response.json();
+        setPattern(data.pattern || {
+          gas_frequency: null,
+          monthly_rent: null,
+          food_ratio: null,
+          transport_mode: null,
+          has_debt: false,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching spending pattern:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleSave() {
+    if (!pattern) return;
+
+    setSaving(true);
+    try {
+      const response = await fetch('/api/account/spending-pattern', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(pattern),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to save spending pattern');
+      }
+
+      toast.success('Spending pattern saved successfully');
+      setEditing(false);
+    } catch (error) {
+      console.error('Error saving spending pattern:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to save spending pattern');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <Card className="mb-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-6 w-48 bg-gray-300 dark:bg-gray-700 rounded"></div>
+          <div className="h-32 bg-gray-300 dark:bg-gray-700 rounded"></div>
+        </div>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="mb-6">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-xl font-semibold">Spending Pattern</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Help us personalize your cost impact analysis
+          </p>
+        </div>
+        {!editing && (
+          <Button
+            onClick={() => setEditing(true)}
+            variant="secondary"
+            size="sm"
+          >
+            {pattern && (pattern.gas_frequency || pattern.monthly_rent || pattern.food_ratio || pattern.transport_mode) ? 'Edit' : 'Set Up'}
+          </Button>
+        )}
+      </div>
+
+      {editing ? (
+        <div className="space-y-6">
+          {/* Gas Frequency */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              How often do you fill up gas?
+            </label>
+            <select
+              value={pattern?.gas_frequency || ''}
+              onChange={(e) => setPattern({
+                ...pattern,
+                gas_frequency: e.target.value as 'daily' | 'weekly' | 'biweekly' | 'monthly' | null || null,
+              })}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 min-h-[44px]"
+            >
+              <option value="">Select frequency</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="biweekly">Bi-weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+
+          {/* Monthly Rent */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Monthly Rent/Mortgage (optional)
+            </label>
+            <input
+              type="number"
+              value={pattern?.monthly_rent || ''}
+              onChange={(e) => setPattern({
+                ...pattern,
+                monthly_rent: e.target.value ? parseFloat(e.target.value) : null,
+              })}
+              placeholder="e.g., 1500"
+              min="0"
+              step="0.01"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 min-h-[44px]"
+            />
+          </div>
+
+          {/* Food Ratio */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Eating out vs. groceries ratio
+            </label>
+            <select
+              value={pattern?.food_ratio || ''}
+              onChange={(e) => setPattern({
+                ...pattern,
+                food_ratio: e.target.value as 'low' | 'medium' | 'high' | null || null,
+              })}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 min-h-[44px]"
+            >
+              <option value="">Select ratio</option>
+              <option value="low">Mostly groceries (low eating out)</option>
+              <option value="medium">Mixed (some eating out)</option>
+              <option value="high">Mostly eating out (high)</option>
+            </select>
+          </div>
+
+          {/* Transport Mode */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Primary transportation
+            </label>
+            <select
+              value={pattern?.transport_mode || ''}
+              onChange={(e) => setPattern({
+                ...pattern,
+                transport_mode: e.target.value as 'car' | 'public' | 'mixed' | null || null,
+              })}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 min-h-[44px]"
+            >
+              <option value="">Select mode</option>
+              <option value="car">Car (own vehicle)</option>
+              <option value="public">Public transportation</option>
+              <option value="mixed">Mixed (both)</option>
+            </select>
+          </div>
+
+          {/* Has Debt */}
+          <div>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={pattern?.has_debt || false}
+                onChange={(e) => setPattern({
+                  ...pattern,
+                  has_debt: e.target.checked,
+                })}
+                className="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-2 focus:ring-blue-500"
+              />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                I have loans or credit card debt (interest rate changes affect me)
+              </span>
+            </label>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <Button
+              onClick={handleSave}
+              disabled={saving}
+              isLoading={saving}
+              variant="primary"
+              size="md"
+              className="min-h-[44px]"
+            >
+              Save
+            </Button>
+            <Button
+              onClick={() => {
+                setEditing(false);
+                fetchSpendingPattern();
+              }}
+              disabled={saving}
+              variant="secondary"
+              size="md"
+              className="min-h-[44px]"
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {pattern && (pattern.gas_frequency || pattern.monthly_rent || pattern.food_ratio || pattern.transport_mode) ? (
+            <>
+              {pattern.gas_frequency && (
+                <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Gas frequency:</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100 capitalize">
+                    {pattern.gas_frequency}
+                  </span>
+                </div>
+              )}
+              {pattern.monthly_rent && (
+                <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Monthly rent:</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    ${pattern.monthly_rent.toLocaleString()}
+                  </span>
+                </div>
+              )}
+              {pattern.food_ratio && (
+                <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Food ratio:</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100 capitalize">
+                    {pattern.food_ratio}
+                  </span>
+                </div>
+              )}
+              {pattern.transport_mode && (
+                <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Transport:</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100 capitalize">
+                    {pattern.transport_mode}
+                  </span>
+                </div>
+              )}
+              {pattern.has_debt && (
+                <div className="flex justify-between py-2">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Has debt:</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Yes</span>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <p className="mb-2">No spending pattern set yet.</p>
+              <p className="text-sm">Set up your spending pattern to get personalized cost impact analysis.</p>
+            </div>
+          )}
+        </div>
+      )}
+    </Card>
   );
 }
 

@@ -589,6 +589,61 @@ class Database {
     }
   }
 
+  // Spending pattern methods
+  async getSpendingPattern(userId: string): Promise<{
+    id: string;
+    user_id: string;
+    gas_frequency: 'daily' | 'weekly' | 'biweekly' | 'monthly' | null;
+    monthly_rent: number | null;
+    food_ratio: 'low' | 'medium' | 'high' | null;
+    transport_mode: 'car' | 'public' | 'mixed' | null;
+    has_debt: boolean | null;
+    created_at: string;
+    updated_at: string;
+  } | null> {
+    const { data, error } = await supabase
+      .from('user_spending_patterns')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (error || !data) return null;
+
+    return {
+      ...data,
+      created_at: data.created_at ? new Date(data.created_at).toISOString() : new Date().toISOString(),
+      updated_at: data.updated_at ? new Date(data.updated_at).toISOString() : new Date().toISOString(),
+    };
+  }
+
+  async saveSpendingPattern(
+    userId: string,
+    pattern: {
+      gas_frequency?: 'daily' | 'weekly' | 'biweekly' | 'monthly' | null;
+      monthly_rent?: number | null;
+      food_ratio?: 'low' | 'medium' | 'high' | null;
+      transport_mode?: 'car' | 'public' | 'mixed' | null;
+      has_debt?: boolean | null;
+    }
+  ): Promise<void> {
+    const { error } = await supabase
+      .from('user_spending_patterns')
+      .upsert({
+        user_id: userId,
+        gas_frequency: pattern.gas_frequency ?? null,
+        monthly_rent: pattern.monthly_rent ?? null,
+        food_ratio: pattern.food_ratio ?? null,
+        transport_mode: pattern.transport_mode ?? null,
+        has_debt: pattern.has_debt ?? null,
+      }, {
+        onConflict: 'user_id',
+      });
+
+    if (error) {
+      throw new Error(`Failed to save spending pattern: ${error.message}`);
+    }
+  }
+
   close() {
     // Supabase client doesn't need explicit closing
     return Promise.resolve();
