@@ -449,7 +449,7 @@ export default function AccountPage() {
   if (status === 'loading' || loading) {
     return (
       <main className="min-h-screen p-4 md:p-8 bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="animate-pulse space-y-6">
             <div className="h-8 w-48 bg-gray-300 dark:bg-gray-700 rounded"></div>
             <div className="h-64 bg-gray-300 dark:bg-gray-700 rounded-lg"></div>
@@ -475,7 +475,7 @@ export default function AccountPage() {
       />
       <Header />
       <main className="min-h-screen p-4 md:p-8 bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <h1 className="text-3xl md:text-4xl font-bold mb-8 mt-6">Account</h1>
 
           {/* Navigation Tabs */}

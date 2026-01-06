@@ -639,7 +639,7 @@ function HomeContent() {
       />
 
       <main className="min-h-screen p-4 md:p-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-7xl mx-auto">
         {/* Welcome Message (for guests) */}
         {!session?.user && (
           <div className="mb-6 text-center">
@@ -673,16 +673,25 @@ function HomeContent() {
             {signal.impactAnalysis ? (
               <>
                 {/* Show personalized impact when pattern is set */}
+                <div className="mb-4">
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
+                    <div className="flex items-start gap-3">
+                      <div className="text-2xl">✨</div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                          Your Personalized Cost Impact
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          This analysis is customized based on your spending patterns. <Link href="/account" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">Edit settings</Link>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <ImpactBreakdown
                   totalWeeklyChange={signal.impactAnalysis.totalWeeklyChange}
                   breakdown={signal.impactAnalysis.breakdown}
                 />
-                {/* Optional: Add link to edit pattern */}
-                <div className="text-center mt-4">
-                  <Link href="/account" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
-                    Edit spending pattern
-                  </Link>
-                </div>
               </>
             ) : (
               <>
@@ -704,13 +713,17 @@ function HomeContent() {
                 </div>
                 <SpendingPatternForm
                   onSave={async () => {
+                    // Show loading state
+                    setLoading(true);
                     // Refresh signal to get personalized analysis
                     setRefreshTrigger(prev => prev + 1);
-                    // Small delay to ensure API has updated
-                    setTimeout(async () => {
-                      const subscriptionStatus = await checkUserSubscription();
-                      await fetchSignal(subscriptionStatus);
-                    }, 500);
+                    // Wait a bit for the database to update, then fetch
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                    const subscriptionStatus = await checkUserSubscription();
+                    await fetchSignal(subscriptionStatus);
+                    setLoading(false);
+                    // Scroll to top to see the new impact analysis
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                 />
               </>
@@ -718,8 +731,8 @@ function HomeContent() {
           </div>
         )}
 
-        {/* History Section (Paid tier only) */}
-        {tier === 'paid' && signal && (
+        {/* History Section (Paid tier only) - Move below impact analysis */}
+        {tier === 'paid' && signal && signal.impactAnalysis && (
           <HistorySection
             history={history}
             showHistory={showHistory}

@@ -61,7 +61,7 @@ export default function FAQPage() {
     <>
       <Header />
       <main className="min-h-screen p-4 md:p-8 bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-7xl mx-auto">
 
         <header className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Frequently Asked Questions</h1>

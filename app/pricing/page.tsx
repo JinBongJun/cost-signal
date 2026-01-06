@@ -61,10 +61,31 @@ export default function PricingPage() {
       period: '/month',
       description: 'Flexible monthly subscription',
       features: [
-        'Weekly economic signal with detailed explanations',
-        'Individual indicator breakdowns (Gas, CPI, Interest Rates, Unemployment)',
-        'Historical signal trends (12+ weeks)',
-        'Push notifications for weekly updates',
+        {
+          icon: '💰',
+          title: 'Personalized Weekly Cost Impact',
+          description: 'See exactly how much your expenses change each week in dollars',
+        },
+        {
+          icon: '📊',
+          title: 'Breakdown by Category',
+          description: 'Gas, CPI, Interest Rates with dollar amounts and HIGH/MEDIUM/LOW impact levels',
+        },
+        {
+          icon: '🎯',
+          title: 'Customized for YOUR Spending',
+          description: 'Based on your gas frequency, rent, transport mode, and debt status',
+        },
+        {
+          icon: '📈',
+          title: 'Historical Trends',
+          description: 'Track how costs have changed over 12+ weeks',
+        },
+        {
+          icon: '🔔',
+          title: 'Push Notifications',
+          description: 'Get notified every Monday with your personalized analysis',
+        },
       ],
     },
     {
@@ -78,10 +99,31 @@ export default function PricingPage() {
       originalPrice: '$59.88',
       savings: 'Save $19.89/year',
       features: [
-        'Weekly economic signal with detailed explanations',
-        'Individual indicator breakdowns (Gas, CPI, Interest Rates, Unemployment)',
-        'Historical signal trends (12+ weeks)',
-        'Push notifications for weekly updates',
+        {
+          icon: '💰',
+          title: 'Personalized Weekly Cost Impact',
+          description: 'See exactly how much your expenses change each week in dollars',
+        },
+        {
+          icon: '📊',
+          title: 'Breakdown by Category',
+          description: 'Gas, CPI, Interest Rates with dollar amounts and HIGH/MEDIUM/LOW impact levels',
+        },
+        {
+          icon: '🎯',
+          title: 'Customized for YOUR Spending',
+          description: 'Based on your gas frequency, rent, transport mode, and debt status',
+        },
+        {
+          icon: '📈',
+          title: 'Historical Trends',
+          description: 'Track how costs have changed over 12+ weeks',
+        },
+        {
+          icon: '🔔',
+          title: 'Push Notifications',
+          description: 'Get notified every Monday with your personalized analysis',
+        },
       ],
     },
   ];
@@ -91,18 +133,19 @@ export default function PricingPage() {
       <Header />
       <ToastContainer toasts={toast.toasts} onClose={toast.removeToast} />
       <main className="min-h-screen p-4 md:p-8 bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <header className="text-center mb-12 animate-fade-in">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">Pricing</h1>
             <p className="text-xl text-gray-600 dark:text-gray-400 mb-2">
-              Simple, transparent pricing. No hidden fees.
+              Know exactly how economic changes affect your wallet
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              All plans include push notifications and weekly updates
+            <p className="text-base text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
+              Get personalized weekly cost impact analysis. See how much your expenses change in dollars, 
+              customized for your spending patterns. Just $1.25 per week.
             </p>
           </header>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-12 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-12 max-w-5xl mx-auto">
             {plans.map((plan, idx) => (
               <Card
                 key={plan.id}
@@ -143,11 +186,18 @@ export default function PricingPage() {
                   )}
                 </div>
 
-                <ul className="space-y-3 mb-8 min-h-[200px]">
+                <ul className="space-y-4 mb-8">
                   {plan.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-start">
-                      <span className="text-green-500 dark:text-green-400 mr-3 flex-shrink-0 mt-0.5 text-lg">✓</span>
-                      <span className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{feature}</span>
+                    <li key={idx} className="flex items-start gap-3">
+                      <span className="text-2xl flex-shrink-0">{feature.icon}</span>
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-900 dark:text-white text-sm mb-1">
+                          {feature.title}
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                          {feature.description}
+                        </div>
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -205,16 +255,20 @@ export default function PricingPage() {
                   <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Paid Tier Unlocks:</h4>
                   <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
                     <li className="flex items-start gap-2">
-                      <span className="text-blue-500 dark:text-blue-400 text-lg flex-shrink-0">✨</span>
-                      <span>AI-powered detailed explanations</span>
+                      <span className="text-blue-500 dark:text-blue-400 text-lg flex-shrink-0">💰</span>
+                      <span><strong>Personalized cost impact:</strong> See your weekly expense changes in dollars</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-blue-500 dark:text-blue-400 text-lg flex-shrink-0">✨</span>
-                      <span>Individual indicator breakdowns</span>
+                      <span className="text-blue-500 dark:text-blue-400 text-lg flex-shrink-0">📊</span>
+                      <span><strong>Category breakdown:</strong> Gas, CPI, Interest Rates with HIGH/MEDIUM/LOW levels</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-blue-500 dark:text-blue-400 text-lg flex-shrink-0">✨</span>
-                      <span>Historical trends (12+ weeks)</span>
+                      <span className="text-blue-500 dark:text-blue-400 text-lg flex-shrink-0">🎯</span>
+                      <span><strong>Customized analysis:</strong> Based on YOUR spending patterns</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-500 dark:text-blue-400 text-lg flex-shrink-0">📈</span>
+                      <span><strong>Historical trends:</strong> Track changes over 12+ weeks</span>
                     </li>
                   </ul>
                 </div>
@@ -224,6 +278,52 @@ export default function PricingPage() {
                   Continue with free tier →
                 </Button>
               </Link>
+            </div>
+          </Card>
+
+          {/* Value Proposition */}
+          <Card className="mt-12 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-200 dark:border-blue-800">
+            <div className="text-center">
+              <h3 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-white">
+                Why Subscribe?
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-6">
+                <div className="text-center">
+                  <div className="text-4xl mb-2">💰</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                    Real Dollar Impact
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    See exactly how much your weekly expenses change. Not just percentages—actual dollar amounts.
+                  </p>
+                </div>
+                <div className="text-center">
+                  <div className="text-4xl mb-2">🎯</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                    Personalized for You
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Analysis customized based on your gas frequency, rent, transport mode, and debt status.
+                  </p>
+                </div>
+                <div className="text-center">
+                  <div className="text-4xl mb-2">📊</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                    Category Breakdown
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Know which expenses (Gas, CPI, Interest Rates) affect you most with HIGH/MEDIUM/LOW levels.
+                  </p>
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-2xl mx-auto">
+                <p className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  Just $1.25 per week
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  That's less than a cup of coffee. Get personalized insights into how economic changes affect your wallet every Monday.
+                </p>
+              </div>
             </div>
           </Card>
 

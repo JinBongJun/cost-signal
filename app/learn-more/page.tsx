@@ -9,7 +9,7 @@ function LearnMoreContent() {
     <>
       <Header />
       <main className="min-h-screen p-4 md:p-8 bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <Card className="mb-6">
             <div className="text-center mb-6">
               <h1 className="text-3xl md:text-4xl font-bold mb-2">Why Cost Signal?</h1>
@@ -108,7 +108,7 @@ export default function LearnMorePage() {
   return (
     <Suspense fallback={
       <main className="min-h-screen p-4 md:p-8 bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="animate-pulse space-y-6">
             <div className="h-8 w-48 bg-gray-300 dark:bg-gray-700 rounded"></div>
             <div className="h-64 bg-gray-300 dark:bg-gray-700 rounded-lg"></div>
