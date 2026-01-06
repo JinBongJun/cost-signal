@@ -21,8 +21,15 @@ export function Card({ children, className = '', padding = 'md', hover = false, 
   return (
     <div
       id={id}
-      className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg ${paddings[padding]} ${hover ? 'transition-shadow hover:shadow-xl' : ''} ${className}`}
-      style={style}
+      className={`bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 ${paddings[padding]} ${
+        hover 
+          ? 'transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md' 
+          : ''
+      } ${className}`}
+      style={{
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+        ...style,
+      }}
       {...props}
     >
       {children}

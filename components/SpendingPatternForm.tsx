@@ -95,13 +95,13 @@ export function SpendingPatternForm({ onSave, compact = false }: SpendingPattern
   }
 
   const content = (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {!compact && (
         <div>
-          <h3 className="text-2xl md:text-3xl font-semibold mb-3 text-gray-900 dark:text-gray-100">
+          <h3 className="text-xl md:text-2xl font-semibold mb-2 text-gray-900 dark:text-gray-100 tracking-tight">
             Personalize Your Cost Impact Analysis
           </h3>
-          <p className="text-base md:text-lg text-gray-600 dark:text-gray-400">
+          <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">
             Tell us about your spending habits to see how economic indicators affect your weekly expenses.
           </p>
         </div>
@@ -206,7 +206,7 @@ export function SpendingPatternForm({ onSave, compact = false }: SpendingPattern
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="flex gap-3 pt-6 border-t border-gray-200 dark:border-gray-800">
         <Button
           onClick={handleSave}
           disabled={saving}

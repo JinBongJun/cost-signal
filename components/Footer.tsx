@@ -8,8 +8,8 @@ export function Footer() {
   const gitCommit = process.env.NEXT_PUBLIC_GIT_COMMIT || '';
 
   return (
-    <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-auto">
-      <div className="max-w-4xl mx-auto px-4 md:px-8 py-6 md:py-8">
+    <footer className="bg-white dark:bg-black border-t border-gray-200 dark:border-gray-800 mt-auto">
+      <div className="w-full mx-auto px-6 md:px-12 py-8 md:py-12 max-w-7xl">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex flex-col items-center md:items-start gap-1">
             <div className="text-sm text-gray-600 dark:text-gray-400">

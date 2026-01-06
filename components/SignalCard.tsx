@@ -91,22 +91,22 @@ export function SignalCard({
     <Card className="mb-8 animate-scale-in">
       <div className="text-center mb-8">
         <div className="text-8xl mb-6 animate-fade-in">{STATUS_EMOJI[signal.overall_status]}</div>
-        <h2 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-3 ${STATUS_COLOR[signal.overall_status]}`}>
+        <h2 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-3 tracking-tight ${STATUS_COLOR[signal.overall_status]}`}>
           {STATUS_LABEL[signal.overall_status]}
         </h2>
-        <p className="text-base md:text-lg text-gray-500 dark:text-gray-400">
+        <p className="text-sm md:text-base text-gray-500 dark:text-gray-400 font-medium">
           Week of {formatDate(signal.week_start)}
         </p>
       </div>
 
       {/* Explanation - Both tiers (basic for free, detailed AI for paid) */}
       {signal.explanation && (
-        <div className={`rounded-lg p-6 md:p-8 mb-8 animate-fade-in ${
+        <div className={`rounded-xl p-6 mb-8 animate-fade-in border ${
           tier === 'paid' 
-            ? 'bg-gray-50 dark:bg-gray-900' 
-            : 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
+            ? 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800' 
+            : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
         }`}>
-          <p className={`text-base md:text-lg leading-relaxed ${
+          <p className={`text-sm md:text-base leading-relaxed ${
             tier === 'paid'
               ? 'text-gray-700 dark:text-gray-300'
               : 'text-blue-800 dark:text-blue-200'
@@ -166,8 +166,8 @@ export function SignalCard({
               return (
                 <div
                   key={idx}
-                  className={`rounded-lg p-6 md:p-8 border transition-smooth relative overflow-hidden ${
-                    isLocked ? 'cursor-pointer hover:border-blue-400 dark:hover:border-blue-600' : 'hover:shadow-lg'
+                  className={`rounded-xl p-6 md:p-8 border transition-all duration-200 relative overflow-hidden ${
+                    isLocked ? 'cursor-pointer hover:border-blue-400 dark:hover:border-blue-600' : 'hover:shadow-md hover:scale-[1.02]'
                   } ${statusColors[displayStatus]}`}
                   onClick={isLocked ? () => {
                     // Don't redirect if user is admin or has active subscription

@@ -661,14 +661,14 @@ function HomeContent() {
         onNotificationClick={handleNotificationClick}
       />
 
-      <main className="min-h-screen p-6 md:p-12">
-        <div className="w-full mx-auto px-4 md:px-8">
+      <main className="min-h-screen p-6 md:p-12 bg-gray-50 dark:bg-black">
+        <div className="w-full mx-auto px-4 md:px-8 max-w-7xl">
         {/* Welcome Message (for guests) */}
         {!session?.user && (
-          <div className="mb-6 text-center">
-            <div className="inline-block px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <div className="mb-8 text-center">
+            <div className="inline-block px-4 py-2.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
               <p className="text-sm text-blue-800 dark:text-blue-200">
-                👋 <strong>Welcome!</strong> You can browse for free. <Link href="/signup" className="underline font-medium">Sign up</Link> for full features.
+                👋 <strong>Welcome!</strong> You can browse for free. <Link href="/signup" className="underline font-medium hover:text-blue-900 dark:hover:text-blue-100 transition-colors">Sign up</Link> for full features.
               </p>
             </div>
           </div>
@@ -698,15 +698,15 @@ function HomeContent() {
               {signal.impactAnalysis ? (
                 <>
                   {/* Show personalized impact when pattern is set */}
-                  <div className="mb-4">
-                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
+                  <div className="mb-6">
+                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4">
                       <div className="flex items-start gap-3">
-                        <div className="text-2xl">✨</div>
+                        <div className="text-xl">✨</div>
                         <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                          <h3 className="font-semibold text-sm text-gray-900 dark:text-gray-100 mb-1">
                             Your Personalized Cost Impact
                           </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
                             This analysis is customized based on your spending patterns. <Link href="/account" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">Edit settings</Link>
                           </p>
                         </div>
@@ -723,15 +723,15 @@ function HomeContent() {
               ) : (
                 <>
                   {/* Show setup form when pattern is not set */}
-                  <div className="mb-4">
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+                  <div className="mb-6">
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
                       <div className="flex items-start gap-3">
-                        <div className="text-2xl">💡</div>
+                        <div className="text-xl">💡</div>
                         <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                          <h3 className="font-semibold text-sm text-gray-900 dark:text-gray-100 mb-1">
                             Unlock Personalized Cost Impact Analysis
                           </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
                             Tell us about your spending habits to see exactly how this week's economic changes affect your wallet.
                           </p>
                         </div>

@@ -67,7 +67,7 @@ export function HistorySection({
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl md:text-2xl font-semibold">Historical Signals</h3>
+        <h3 className="text-lg md:text-xl font-semibold tracking-tight">Historical Signals</h3>
         <Button onClick={onToggle} variant="secondary" size="sm">
           {showHistory ? 'Hide' : 'Show'} History
         </Button>

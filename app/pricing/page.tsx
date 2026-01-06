@@ -132,14 +132,14 @@ export default function PricingPage() {
     <>
       <Header />
       <ToastContainer toasts={toast.toasts} onClose={toast.removeToast} />
-      <main className="min-h-screen p-6 md:p-12 bg-gray-50 dark:bg-gray-900">
-        <div className="w-full mx-auto px-4 md:px-8">
+      <main className="min-h-screen p-6 md:p-12 bg-gray-50 dark:bg-black">
+        <div className="w-full mx-auto px-4 md:px-8 max-w-7xl">
           <header className="text-center mb-12 animate-fade-in">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">Pricing</h1>
-            <p className="text-xl text-gray-600 dark:text-gray-400 mb-2">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white tracking-tight">Pricing</h1>
+            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-2">
               Know exactly how economic changes affect your wallet
             </p>
-            <p className="text-base text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
+            <p className="text-sm md:text-base text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
               Get personalized weekly cost impact analysis. See how much your expenses change in dollars, 
               customized for your spending patterns. Just $1.25 per week.
             </p>
@@ -219,9 +219,9 @@ export default function PricingPage() {
             ))}
           </div>
 
-          <Card className="mt-12 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border-2 border-gray-200 dark:border-gray-700">
+          <Card className="mt-12 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-800">
             <div className="text-center">
-              <h3 className="text-2xl font-semibold mb-2 text-gray-900 dark:text-white">Free Tier</h3>
+              <h3 className="text-xl md:text-2xl font-semibold mb-2 text-gray-900 dark:text-white tracking-tight">Free Tier</h3>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
                 Start with our free tier and upgrade when you need more insights:
               </p>
@@ -283,17 +283,17 @@ export default function PricingPage() {
 
           {/* Value Proposition */}
           <Card className="mt-12 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-200 dark:border-blue-800">
-            <div className="text-center">
-              <h3 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-white">
-                Why Subscribe?
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-8">
                 <div className="text-center">
-                  <div className="text-5xl mb-3">💰</div>
-                  <h4 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                    Real Dollar Impact
-                  </h4>
-                  <p className="text-base text-gray-600 dark:text-gray-400">
+                  <h3 className="text-xl md:text-2xl font-semibold mb-6 text-gray-900 dark:text-white tracking-tight">
+                    Why Subscribe?
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-8">
+                    <div className="text-center">
+                      <div className="text-4xl mb-3">💰</div>
+                      <h4 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white mb-3 tracking-tight">
+                        Real Dollar Impact
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
                     See exactly how much your weekly expenses change. Not just percentages—actual dollar amounts.
                   </p>
                 </div>
@@ -316,11 +316,11 @@ export default function PricingPage() {
                   </p>
                 </div>
               </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-3xl mx-auto">
-                <p className="text-2xl md:text-3xl font-semibold text-gray-900 dark:text-white mb-3">
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-8 max-w-3xl mx-auto border border-gray-200 dark:border-gray-800">
+                <p className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white mb-3 tracking-tight">
                   Just $1.25 per week
                 </p>
-                <p className="text-base md:text-lg text-gray-600 dark:text-gray-400">
+                <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">
                   That's less than a cup of coffee. Get personalized insights into how economic changes affect your wallet every Monday.
                 </p>
               </div>

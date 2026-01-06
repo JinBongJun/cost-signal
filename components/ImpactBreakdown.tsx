@@ -107,11 +107,11 @@ export function ImpactBreakdown({
 
   return (
     <Card className="mb-8">
-      <h3 className="text-2xl md:text-3xl font-semibold mb-6">Your Weekly Cost Impact</h3>
+      <h3 className="text-xl md:text-2xl font-semibold mb-6 tracking-tight">Your Weekly Cost Impact</h3>
       
       {/* Settings Display */}
       {spendingPatternText && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6">
           <div className="flex items-start gap-3">
             <div className="text-xl">📋</div>
             <div className="flex-1">
@@ -131,7 +131,7 @@ export function ImpactBreakdown({
 
       {/* Comparison with Average */}
       {averageImpact && differenceFromAverage !== null && (
-        <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-6">
+        <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 rounded-xl p-4 mb-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">평균 사용자</p>
@@ -162,12 +162,12 @@ export function ImpactBreakdown({
       )}
 
       {/* Total Impact */}
-      <div className={`rounded-lg p-6 md:p-8 mb-8 ${
+      <div className={`rounded-xl p-6 md:p-8 mb-8 border ${
         totalWeeklyChange > 0
-          ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
+          ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
           : totalWeeklyChange < 0
-          ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800'
-          : 'bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700'
+          ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+          : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800'
       }`}>
         <div className="text-center">
           <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 mb-2">Expected Weekly Change</p>
@@ -198,7 +198,7 @@ export function ImpactBreakdown({
             return (
               <div
                 key={item.indicator}
-                className={`rounded-lg p-5 md:p-6 border ${colors.bg} ${colors.border}`}
+                className={`rounded-xl p-5 md:p-6 border transition-all duration-200 hover:shadow-sm ${colors.bg} ${colors.border}`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
