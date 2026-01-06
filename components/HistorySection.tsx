@@ -65,7 +65,7 @@ export function HistorySection({
   };
 
   return (
-    <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+    <div>
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl md:text-2xl font-semibold">Historical Signals</h3>
         <Button onClick={onToggle} variant="secondary" size="sm">
@@ -74,7 +74,7 @@ export function HistorySection({
       </div>
 
       {showHistory && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+        <div className="space-y-4 animate-fade-in">
           {isLoading ? (
             <div className="text-center py-8">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>

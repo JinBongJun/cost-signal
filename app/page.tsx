@@ -667,79 +667,82 @@ function HomeContent() {
           />
         )}
 
-        {/* Personalized Impact Analysis Section (Paid tier only) */}
+        {/* Personalized Impact Analysis & History Section (Paid tier only) - Side by side layout */}
         {tier === 'paid' && signal && (
-          <div className="mb-6">
-            {signal.impactAnalysis ? (
-              <>
-                {/* Show personalized impact when pattern is set */}
-                <div className="mb-4">
-                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
-                    <div className="flex items-start gap-3">
-                      <div className="text-2xl">✨</div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                          Your Personalized Cost Impact
-                        </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          This analysis is customized based on your spending patterns. <Link href="/account" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">Edit settings</Link>
-                        </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* Left Column: Personalized Impact Analysis */}
+            <div>
+              {signal.impactAnalysis ? (
+                <>
+                  {/* Show personalized impact when pattern is set */}
+                  <div className="mb-4">
+                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
+                      <div className="flex items-start gap-3">
+                        <div className="text-2xl">✨</div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                            Your Personalized Cost Impact
+                          </h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            This analysis is customized based on your spending patterns. <Link href="/account" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">Edit settings</Link>
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <ImpactBreakdown
-                  totalWeeklyChange={signal.impactAnalysis.totalWeeklyChange}
-                  breakdown={signal.impactAnalysis.breakdown}
-                />
-              </>
-            ) : (
-              <>
-                {/* Show setup form when pattern is not set */}
-                <div className="mb-4">
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
-                    <div className="flex items-start gap-3">
-                      <div className="text-2xl">💡</div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                          Unlock Personalized Cost Impact Analysis
-                        </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Tell us about your spending habits to see exactly how this week's economic changes affect your wallet.
-                        </p>
+                  <ImpactBreakdown
+                    totalWeeklyChange={signal.impactAnalysis.totalWeeklyChange}
+                    breakdown={signal.impactAnalysis.breakdown}
+                  />
+                </>
+              ) : (
+                <>
+                  {/* Show setup form when pattern is not set */}
+                  <div className="mb-4">
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+                      <div className="flex items-start gap-3">
+                        <div className="text-2xl">💡</div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                            Unlock Personalized Cost Impact Analysis
+                          </h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Tell us about your spending habits to see exactly how this week's economic changes affect your wallet.
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <SpendingPatternForm
-                  onSave={async () => {
-                    // Show loading state
-                    setLoading(true);
-                    // Refresh signal to get personalized analysis
-                    setRefreshTrigger(prev => prev + 1);
-                    // Wait a bit for the database to update, then fetch
-                    await new Promise(resolve => setTimeout(resolve, 800));
-                    const subscriptionStatus = await checkUserSubscription();
-                    await fetchSignal(subscriptionStatus);
-                    setLoading(false);
-                    // Scroll to top to see the new impact analysis
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                />
-              </>
-            )}
-          </div>
-        )}
+                  <SpendingPatternForm
+                    onSave={async () => {
+                      // Show loading state
+                      setLoading(true);
+                      // Refresh signal to get personalized analysis
+                      setRefreshTrigger(prev => prev + 1);
+                      // Wait a bit for the database to update, then fetch
+                      await new Promise(resolve => setTimeout(resolve, 800));
+                      const subscriptionStatus = await checkUserSubscription();
+                      await fetchSignal(subscriptionStatus);
+                      setLoading(false);
+                      // Scroll to top to see the new impact analysis
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                  />
+                </>
+              )}
+            </div>
 
-        {/* History Section (Paid tier only) - Move below impact analysis */}
-        {tier === 'paid' && signal && signal.impactAnalysis && (
-          <HistorySection
-            history={history}
-            showHistory={showHistory}
-            onToggle={() => setShowHistory(!showHistory)}
-            formatDate={formatDate}
-            isLoading={historyLoading}
-          />
+            {/* Right Column: History Section */}
+            <div>
+              <HistorySection
+                history={history}
+                showHistory={showHistory}
+                onToggle={() => setShowHistory(!showHistory)}
+                formatDate={formatDate}
+                isLoading={historyLoading}
+              />
+            </div>
+          </div>
         )}
 
         <Footer />
