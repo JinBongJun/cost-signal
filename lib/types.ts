@@ -118,5 +118,50 @@ export interface ImpactAnalysis {
       level: 'HIGH' | 'MEDIUM' | 'LOW' | 'NONE';
     }>;
   };
+  insights?: ActionableInsight[];
+  predictions?: Prediction[];
+  savingsOpportunities?: SavingsOpportunity[];
+}
+
+/**
+ * Actionable insight that helps users save money
+ */
+export interface ActionableInsight {
+  id: string;
+  type: 'gas' | 'cpi' | 'interest_rate' | 'general';
+  priority: 'high' | 'medium' | 'low';
+  title: string;
+  description: string;
+  action: string; // What the user should do
+  potentialSavings: number; // Weekly savings in dollars
+  urgency: 'now' | 'this_week' | 'soon';
+  icon: string;
+}
+
+/**
+ * Prediction for next week
+ */
+export interface Prediction {
+  indicator: 'gas' | 'cpi' | 'interest_rate' | 'unemployment';
+  direction: 'up' | 'down' | 'stable';
+  confidence: 'high' | 'medium' | 'low';
+  expectedChange: number; // Percentage change
+  recommendation: string;
+  timing: 'optimal' | 'good' | 'avoid';
+}
+
+/**
+ * Savings opportunity based on pattern changes
+ */
+export interface SavingsOpportunity {
+  id: string;
+  title: string;
+  description: string;
+  currentPattern: string;
+  suggestedChange: string;
+  weeklySavings: number;
+  monthlySavings: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+  category: 'transport' | 'shopping' | 'debt' | 'lifestyle';
 }
 

@@ -3,6 +3,7 @@ import { getDb } from '@/lib/db';
 import { getCurrentUser, hasActiveSubscription } from '@/lib/auth';
 import { calculateWeeklyImpact, calculateAverageImpact } from '@/lib/impact-calculator';
 import { generatePersonalizedExplanation } from '@/lib/explainer';
+import { generateActionableInsights, generatePredictions, generateSavingsOpportunities } from '@/lib/insights-generator';
 
 export const dynamic = 'force-dynamic';
 
@@ -131,6 +132,11 @@ export async function GET(request: NextRequest) {
             const impact = calculateWeeklyImpact(indicators, userPattern);
             const averageImpact = calculateAverageImpact(indicators);
             
+            // Generate actionable insights, predictions, and savings opportunities
+            const insights = generateActionableInsights(indicators, userPattern, impact);
+            const predictions = generatePredictions(indicators);
+            const savingsOpportunities = generateSavingsOpportunities(userPattern, impact);
+            
             impactAnalysis = {
               totalWeeklyChange: impact.totalWeeklyChange,
               breakdown: impact.breakdown,
@@ -139,6 +145,9 @@ export async function GET(request: NextRequest) {
                 totalWeeklyChange: averageImpact.totalWeeklyChange,
                 breakdown: averageImpact.breakdown,
               },
+              insights,
+              predictions,
+              savingsOpportunities,
             };
             
             console.log('Signal API - Impact analysis created:', {
@@ -146,6 +155,9 @@ export async function GET(request: NextRequest) {
               breakdownCount: impactAnalysis.breakdown.length,
               hasSpendingPattern: !!impactAnalysis.spendingPattern,
               hasAverageImpact: !!impactAnalysis.averageImpact,
+              insightsCount: insights.length,
+              predictionsCount: predictions.length,
+              savingsOpportunitiesCount: savingsOpportunities.length,
             });
             
             // Generate personalized explanation
