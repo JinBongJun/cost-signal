@@ -18,7 +18,6 @@ import { WelcomeModal } from '@/components/WelcomeModal';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ImpactBreakdown } from '@/components/ImpactBreakdown';
-import { SpendingPatternForm } from '@/components/SpendingPatternForm';
 import { ActionableInsights } from '@/components/ActionableInsights';
 import { Predictions } from '@/components/Predictions';
 import { SavingsOpportunities } from '@/components/SavingsOpportunities';
@@ -729,79 +728,79 @@ function HomeContent() {
             {signal.impactAnalysis ? (
               <>
                 {/* Show personalized impact when pattern is set */}
-                <div className="mb-6">
-                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="text-xl">✨</div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-sm text-gray-900 dark:text-gray-100 mb-1">
-                          Your Personalized Cost Impact
-                        </h3>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
-                          This analysis is customized based on your spending patterns. <Link href="/account" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">Edit settings</Link>
-                        </p>
-                      </div>
+                <Card className="mb-8 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-700">
+                  <div className="flex items-start gap-4 py-4">
+                    <div className="text-4xl flex-shrink-0">✨</div>
+                    <div className="flex-1">
+                      <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 tracking-tight">
+                        Your Personalized Cost Impact
+                      </h3>
+                      <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-3">
+                        This analysis is customized based on your spending patterns.
+                      </p>
+                      <Link href="/account" className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1">
+                        Edit settings →
+                      </Link>
                     </div>
                   </div>
-                </div>
+                </Card>
                 
                 {/* Impact Breakdown */}
-                <ImpactBreakdown
-                  totalWeeklyChange={signal.impactAnalysis.totalWeeklyChange}
-                  breakdown={signal.impactAnalysis.breakdown}
-                  spendingPattern={signal.impactAnalysis.spendingPattern}
-                  averageImpact={signal.impactAnalysis.averageImpact}
-                />
+                <div className="mb-12">
+                  <ImpactBreakdown
+                    totalWeeklyChange={signal.impactAnalysis.totalWeeklyChange}
+                    breakdown={signal.impactAnalysis.breakdown}
+                    spendingPattern={signal.impactAnalysis.spendingPattern}
+                    averageImpact={signal.impactAnalysis.averageImpact}
+                  />
+                </div>
+                
+                {/* Divider */}
+                <div className="my-12 border-t border-gray-200 dark:border-gray-700"></div>
                 
                 {/* Actionable Insights */}
                 {signal.impactAnalysis.insights && signal.impactAnalysis.insights.length > 0 && (
-                  <ActionableInsights insights={signal.impactAnalysis.insights} />
+                  <div className="mb-12">
+                    <ActionableInsights insights={signal.impactAnalysis.insights} />
+                  </div>
                 )}
                 
                 {/* Predictions */}
                 {signal.impactAnalysis.predictions && signal.impactAnalysis.predictions.length > 0 && (
-                  <Predictions predictions={signal.impactAnalysis.predictions} />
+                  <div className="mb-12">
+                    <Predictions predictions={signal.impactAnalysis.predictions} />
+                  </div>
                 )}
                 
                 {/* Savings Opportunities */}
                 {signal.impactAnalysis.savingsOpportunities && signal.impactAnalysis.savingsOpportunities.length > 0 && (
-                  <SavingsOpportunities opportunities={signal.impactAnalysis.savingsOpportunities} />
+                  <div className="mb-12">
+                    <SavingsOpportunities opportunities={signal.impactAnalysis.savingsOpportunities} />
+                  </div>
                 )}
               </>
             ) : (
               <>
-                {/* Show setup form when pattern is not set */}
-                <div className="mb-6">
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="text-xl">💡</div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-sm text-gray-900 dark:text-gray-100 mb-1">
-                          Unlock Personalized Cost Impact Analysis
-                        </h3>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
-                          Tell us about your spending habits to see exactly how this week's economic changes affect your wallet.
-                        </p>
-                      </div>
-                    </div>
+                {/* Show setup prompt when pattern is not set */}
+                <Card className="mb-8 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-300 dark:border-blue-700">
+                  <div className="text-center py-8 md:py-12">
+                    <div className="text-5xl md:text-6xl mb-4">💡</div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3 tracking-tight">
+                      Unlock Personalized Cost Impact Analysis
+                    </h3>
+                    <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 mb-6 max-w-2xl mx-auto leading-relaxed">
+                      Tell us about your spending habits to see exactly how this week's economic changes affect your wallet.
+                    </p>
+                    <Link href="/account">
+                      <Button variant="primary" size="lg" className="min-h-[56px] px-8 text-lg font-semibold">
+                        Set Up Your Spending Pattern →
+                      </Button>
+                    </Link>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
+                      Takes less than 1 minute
+                    </p>
                   </div>
-                </div>
-                <SpendingPatternForm
-                  onSave={async () => {
-                    // Show loading state
-                    setLoading(true);
-                    // Wait a bit for the database to update
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    // Refresh signal to get personalized analysis
-                    setRefreshTrigger(prev => prev + 1);
-                    // Check subscription and fetch signal
-                    const subscriptionStatus = await checkUserSubscription();
-                    await fetchSignal(subscriptionStatus);
-                    setLoading(false);
-                    // Scroll to top to see the new impact analysis
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                />
+                </Card>
               </>
             )}
             

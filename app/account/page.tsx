@@ -1117,6 +1117,10 @@ function SpendingPatternCard() {
 
       toast.success('Spending pattern saved successfully');
       setEditing(false);
+      // Redirect to home page after a short delay to see the personalized analysis
+      setTimeout(() => {
+        router.push('/');
+      }, 1500);
     } catch (error) {
       console.error('Error saving spending pattern:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to save spending pattern');
