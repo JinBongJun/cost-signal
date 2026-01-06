@@ -20,29 +20,29 @@ export function Header({
 
   return (
     <header className="sticky top-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-      <div className="max-w-4xl mx-auto px-4 md:px-8 py-3">
+      <div className="w-full mx-auto px-6 md:px-12 py-4 md:py-5">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 hover:opacity-80 transition-opacity">
+          <div className="flex items-center gap-8">
+            <Link href="/" className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 hover:opacity-80 transition-opacity">
               Cost Signal
             </Link>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6 md:gap-8">
             <Link 
               href="/faq" 
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+              className="text-base md:text-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors font-medium"
             >
               FAQ
             </Link>
             <Link 
               href="/feedback" 
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+              className="text-base md:text-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors font-medium"
             >
               Feedback
             </Link>
             <Link 
               href="/learn-more" 
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+              className="text-base md:text-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors font-medium"
             >
               Learn More
             </Link>
@@ -54,14 +54,14 @@ export function Header({
                 onNotificationClick={onNotificationClick}
               />
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
                 <Link href="/login">
-                  <button className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors min-h-[44px]">
+                  <button className="px-6 py-3 text-base md:text-lg text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors min-h-[52px] font-medium">
                     Sign In
                   </button>
                 </Link>
                 <Link href="/signup">
-                  <button className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors min-h-[44px]">
+                  <button className="px-6 py-3 text-base md:text-lg bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors min-h-[52px] font-semibold">
                     Sign Up
                   </button>
                 </Link>
