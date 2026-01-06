@@ -118,6 +118,7 @@ export async function GET(request: NextRequest) {
         const userId = (user as any).id;
         if (userId) {
           const spendingPattern = await db.getSpendingPattern(userId);
+          console.log('Signal API - Spending pattern:', spendingPattern);
           if (spendingPattern) {
             const userPattern = {
               gas_frequency: spendingPattern.gas_frequency,
@@ -139,6 +140,13 @@ export async function GET(request: NextRequest) {
                 breakdown: averageImpact.breakdown,
               },
             };
+            
+            console.log('Signal API - Impact analysis created:', {
+              totalWeeklyChange: impactAnalysis.totalWeeklyChange,
+              breakdownCount: impactAnalysis.breakdown.length,
+              hasSpendingPattern: !!impactAnalysis.spendingPattern,
+              hasAverageImpact: !!impactAnalysis.averageImpact,
+            });
             
             // Generate personalized explanation
             personalizedExplanation = await generatePersonalizedExplanation(

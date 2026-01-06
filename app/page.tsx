@@ -244,6 +244,13 @@ function HomeContent() {
       }
       const data = await response.json();
       
+      // Debug: Log API response
+      console.log('Signal API Response:', {
+        hasImpactAnalysis: !!data.impactAnalysis,
+        impactAnalysis: data.impactAnalysis,
+        tier: subscriptionStatus?.tier || tier,
+      });
+      
       // If user is admin, automatically set tier to paid and subscription status
       if (data.isAdmin) {
         setTier('paid');
@@ -735,10 +742,11 @@ function HomeContent() {
                     onSave={async () => {
                       // Show loading state
                       setLoading(true);
+                      // Wait a bit for the database to update
+                      await new Promise(resolve => setTimeout(resolve, 1000));
                       // Refresh signal to get personalized analysis
                       setRefreshTrigger(prev => prev + 1);
-                      // Wait a bit for the database to update, then fetch
-                      await new Promise(resolve => setTimeout(resolve, 800));
+                      // Check subscription and fetch signal
                       const subscriptionStatus = await checkUserSubscription();
                       await fetchSignal(subscriptionStatus);
                       setLoading(false);
