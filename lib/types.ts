@@ -98,3 +98,25 @@ export interface SpendingPattern {
   has_debt?: boolean | null;
 }
 
+/**
+ * Impact analysis result with spending pattern and average comparison
+ */
+export interface ImpactAnalysis {
+  totalWeeklyChange: number;
+  breakdown: Array<{
+    indicator: 'gas' | 'cpi' | 'interest_rate' | 'unemployment';
+    impact: number;
+    level: 'HIGH' | 'MEDIUM' | 'LOW' | 'NONE';
+    context?: string;
+  }>;
+  spendingPattern?: SpendingPattern;
+  averageImpact?: {
+    totalWeeklyChange: number;
+    breakdown: Array<{
+      indicator: 'gas' | 'cpi' | 'interest_rate' | 'unemployment';
+      impact: number;
+      level: 'HIGH' | 'MEDIUM' | 'LOW' | 'NONE';
+    }>;
+  };
+}
+

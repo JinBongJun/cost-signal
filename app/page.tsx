@@ -43,7 +43,23 @@ interface Signal {
       indicator: 'gas' | 'cpi' | 'interest_rate' | 'unemployment';
       impact: number;
       level: 'HIGH' | 'MEDIUM' | 'LOW' | 'NONE';
+      context?: string;
     }>;
+    spendingPattern?: {
+      gas_frequency?: 'daily' | 'weekly' | 'biweekly' | 'monthly' | null;
+      monthly_rent?: number | null;
+      food_ratio?: 'low' | 'medium' | 'high' | null;
+      transport_mode?: 'car' | 'public' | 'mixed' | null;
+      has_debt?: boolean | null;
+    };
+    averageImpact?: {
+      totalWeeklyChange: number;
+      breakdown: Array<{
+        indicator: 'gas' | 'cpi' | 'interest_rate' | 'unemployment';
+        impact: number;
+        level: 'HIGH' | 'MEDIUM' | 'LOW' | 'NONE';
+      }>;
+    };
   };
 }
 
@@ -693,6 +709,8 @@ function HomeContent() {
                   <ImpactBreakdown
                     totalWeeklyChange={signal.impactAnalysis.totalWeeklyChange}
                     breakdown={signal.impactAnalysis.breakdown}
+                    spendingPattern={signal.impactAnalysis.spendingPattern}
+                    averageImpact={signal.impactAnalysis.averageImpact}
                   />
                 </>
               ) : (

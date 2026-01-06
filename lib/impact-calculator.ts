@@ -5,6 +5,7 @@ export interface ImpactBreakdown {
   indicator: 'gas' | 'cpi' | 'interest_rate' | 'unemployment';
   impact: number; // Dollar amount per week
   level: 'HIGH' | 'MEDIUM' | 'LOW' | 'NONE';
+  context?: string; // Context description based on user settings (e.g., "주유 주 1회 기준")
 }
 
 export interface WeeklyImpact {
@@ -66,10 +67,39 @@ export function calculateWeeklyImpact(
       level = 'LOW';
     }
 
+    // Generate context description based on user settings
+    let context: string | undefined;
+    switch (indicator.indicator_type) {
+      case 'gas':
+        if (pattern.transport_mode === 'public') {
+          context = '대중교통 사용 (영향 없음)';
+        } else if (pattern.transport_mode === 'mixed') {
+          context = getGasFrequencyLabel(pattern.gas_frequency) + ' (혼합 교통)';
+        } else if (pattern.gas_frequency) {
+          context = getGasFrequencyLabel(pattern.gas_frequency) + ' 기준';
+        }
+        break;
+      case 'cpi':
+        if (pattern.monthly_rent) {
+          context = `월 렌트 $${pattern.monthly_rent.toLocaleString()} 기준`;
+        } else {
+          context = '평균 지출 기준';
+        }
+        break;
+      case 'interest_rate':
+        if (pattern.has_debt) {
+          context = '대출 있음';
+        } else {
+          context = '대출 없음 (영향 없음)';
+        }
+        break;
+    }
+
     breakdown.push({
       indicator: indicator.indicator_type,
       impact,
       level,
+      context,
     });
   }
 
@@ -82,7 +112,7 @@ export function calculateWeeklyImpact(
 }
 
 /**
- * Calculate gas price impact based on user's gas frequency
+ * Calculate gas price impact based on user's gas frequency and transport mode
  */
 function calculateGasImpact(
   indicator: IndicatorData,
@@ -91,6 +121,17 @@ function calculateGasImpact(
   if (!pattern.gas_frequency || !indicator.previous_value || indicator.change_percent === null) {
     return 0;
   }
+
+  // Apply transport_mode multiplier
+  let transportMultiplier = 1.0;
+  if (pattern.transport_mode === 'public') {
+    // Public transportation users: no gas impact
+    return 0;
+  } else if (pattern.transport_mode === 'mixed') {
+    // Mixed transport: 50% of gas impact
+    transportMultiplier = 0.5;
+  }
+  // 'car' or null: full impact (multiplier = 1.0)
 
   // Average gas tank size: 12-15 gallons, use 13.5 as average
   const avgTankSize = 13.5;
@@ -115,8 +156,8 @@ function calculateGasImpact(
       break;
   }
 
-  // Weekly impact = (price change per gallon) × (tank size) × (weekly fill-ups)
-  const weeklyImpact = priceChange * avgTankSize * weeklyFillUps;
+  // Weekly impact = (price change per gallon) × (tank size) × (weekly fill-ups) × (transport multiplier)
+  const weeklyImpact = priceChange * avgTankSize * weeklyFillUps * transportMultiplier;
 
   return Math.round(weeklyImpact * 100) / 100; // Round to 2 decimal places
 }
@@ -179,5 +220,45 @@ function calculateInterestRateImpact(
   const weeklyImpact = (avgDebt * rateChange) / 52;
 
   return Math.round(weeklyImpact * 100) / 100;
+}
+
+/**
+ * Calculate average impact using default spending patterns
+ * This represents what an "average user" would experience
+ */
+export function calculateAverageImpact(indicators: IndicatorData[]): WeeklyImpact {
+  // Average user pattern:
+  // - Weekly gas fill-up (most common)
+  // - $1,500 monthly rent (US average)
+  // - Medium food ratio (mixed eating out/groceries)
+  // - Car transport (most common)
+  // - Has debt (most US households have some debt)
+  const averagePattern: SpendingPattern = {
+    gas_frequency: 'weekly',
+    monthly_rent: 1500,
+    food_ratio: 'medium',
+    transport_mode: 'car',
+    has_debt: true,
+  };
+
+  return calculateWeeklyImpact(indicators, averagePattern);
+}
+
+/**
+ * Get human-readable label for gas frequency
+ */
+function getGasFrequencyLabel(frequency: 'daily' | 'weekly' | 'biweekly' | 'monthly' | null | undefined): string {
+  switch (frequency) {
+    case 'daily':
+      return '주유 매일';
+    case 'weekly':
+      return '주유 주 1회';
+    case 'biweekly':
+      return '주유 격주 1회';
+    case 'monthly':
+      return '주유 월 1회';
+    default:
+      return '주유 빈도 미설정';
+  }
 }
 

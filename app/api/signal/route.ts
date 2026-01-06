@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { getCurrentUser, hasActiveSubscription } from '@/lib/auth';
-import { calculateWeeklyImpact } from '@/lib/impact-calculator';
+import { calculateWeeklyImpact, calculateAverageImpact } from '@/lib/impact-calculator';
 import { generatePersonalizedExplanation } from '@/lib/explainer';
 
 export const dynamic = 'force-dynamic';
@@ -119,29 +119,32 @@ export async function GET(request: NextRequest) {
         if (userId) {
           const spendingPattern = await db.getSpendingPattern(userId);
           if (spendingPattern) {
-            const impact = calculateWeeklyImpact(indicators, {
+            const userPattern = {
               gas_frequency: spendingPattern.gas_frequency,
               monthly_rent: spendingPattern.monthly_rent,
               food_ratio: spendingPattern.food_ratio,
               transport_mode: spendingPattern.transport_mode,
               has_debt: spendingPattern.has_debt,
-            });
+            };
+            
+            const impact = calculateWeeklyImpact(indicators, userPattern);
+            const averageImpact = calculateAverageImpact(indicators);
+            
             impactAnalysis = {
               totalWeeklyChange: impact.totalWeeklyChange,
               breakdown: impact.breakdown,
+              spendingPattern: userPattern,
+              averageImpact: {
+                totalWeeklyChange: averageImpact.totalWeeklyChange,
+                breakdown: averageImpact.breakdown,
+              },
             };
             
             // Generate personalized explanation
             personalizedExplanation = await generatePersonalizedExplanation(
               signal,
               indicators,
-              {
-                gas_frequency: spendingPattern.gas_frequency,
-                monthly_rent: spendingPattern.monthly_rent,
-                food_ratio: spendingPattern.food_ratio,
-                transport_mode: spendingPattern.transport_mode,
-                has_debt: spendingPattern.has_debt,
-              },
+              userPattern,
               impact
             );
           }
