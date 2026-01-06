@@ -181,17 +181,7 @@ export function SignalCard({
                     }
                   } : undefined}
                 >
-                  {isLocked && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gray-900/60 dark:bg-gray-900/70 rounded-lg z-10 backdrop-blur-sm">
-                      <div className="text-center">
-                        <div className="text-3xl mb-2">🔒</div>
-                        <p className="text-white text-sm font-semibold mb-1">Locked</p>
-                        <p className="text-white/80 text-xs">Upgrade to unlock</p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-3 relative z-20">
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-gray-700 dark:text-gray-300">
                         {INDICATOR_LABELS[indicator.type] || indicator.type}
@@ -232,11 +222,11 @@ export function SignalCard({
                   {!isLocked && indicator.value !== undefined ? (
                     <>
                       {/* Paid tier: Full value display */}
-                      <div className={`text-3xl font-bold mb-2 ${statusTextColors[displayStatus]}`}>
+                      <div className={`text-3xl font-bold mb-2 ${statusTextColors[displayStatus]} relative z-20`}>
                         {formatValue(indicator.type, indicator.value)}
                       </div>
                       {indicator.previous_value !== null && indicator.change_percent != null && (
-                        <div className={`text-sm font-medium ${
+                        <div className={`text-sm font-medium relative z-20 ${
                           indicator.change_percent > 0
                             ? displayStatus === 'risk'
                               ? 'text-red-700 dark:text-red-300'
@@ -250,7 +240,7 @@ export function SignalCard({
                         </div>
                       )}
                       {DATA_SOURCES[indicator.type] && (
-                        <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                        <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 relative z-20">
                           Data from{' '}
                           <a
                             href={DATA_SOURCES[indicator.type].url}
@@ -266,17 +256,31 @@ export function SignalCard({
                     </>
                   ) : isLocked && indicator.direction !== undefined ? (
                     <>
-                      {/* Free tier: Direction only (no values) */}
-                      <div className="text-2xl font-bold mb-2 text-gray-600 dark:text-gray-400">
+                      {/* Free tier: Direction only (no values) - Show above overlay */}
+                      <div className="text-3xl font-bold mb-2 text-gray-700 dark:text-gray-200 relative z-20">
                         {indicator.direction === 'up' ? '▲' : indicator.direction === 'down' ? '▼' : '—'}
+                        {indicator.change_percent != null && (
+                          <span className="text-lg ml-2 text-gray-600 dark:text-gray-300">
+                            {indicator.change_percent > 0 ? '+' : ''}{Math.abs(indicator.change_percent).toFixed(1)}%
+                          </span>
+                        )}
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 relative z-20">
                         Direction only - Upgrade to view details
                       </div>
                     </>
                   ) : (
-                    <div className="text-gray-400 dark:text-gray-500 text-sm">
+                    <div className="text-gray-400 dark:text-gray-500 text-sm relative z-20">
                       Value hidden - Upgrade to view
+                    </div>
+                  )}
+
+                  {isLocked && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-900/40 dark:bg-gray-900/50 rounded-lg z-10 backdrop-blur-sm pointer-events-none">
+                      <div className="text-center opacity-60">
+                        <div className="text-2xl mb-1">🔒</div>
+                        <p className="text-white text-xs font-medium">Locked</p>
+                      </div>
                     </div>
                   )}
                 </div>

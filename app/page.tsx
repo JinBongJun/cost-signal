@@ -18,6 +18,7 @@ import { WelcomeModal } from '@/components/WelcomeModal';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ImpactBreakdown } from '@/components/ImpactBreakdown';
+import { SpendingPatternForm } from '@/components/SpendingPatternForm';
 import type { SessionUser } from '@/lib/types';
 
 interface Signal {
@@ -98,6 +99,7 @@ function HomeContent() {
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0); // Trigger to refresh signal after pattern save
   const toast = useToast();
 
 
@@ -120,7 +122,7 @@ function HomeContent() {
     }
     
     initializeData();
-  }, [(session?.user as SessionUser)?.id || session?.user?.email]); // Only depend on user ID or email, not tier
+  }, [(session?.user as SessionUser)?.id || session?.user?.email, refreshTrigger]); // Refresh when pattern is saved
 
   async function checkUserSubscription(): Promise<{ hasSubscription: boolean; isAdmin: boolean; tier: 'free' | 'paid' }> {
     if (session?.user) {
@@ -665,12 +667,55 @@ function HomeContent() {
           />
         )}
 
-        {/* Impact Analysis (Paid tier only, if spending pattern is set) */}
-        {tier === 'paid' && signal?.impactAnalysis && (
-          <ImpactBreakdown
-            totalWeeklyChange={signal.impactAnalysis.totalWeeklyChange}
-            breakdown={signal.impactAnalysis.breakdown}
-          />
+        {/* Personalized Impact Analysis Section (Paid tier only) */}
+        {tier === 'paid' && signal && (
+          <div className="mb-6">
+            {signal.impactAnalysis ? (
+              <>
+                {/* Show personalized impact when pattern is set */}
+                <ImpactBreakdown
+                  totalWeeklyChange={signal.impactAnalysis.totalWeeklyChange}
+                  breakdown={signal.impactAnalysis.breakdown}
+                />
+                {/* Optional: Add link to edit pattern */}
+                <div className="text-center mt-4">
+                  <Link href="/account" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                    Edit spending pattern
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Show setup form when pattern is not set */}
+                <div className="mb-4">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+                    <div className="flex items-start gap-3">
+                      <div className="text-2xl">💡</div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                          Unlock Personalized Cost Impact Analysis
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Tell us about your spending habits to see exactly how this week's economic changes affect your wallet.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <SpendingPatternForm
+                  onSave={async () => {
+                    // Refresh signal to get personalized analysis
+                    setRefreshTrigger(prev => prev + 1);
+                    // Small delay to ensure API has updated
+                    setTimeout(async () => {
+                      const subscriptionStatus = await checkUserSubscription();
+                      await fetchSignal(subscriptionStatus);
+                    }, 500);
+                  }}
+                />
+              </>
+            )}
+          </div>
         )}
 
         {/* History Section (Paid tier only) */}
