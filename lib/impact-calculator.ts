@@ -69,30 +69,32 @@ export function calculateWeeklyImpact(
 
     // Generate context description based on user settings
     let context: string | undefined;
-    switch (indicator.indicator_type) {
-      case 'gas':
-        if (pattern.transport_mode === 'public') {
-          context = '대중교통 사용 (영향 없음)';
-        } else if (pattern.transport_mode === 'mixed') {
-          context = getGasFrequencyLabel(pattern.gas_frequency) + ' (혼합 교통)';
-        } else if (pattern.gas_frequency) {
-          context = getGasFrequencyLabel(pattern.gas_frequency) + ' 기준';
-        }
-        break;
-      case 'cpi':
-        if (pattern.monthly_rent) {
-          context = `월 렌트 $${pattern.monthly_rent.toLocaleString()} 기준`;
-        } else {
-          context = '평균 지출 기준';
-        }
-        break;
-      case 'interest_rate':
-        if (pattern.has_debt) {
-          context = '대출 있음';
-        } else {
-          context = '대출 없음 (영향 없음)';
-        }
-        break;
+    if (spendingPattern) {
+      switch (indicator.indicator_type) {
+        case 'gas':
+          if (spendingPattern.transport_mode === 'public') {
+            context = '대중교통 사용 (영향 없음)';
+          } else if (spendingPattern.transport_mode === 'mixed') {
+            context = getGasFrequencyLabel(spendingPattern.gas_frequency) + ' (혼합 교통)';
+          } else if (spendingPattern.gas_frequency) {
+            context = getGasFrequencyLabel(spendingPattern.gas_frequency) + ' 기준';
+          }
+          break;
+        case 'cpi':
+          if (spendingPattern.monthly_rent) {
+            context = `월 렌트 $${spendingPattern.monthly_rent.toLocaleString()} 기준`;
+          } else {
+            context = '평균 지출 기준';
+          }
+          break;
+        case 'interest_rate':
+          if (spendingPattern.has_debt) {
+            context = '대출 있음';
+          } else {
+            context = '대출 없음 (영향 없음)';
+          }
+          break;
+      }
     }
 
     breakdown.push({
