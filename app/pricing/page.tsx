@@ -282,7 +282,7 @@ export default function PricingPage() {
           </Card>
 
           {/* Value Proposition */}
-          <Card className="mt-12 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-200 dark:border-blue-800">
+          <Card className="mt-12 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800">
                 <div className="text-center">
                   <h3 className="text-xl md:text-2xl font-semibold mb-6 text-gray-900 dark:text-white tracking-tight">
                     Why Subscribe?
