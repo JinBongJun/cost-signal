@@ -74,7 +74,22 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { gas_frequency, monthly_rent, food_ratio, transport_mode, has_debt } = body;
+    console.log('Received request body:', body);
+    
+    let { gas_frequency, monthly_rent, food_ratio, transport_mode, has_debt } = body;
+
+    // Convert monthly_rent to number if it's a string
+    if (monthly_rent !== undefined && monthly_rent !== null && typeof monthly_rent === 'string') {
+      const parsed = parseFloat(monthly_rent);
+      if (!isNaN(parsed)) {
+        monthly_rent = parsed;
+      } else {
+        return NextResponse.json(
+          { error: 'Invalid monthly_rent: must be a number' },
+          { status: 400 }
+        );
+      }
+    }
 
     // Validate input
     if (gas_frequency && !['daily', 'weekly', 'biweekly', 'monthly'].includes(gas_frequency)) {
@@ -98,12 +113,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (monthly_rent !== undefined && monthly_rent !== null && (typeof monthly_rent !== 'number' || monthly_rent < 0)) {
+    if (monthly_rent !== undefined && monthly_rent !== null && (typeof monthly_rent !== 'number' || monthly_rent < 0 || isNaN(monthly_rent))) {
       return NextResponse.json(
-        { error: 'Invalid monthly_rent' },
+        { error: 'Invalid monthly_rent: must be a positive number' },
         { status: 400 }
       );
     }
+
+    console.log('Saving spending pattern:', {
+      userId,
+      pattern: {
+        gas_frequency: gas_frequency || null,
+        monthly_rent: monthly_rent !== undefined ? monthly_rent : null,
+        food_ratio: food_ratio || null,
+        transport_mode: transport_mode || null,
+        has_debt: has_debt !== undefined ? has_debt : null,
+      },
+    });
 
     const db = getDb();
     await db.saveSpendingPattern(userId, {
@@ -114,11 +140,20 @@ export async function POST(request: NextRequest) {
       has_debt: has_debt !== undefined ? has_debt : null,
     });
 
+    console.log('Spending pattern saved successfully');
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error saving spending pattern:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Error details:', {
+      message: errorMessage,
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
+      },
       { status: 500 }
     );
   }

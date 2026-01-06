@@ -626,7 +626,10 @@ class Database {
       has_debt?: boolean | null;
     }
   ): Promise<void> {
-    const { error } = await supabase
+    console.log('DB: Saving spending pattern for user:', userId);
+    console.log('DB: Pattern data:', pattern);
+    
+    const { data, error } = await supabase
       .from('user_spending_patterns')
       .upsert({
         user_id: userId,
@@ -640,8 +643,11 @@ class Database {
       });
 
     if (error) {
+      console.error('DB: Supabase error saving spending pattern:', error);
       throw new Error(`Failed to save spending pattern: ${error.message}`);
     }
+    
+    console.log('DB: Spending pattern saved successfully:', data);
   }
 
   close() {
