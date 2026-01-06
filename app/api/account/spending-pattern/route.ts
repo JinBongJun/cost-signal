@@ -149,10 +149,13 @@ export async function POST(request: NextRequest) {
       message: errorMessage,
       stack: error instanceof Error ? error.stack : undefined,
     });
+    // Always include error message for debugging (even in production for now)
     return NextResponse.json(
       { 
         error: 'Internal server error',
-        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
+        details: errorMessage,
+        // Include more context for debugging
+        errorType: error instanceof Error ? error.constructor.name : 'Unknown',
       },
       { status: 500 }
     );

@@ -628,26 +628,38 @@ class Database {
   ): Promise<void> {
     console.log('DB: Saving spending pattern for user:', userId);
     console.log('DB: Pattern data:', pattern);
+    console.log('DB: Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Set' : 'NOT SET');
     
-    const { data, error } = await supabase
-      .from('user_spending_patterns')
-      .upsert({
-        user_id: userId,
-        gas_frequency: pattern.gas_frequency ?? null,
-        monthly_rent: pattern.monthly_rent ?? null,
-        food_ratio: pattern.food_ratio ?? null,
-        transport_mode: pattern.transport_mode ?? null,
-        has_debt: pattern.has_debt ?? null,
-      }, {
-        onConflict: 'user_id',
-      });
+    try {
+      const { data, error } = await supabase
+        .from('user_spending_patterns')
+        .upsert({
+          user_id: userId,
+          gas_frequency: pattern.gas_frequency ?? null,
+          monthly_rent: pattern.monthly_rent ?? null,
+          food_ratio: pattern.food_ratio ?? null,
+          transport_mode: pattern.transport_mode ?? null,
+          has_debt: pattern.has_debt ?? null,
+        }, {
+          onConflict: 'user_id',
+        });
 
-    if (error) {
-      console.error('DB: Supabase error saving spending pattern:', error);
-      throw new Error(`Failed to save spending pattern: ${error.message}`);
+      if (error) {
+        console.error('DB: Supabase error saving spending pattern:', {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint,
+          fullError: JSON.stringify(error, null, 2),
+        });
+        throw new Error(`Failed to save spending pattern: ${error.message} (Code: ${error.code || 'unknown'})`);
+      }
+      
+      console.log('DB: Spending pattern saved successfully:', data);
+    } catch (err) {
+      console.error('DB: Exception in saveSpendingPattern:', err);
+      throw err;
     }
-    
-    console.log('DB: Spending pattern saved successfully:', data);
   }
 
   close() {

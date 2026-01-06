@@ -66,8 +66,13 @@ export function SpendingPatternForm({ onSave, compact = false }: SpendingPattern
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to save spending pattern');
+        const data = await response.json().catch(() => ({}));
+        const errorMessage = data.details || data.error || `Server error (${response.status})`;
+        console.error('Save failed:', {
+          status: response.status,
+          error: data,
+        });
+        throw new Error(errorMessage);
       }
 
       toast.success('Spending pattern saved! Loading your personalized analysis...');
@@ -77,7 +82,12 @@ export function SpendingPatternForm({ onSave, compact = false }: SpendingPattern
       }
     } catch (error) {
       console.error('Error saving spending pattern:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to save spending pattern');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save spending pattern';
+      toast.error(errorMessage);
+      // Show more details in console for debugging
+      if (error instanceof Error && error.message.includes('Code:')) {
+        console.error('Supabase error code detected. Check if table exists and RLS policies are set correctly.');
+      }
     } finally {
       setSaving(false);
     }
