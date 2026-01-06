@@ -88,25 +88,25 @@ export function SignalCard({
   formatValue,
 }: SignalCardProps) {
   return (
-    <Card className="mb-6 animate-scale-in">
-      <div className="text-center mb-6">
-        <div className="text-6xl mb-4 animate-fade-in">{STATUS_EMOJI[signal.overall_status]}</div>
-        <h2 className={`text-3xl md:text-4xl font-bold mb-2 ${STATUS_COLOR[signal.overall_status]}`}>
+    <Card className="mb-8 animate-scale-in">
+      <div className="text-center mb-8">
+        <div className="text-8xl mb-6 animate-fade-in">{STATUS_EMOJI[signal.overall_status]}</div>
+        <h2 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-3 ${STATUS_COLOR[signal.overall_status]}`}>
           {STATUS_LABEL[signal.overall_status]}
         </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p className="text-base md:text-lg text-gray-500 dark:text-gray-400">
           Week of {formatDate(signal.week_start)}
         </p>
       </div>
 
       {/* Explanation - Both tiers (basic for free, detailed AI for paid) */}
       {signal.explanation && (
-        <div className={`rounded-lg p-4 mb-6 animate-fade-in ${
+        <div className={`rounded-lg p-6 md:p-8 mb-8 animate-fade-in ${
           tier === 'paid' 
             ? 'bg-gray-50 dark:bg-gray-900' 
             : 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
         }`}>
-          <p className={`leading-relaxed ${
+          <p className={`text-base md:text-lg leading-relaxed ${
             tier === 'paid'
               ? 'text-gray-700 dark:text-gray-300'
               : 'text-blue-800 dark:text-blue-200'
@@ -123,16 +123,16 @@ export function SignalCard({
 
       {/* Individual Indicators - Both tiers (locked for free, unlocked for paid) */}
       {signal.indicators && signal.indicators.length > 0 && (
-        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Indicator Details</h3>
+        <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl md:text-2xl font-semibold">Indicator Details</h3>
             {tier === 'free' && (
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 🔒 Locked - Upgrade to unlock
               </span>
             )}
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {signal.indicators.map((indicator, idx) => {
               // Free tier: indicators are locked (no status, no values)
               // Paid tier: indicators are unlocked (full access)
@@ -166,8 +166,8 @@ export function SignalCard({
               return (
                 <div
                   key={idx}
-                  className={`rounded-lg p-4 border transition-smooth relative overflow-hidden ${
-                    isLocked ? 'cursor-pointer hover:border-blue-400 dark:hover:border-blue-600' : 'hover:shadow-md'
+                  className={`rounded-lg p-6 md:p-8 border transition-smooth relative overflow-hidden ${
+                    isLocked ? 'cursor-pointer hover:border-blue-400 dark:hover:border-blue-600' : 'hover:shadow-lg'
                   } ${statusColors[displayStatus]}`}
                   onClick={isLocked ? () => {
                     // Don't redirect if user is admin or has active subscription

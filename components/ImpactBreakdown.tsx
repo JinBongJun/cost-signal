@@ -48,11 +48,11 @@ export function ImpactBreakdown({ totalWeeklyChange, breakdown }: ImpactBreakdow
   };
 
   return (
-    <Card className="mb-6">
-      <h3 className="text-xl font-semibold mb-4">Your Weekly Cost Impact</h3>
+    <Card className="mb-8">
+      <h3 className="text-2xl md:text-3xl font-semibold mb-6">Your Weekly Cost Impact</h3>
       
       {/* Total Impact */}
-      <div className={`rounded-lg p-4 mb-6 ${
+      <div className={`rounded-lg p-6 md:p-8 mb-8 ${
         totalWeeklyChange > 0
           ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
           : totalWeeklyChange < 0
@@ -60,8 +60,8 @@ export function ImpactBreakdown({ totalWeeklyChange, breakdown }: ImpactBreakdow
           : 'bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700'
       }`}>
         <div className="text-center">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Expected Weekly Change</p>
-          <p className={`text-4xl font-bold ${
+          <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 mb-2">Expected Weekly Change</p>
+          <p className={`text-5xl md:text-6xl lg:text-7xl font-bold ${
             totalWeeklyChange > 0
               ? 'text-red-600 dark:text-red-400'
               : totalWeeklyChange < 0
@@ -78,17 +78,17 @@ export function ImpactBreakdown({ totalWeeklyChange, breakdown }: ImpactBreakdow
 
       {/* Breakdown */}
       <div>
-        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+        <h4 className="text-lg md:text-xl font-semibold text-gray-700 dark:text-gray-300 mb-6">
           Cost Pressure Breakdown
         </h4>
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {breakdown.map((item) => {
             const colors = LEVEL_COLORS[item.level] || LEVEL_COLORS.NONE;
             
             return (
               <div
                 key={item.indicator}
-                className={`rounded-lg p-3 border ${colors.bg} ${colors.border}`}
+                className={`rounded-lg p-5 md:p-6 border ${colors.bg} ${colors.border}`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">

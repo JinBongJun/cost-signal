@@ -132,8 +132,8 @@ export default function PricingPage() {
     <>
       <Header />
       <ToastContainer toasts={toast.toasts} onClose={toast.removeToast} />
-      <main className="min-h-screen p-4 md:p-8 bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto">
+      <main className="min-h-screen p-6 md:p-12 bg-gray-50 dark:bg-gray-900">
+        <div className="w-full mx-auto px-4 md:px-8">
           <header className="text-center mb-12 animate-fade-in">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">Pricing</h1>
             <p className="text-xl text-gray-600 dark:text-gray-400 mb-2">
@@ -145,7 +145,7 @@ export default function PricingPage() {
             </p>
           </header>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-12 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 md:gap-10 mb-12 max-w-6xl mx-auto">
             {plans.map((plan, idx) => (
               <Card
                 key={plan.id}
@@ -166,13 +166,13 @@ export default function PricingPage() {
                   </div>
                 )}
 
-                <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">{plan.name}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{plan.description}</p>
+                <div className="text-center mb-8">
+                  <h3 className="text-3xl md:text-4xl font-bold mb-3 text-gray-900 dark:text-white">{plan.name}</h3>
+                  <p className="text-base text-gray-600 dark:text-gray-400 mb-6">{plan.description}</p>
 
-                  <div className="mb-2">
-                    <span className="text-5xl font-bold text-gray-900 dark:text-white">{plan.price}</span>
-                    <span className="text-gray-600 dark:text-gray-400 text-lg ml-1">{plan.period}</span>
+                  <div className="mb-3">
+                    <span className="text-6xl md:text-7xl font-bold text-gray-900 dark:text-white">{plan.price}</span>
+                    <span className="text-gray-600 dark:text-gray-400 text-xl ml-2">{plan.period}</span>
                   </div>
                   {plan.originalPrice && (
                     <div className="text-sm text-gray-500 dark:text-gray-400 line-through mb-1">
@@ -186,15 +186,15 @@ export default function PricingPage() {
                   )}
                 </div>
 
-                <ul className="space-y-4 mb-8">
+                <ul className="space-y-5 mb-8">
                   {plan.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-start gap-3">
-                      <span className="text-2xl flex-shrink-0">{feature.icon}</span>
+                    <li key={idx} className="flex items-start gap-4">
+                      <span className="text-3xl flex-shrink-0">{feature.icon}</span>
                       <div className="flex-1">
-                        <div className="font-semibold text-gray-900 dark:text-white text-sm mb-1">
+                        <div className="font-semibold text-gray-900 dark:text-white text-base md:text-lg mb-2">
                           {feature.title}
                         </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                        <div className="text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
                           {feature.description}
                         </div>
                       </div>
@@ -287,13 +287,13 @@ export default function PricingPage() {
               <h3 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-white">
                 Why Subscribe?
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-8">
                 <div className="text-center">
-                  <div className="text-4xl mb-2">💰</div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                  <div className="text-5xl mb-3">💰</div>
+                  <h4 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-3">
                     Real Dollar Impact
                   </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-base text-gray-600 dark:text-gray-400">
                     See exactly how much your weekly expenses change. Not just percentages—actual dollar amounts.
                   </p>
                 </div>
@@ -316,11 +316,11 @@ export default function PricingPage() {
                   </p>
                 </div>
               </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-2xl mx-auto">
-                <p className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-3xl mx-auto">
+                <p className="text-2xl md:text-3xl font-semibold text-gray-900 dark:text-white mb-3">
                   Just $1.25 per week
                 </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-base md:text-lg text-gray-600 dark:text-gray-400">
                   That's less than a cup of coffee. Get personalized insights into how economic changes affect your wallet every Monday.
                 </p>
               </div>

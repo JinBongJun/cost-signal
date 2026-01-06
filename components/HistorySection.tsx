@@ -65,16 +65,16 @@ export function HistorySection({
   };
 
   return (
-    <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">Historical Signals</h3>
+    <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-xl md:text-2xl font-semibold">Historical Signals</h3>
         <Button onClick={onToggle} variant="secondary" size="sm">
           {showHistory ? 'Hide' : 'Show'} History
         </Button>
       </div>
 
       {showHistory && (
-        <div className="space-y-3 animate-fade-in">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
           {isLoading ? (
             <div className="text-center py-8">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -84,7 +84,7 @@ export function HistorySection({
             history.map((histSignal, idx) => (
               <Card
                 key={histSignal.week_start}
-                padding="md"
+                padding="lg"
                 hover
                 className="animate-slide-up border-l-4 transition-all duration-300 cursor-pointer"
                 style={{

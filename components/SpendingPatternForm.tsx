@@ -70,9 +70,10 @@ export function SpendingPatternForm({ onSave, compact = false }: SpendingPattern
         throw new Error(data.error || 'Failed to save spending pattern');
       }
 
-      toast.success('Spending pattern saved! Your personalized analysis will update shortly.');
+      toast.success('Spending pattern saved! Loading your personalized analysis...');
       if (onSave) {
-        onSave();
+        // Call onSave callback which will refresh the signal
+        await onSave();
       }
     } catch (error) {
       console.error('Error saving spending pattern:', error);
@@ -94,13 +95,13 @@ export function SpendingPatternForm({ onSave, compact = false }: SpendingPattern
   }
 
   const content = (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {!compact && (
         <div>
-          <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">
+          <h3 className="text-2xl md:text-3xl font-semibold mb-3 text-gray-900 dark:text-gray-100">
             Personalize Your Cost Impact Analysis
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-base md:text-lg text-gray-600 dark:text-gray-400">
             Tell us about your spending habits to see how economic indicators affect your weekly expenses.
           </p>
         </div>
@@ -108,7 +109,7 @@ export function SpendingPatternForm({ onSave, compact = false }: SpendingPattern
 
       {/* Gas Frequency */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-base md:text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">
           How often do you fill up gas?
         </label>
         <select
@@ -117,7 +118,7 @@ export function SpendingPatternForm({ onSave, compact = false }: SpendingPattern
             ...pattern,
             gas_frequency: e.target.value as 'daily' | 'weekly' | 'biweekly' | 'monthly' | null || null,
           })}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 min-h-[44px]"
+              className="w-full px-4 py-3 md:px-5 md:py-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 min-h-[52px] text-base"
         >
           <option value="">Select frequency</option>
           <option value="daily">Daily</option>
@@ -129,7 +130,7 @@ export function SpendingPatternForm({ onSave, compact = false }: SpendingPattern
 
       {/* Monthly Rent */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-base md:text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">
           Monthly Rent/Mortgage (optional)
         </label>
         <input
@@ -142,13 +143,13 @@ export function SpendingPatternForm({ onSave, compact = false }: SpendingPattern
           placeholder="e.g., 1500"
           min="0"
           step="0.01"
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 min-h-[44px]"
+              className="w-full px-4 py-3 md:px-5 md:py-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 min-h-[52px] text-base"
         />
       </div>
 
       {/* Food Ratio */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-base md:text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">
           Eating out vs. groceries ratio
         </label>
         <select
@@ -157,7 +158,7 @@ export function SpendingPatternForm({ onSave, compact = false }: SpendingPattern
             ...pattern,
             food_ratio: e.target.value as 'low' | 'medium' | 'high' | null || null,
           })}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 min-h-[44px]"
+              className="w-full px-4 py-3 md:px-5 md:py-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 min-h-[52px] text-base"
         >
           <option value="">Select ratio</option>
           <option value="low">Mostly groceries (low eating out)</option>
@@ -168,7 +169,7 @@ export function SpendingPatternForm({ onSave, compact = false }: SpendingPattern
 
       {/* Transport Mode */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-base md:text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">
           Primary transportation
         </label>
         <select
@@ -177,7 +178,7 @@ export function SpendingPatternForm({ onSave, compact = false }: SpendingPattern
             ...pattern,
             transport_mode: e.target.value as 'car' | 'public' | 'mixed' | null || null,
           })}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 min-h-[44px]"
+              className="w-full px-4 py-3 md:px-5 md:py-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 min-h-[52px] text-base"
         >
           <option value="">Select mode</option>
           <option value="car">Car (own vehicle)</option>
@@ -188,7 +189,7 @@ export function SpendingPatternForm({ onSave, compact = false }: SpendingPattern
 
       {/* Has Debt */}
       <div>
-        <label className="flex items-center gap-3 cursor-pointer">
+        <label className="flex items-center gap-4 cursor-pointer">
           <input
             type="checkbox"
             checked={pattern.has_debt || false}
@@ -196,9 +197,9 @@ export function SpendingPatternForm({ onSave, compact = false }: SpendingPattern
               ...pattern,
               has_debt: e.target.checked,
             })}
-            className="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-2 focus:ring-blue-500"
+            className="w-6 h-6 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-2 focus:ring-blue-500"
           />
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <span className="text-base md:text-lg font-medium text-gray-700 dark:text-gray-300">
             I have loans or credit card debt (interest rate changes affect me)
           </span>
         </label>

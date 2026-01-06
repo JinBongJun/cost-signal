@@ -638,8 +638,8 @@ function HomeContent() {
         onNotificationClick={handleNotificationClick}
       />
 
-      <main className="min-h-screen p-4 md:p-8">
-        <div className="max-w-7xl mx-auto">
+      <main className="min-h-screen p-6 md:p-12">
+        <div className="w-full mx-auto px-4 md:px-8">
         {/* Welcome Message (for guests) */}
         {!session?.user && (
           <div className="mb-6 text-center">
