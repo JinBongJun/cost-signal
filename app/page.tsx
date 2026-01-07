@@ -188,9 +188,13 @@ function HomeContent() {
           
           // If admin, grant paid access without subscription
           if (isAdmin) {
-            console.log('✅ Admin access detected - granting paid tier');
+            console.log('✅ Admin access detected - granting paid tier', {
+              isAdmin,
+              userEmail: (session?.user as any)?.email,
+              dataIsAdmin: data.isAdmin
+            });
             setHasActiveSubscription(false); // Admin doesn't need subscription
-            setTier((currentTier) => currentTier === 'free' ? 'paid' : currentTier);
+            setTier('paid'); // Force to paid immediately (not conditional)
             return { hasSubscription: false, isAdmin: true, tier: 'paid' };
           } else {
             // Regular user with subscription
@@ -745,9 +749,9 @@ function HomeContent() {
         {signal && (
           <SignalCard
             signal={signal}
-            tier={signal.isAdmin ? 'paid' : tier}
+            tier={signal.isAdmin ? 'paid' : (tier === 'paid' ? 'paid' : 'free')}
             session={session}
-            hasActiveSubscription={hasActiveSubscription}
+            hasActiveSubscription={signal.isAdmin ? true : hasActiveSubscription}
             onPreviewClick={async () => {
               setTier('paid');
               await fetchSignal();
