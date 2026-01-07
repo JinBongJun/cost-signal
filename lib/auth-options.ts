@@ -77,11 +77,26 @@ export const authOptions: NextAuthOptions = {
       // Handle Google OAuth sign in - Standard approach: auto-detect login vs signup
       if (account?.provider === 'google') {
         try {
+          // Check Supabase connection first
+          const { supabase } = await import('@/lib/supabase');
+          const supabaseUrl = process.env.SUPABASE_URL;
+          const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+          
+          if (!supabaseUrl || !supabaseKey) {
+            console.warn('⚠️ Supabase not configured - allowing sign in without DB persistence');
+            // Generate temporary ID for user
+            if (!user.id) {
+              user.id = uuidv4();
+            }
+            return true; // Allow sign in even without DB
+          }
+          
           const db = getDb();
           console.log('🔍 Google OAuth sign in attempt:', {
             email: user.email,
             provider: account.provider,
-            providerAccountId: account.providerAccountId
+            providerAccountId: account.providerAccountId,
+            supabaseConfigured: !!supabaseUrl && !!supabaseKey
           });
           
           const existingUser = await db.getUserByEmail(user.email!);
@@ -226,7 +241,37 @@ export const authOptions: NextAuthOptions = {
           console.error('❌ Error in Google sign in:', error);
           console.error('❌ Error details:', error instanceof Error ? error.message : String(error));
           console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-          return false; // Block sign in on database errors
+          
+          // Check if it's a Supabase connection error
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          if (errorMessage.includes('supabaseUrl') || errorMessage.includes('Supabase') || errorMessage.includes('connection')) {
+            console.error('⚠️ Supabase connection error - allowing sign in but user may not be saved');
+            // Allow sign in even if database is unavailable (user can still use the app)
+            // The user object will be created in JWT but not persisted to DB
+            if (!user.id) {
+              user.id = uuidv4(); // Generate temporary ID
+            }
+            return true; // Allow sign in despite DB error
+          }
+          
+          // For other errors, check if user already exists (might be a race condition)
+          if (user.email) {
+            try {
+              const db = getDb();
+              const existingUser = await db.getUserByEmail(user.email);
+              if (existingUser) {
+                console.log('⚠️ Error occurred but user exists - allowing sign in');
+                user.id = existingUser.id;
+                return true; // Allow sign in if user exists
+              }
+            } catch (retryError) {
+              console.error('⚠️ Retry check also failed:', retryError);
+            }
+          }
+          
+          // Only block sign in for critical errors
+          console.error('❌ Critical error - blocking sign in');
+          return false;
         }
       }
       return true;
