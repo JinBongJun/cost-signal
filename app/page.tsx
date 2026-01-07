@@ -740,7 +740,7 @@ function HomeContent() {
         {signal && (
           <SignalCard
             signal={signal}
-            tier={tier}
+            tier={signal.isAdmin ? 'paid' : tier}
             session={session}
             hasActiveSubscription={hasActiveSubscription}
             onPreviewClick={async () => {
