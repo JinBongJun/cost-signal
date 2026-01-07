@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { getCurrentUser, hasActiveSubscription } from '@/lib/auth';
-import { calculateWeeklyImpact, calculateAverageImpact } from '@/lib/impact-calculator';
-import { generatePersonalizedExplanation } from '@/lib/explainer';
+import { calculateAverageImpact } from '@/lib/impact-calculator';
 import { generateActionableInsights, generatePredictions, generateSavingsOpportunities } from '@/lib/insights-generator';
 
 export const dynamic = 'force-dynamic';
@@ -108,74 +107,47 @@ export async function GET(request: NextRequest) {
 
 
     if (tier === 'paid') {
-      // Paid tier: include individual indicators + personalized impact analysis
+      // Paid tier: include individual indicators + average user impact analysis
       const indicators = await db.getIndicatorsForWeek(signal.week_start);
       
-      // Get user's spending pattern for personalized impact calculation and explanation
-      let impactAnalysis = null;
-      let personalizedExplanation = signal.explanation;
+      // Always use average user pattern for analysis (no user-specific settings)
+      const averageImpact = calculateAverageImpact(indicators);
       
-      if (user) {
-        const userId = (user as any).id;
-        if (userId) {
-          const spendingPattern = await db.getSpendingPattern(userId);
-          console.log('Signal API - Spending pattern:', spendingPattern);
-          if (spendingPattern) {
-            const userPattern = {
-              gas_frequency: spendingPattern.gas_frequency,
-              monthly_rent: spendingPattern.monthly_rent,
-              food_ratio: spendingPattern.food_ratio,
-              transport_mode: spendingPattern.transport_mode,
-              has_debt: spendingPattern.has_debt,
-            };
-            
-            const impact = calculateWeeklyImpact(indicators, userPattern);
-            const averageImpact = calculateAverageImpact(indicators);
-            
-            // Generate actionable insights, predictions, and savings opportunities
-            const insights = generateActionableInsights(indicators, userPattern, impact);
-            const predictions = generatePredictions(indicators);
-            const savingsOpportunities = generateSavingsOpportunities(userPattern, impact);
-            
-            impactAnalysis = {
-              totalWeeklyChange: impact.totalWeeklyChange,
-              breakdown: impact.breakdown,
-              spendingPattern: userPattern,
-              averageImpact: {
-                totalWeeklyChange: averageImpact.totalWeeklyChange,
-                breakdown: averageImpact.breakdown,
-              },
-              insights,
-              predictions,
-              savingsOpportunities,
-            };
-            
-            console.log('Signal API - Impact analysis created:', {
-              totalWeeklyChange: impactAnalysis.totalWeeklyChange,
-              breakdownCount: impactAnalysis.breakdown.length,
-              hasSpendingPattern: !!impactAnalysis.spendingPattern,
-              hasAverageImpact: !!impactAnalysis.averageImpact,
-              insightsCount: insights.length,
-              predictionsCount: predictions.length,
-              savingsOpportunitiesCount: savingsOpportunities.length,
-            });
-            
-            // Generate personalized explanation
-            personalizedExplanation = await generatePersonalizedExplanation(
-              signal,
-              indicators,
-              userPattern,
-              impact
-            );
-          }
-        }
-      }
+      // Average user pattern for insights and savings opportunities
+      const averagePattern = {
+        gas_frequency: 'weekly' as const,
+        monthly_rent: 1500,
+        food_ratio: 'medium' as const,
+        transport_mode: 'car' as const,
+        has_debt: true,
+      };
+      
+      // Generate actionable insights, predictions, and savings opportunities
+      const insights = generateActionableInsights(indicators, averagePattern, averageImpact);
+      const predictions = generatePredictions(indicators);
+      const savingsOpportunities = generateSavingsOpportunities(averagePattern, averageImpact);
+      
+      const impactAnalysis = {
+        totalWeeklyChange: averageImpact.totalWeeklyChange,
+        breakdown: averageImpact.breakdown,
+        insights,
+        predictions,
+        savingsOpportunities,
+      };
+      
+      console.log('Signal API - Average impact analysis created:', {
+        totalWeeklyChange: impactAnalysis.totalWeeklyChange,
+        breakdownCount: impactAnalysis.breakdown.length,
+        insightsCount: insights.length,
+        predictionsCount: predictions.length,
+        savingsOpportunitiesCount: savingsOpportunities.length,
+      });
       
       return NextResponse.json({
         week_start: signal.week_start,
         overall_status: signal.overall_status,
         risk_count: signal.risk_count,
-        explanation: personalizedExplanation,
+        explanation: signal.explanation,
         explanation_type: 'detailed',
         isAdmin: userIsAdmin, // Include admin status for frontend
         indicators: indicators.map(ind => ({
@@ -184,8 +156,9 @@ export async function GET(request: NextRequest) {
           previous_value: ind.previous_value,
           change_percent: ind.change_percent,
           status: ind.status,
+          updated_at: ind.created_at, // Use created_at as updated_at
         })),
-        impactAnalysis, // Personalized impact analysis
+        impactAnalysis, // Average user impact analysis
       });
     } else {
       // Free tier: basic explanation (template-based) + locked indicators

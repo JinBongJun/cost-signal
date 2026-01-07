@@ -106,8 +106,11 @@ export function ImpactBreakdown({
     : null;
 
   return (
-    <Card className="mb-8">
-      <h3 className="text-xl md:text-2xl font-semibold mb-6 tracking-tight">Your Weekly Cost Impact</h3>
+    <Card className="mb-10">
+      <div className="flex items-center gap-3 mb-8">
+        <div className="text-3xl">💸</div>
+        <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Weekly Cost Impact</h3>
+      </div>
       
       {/* Settings Display */}
       {spendingPatternText && (
@@ -162,52 +165,52 @@ export function ImpactBreakdown({
       )}
 
       {/* Total Impact */}
-      <div className={`rounded-xl p-6 md:p-8 mb-8 border ${
+      <div className={`rounded-2xl p-8 md:p-10 mb-8 border-2 ${
         totalWeeklyChange > 0
-          ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+          ? 'bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border-red-300/60 dark:border-red-800/40'
           : totalWeeklyChange < 0
-          ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-          : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800'
+          ? 'bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-300/60 dark:border-green-800/40'
+          : 'bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-900/50 dark:to-slate-900/50 border-gray-300/60 dark:border-gray-800/40'
       }`}>
         <div className="text-center">
-          <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 mb-2">Expected Weekly Change</p>
-          <p className={`text-5xl md:text-6xl lg:text-7xl font-bold ${
+          <p className="text-sm md:text-base font-medium text-gray-600 dark:text-gray-400 mb-3 uppercase tracking-wide">Expected Weekly Change</p>
+          <p className={`text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight ${
             totalWeeklyChange > 0
               ? 'text-red-600 dark:text-red-400'
               : totalWeeklyChange < 0
               ? 'text-green-600 dark:text-green-400'
               : 'text-gray-600 dark:text-gray-400'
           }`}>
-            {formatCurrency(totalWeeklyChange)} / week
+            {formatCurrency(totalWeeklyChange)}
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-            Based on your spending pattern
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-3 font-medium">
+            per week
           </p>
         </div>
       </div>
 
       {/* Breakdown */}
       <div>
-        <h4 className="text-lg md:text-xl font-semibold text-gray-700 dark:text-gray-300 mb-6">
+        <h4 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 tracking-tight">
           Cost Pressure Breakdown
         </h4>
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {breakdown.map((item) => {
             const colors = LEVEL_COLORS[item.level] || LEVEL_COLORS.NONE;
             
             return (
               <div
                 key={item.indicator}
-                className={`rounded-xl p-5 md:p-6 border transition-all duration-200 hover:shadow-sm ${colors.bg} ${colors.border}`}
+                className={`rounded-2xl p-6 border transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 ${colors.bg} ${colors.border}`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="font-semibold text-gray-900 dark:text-gray-100 text-base">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="font-semibold text-gray-900 dark:text-gray-100 text-base md:text-lg">
                         {INDICATOR_LABELS[item.indicator] || item.indicator}
                       </span>
                       {item.level !== 'NONE' && (
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
                           item.level === 'HIGH'
                             ? 'bg-red-600 text-white'
                             : item.level === 'MEDIUM'
@@ -219,16 +222,16 @@ export function ImpactBreakdown({
                       )}
                     </div>
                     {item.context && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                         {item.context}
                       </p>
                     )}
                   </div>
-                  <div className="text-right">
-                    <span className={`text-xl font-bold ${colors.text}`}>
+                  <div className="text-right flex-shrink-0">
+                    <span className={`text-2xl md:text-3xl font-bold tracking-tight ${colors.text}`}>
                       {item.impact !== 0 ? formatCurrency(item.impact) : '—'}
                     </span>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">/ week</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">/ week</p>
                   </div>
                 </div>
               </div>

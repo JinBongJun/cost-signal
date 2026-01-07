@@ -21,6 +21,8 @@ import { ImpactBreakdown } from '@/components/ImpactBreakdown';
 import { ActionableInsights } from '@/components/ActionableInsights';
 import { Predictions } from '@/components/Predictions';
 import { SavingsOpportunities } from '@/components/SavingsOpportunities';
+import { ROISummary } from '@/components/ROISummary';
+import { TrustBadge } from '@/components/TrustBadge';
 import type { SessionUser } from '@/lib/types';
 
 interface Signal {
@@ -38,6 +40,7 @@ interface Signal {
     status?: 'ok' | 'caution' | 'risk'; // Optional for free tier
     locked?: boolean; // true for free tier locked indicators
     direction?: 'up' | 'down' | 'neutral'; // For free tier: direction only
+    updated_at?: string; // ISO date string
   }>;
   impactAnalysis?: {
     totalWeeklyChange: number;
@@ -722,87 +725,72 @@ function HomeContent() {
           />
         )}
 
-        {/* Personalized Impact Analysis & History Section (Paid tier only) */}
-        {tier === 'paid' && signal && (
+        {/* Average User Impact Analysis & History Section (Paid tier only) */}
+        {tier === 'paid' && signal && signal.impactAnalysis && (
           <>
-            {signal.impactAnalysis ? (
-              <>
-                {/* Show personalized impact when pattern is set */}
-                <Card className="mb-8 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-700">
-                  <div className="flex items-start gap-4 py-4">
-                    <div className="text-4xl flex-shrink-0">✨</div>
-                    <div className="flex-1">
-                      <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 tracking-tight">
-                        Your Personalized Cost Impact
-                      </h3>
-                      <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-3">
-                        This analysis is customized based on your spending patterns.
-                      </p>
-                      <Link href="/account" className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1">
-                        Edit settings →
-                      </Link>
-                    </div>
-                  </div>
-                </Card>
-                
-                {/* Impact Breakdown */}
-                <div className="mb-12">
-                  <ImpactBreakdown
-                    totalWeeklyChange={signal.impactAnalysis.totalWeeklyChange}
-                    breakdown={signal.impactAnalysis.breakdown}
-                    spendingPattern={signal.impactAnalysis.spendingPattern}
-                    averageImpact={signal.impactAnalysis.averageImpact}
-                  />
+            {/* Average User Cost Impact Banner */}
+            <Card className="mb-10 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/10 dark:via-indigo-900/10 dark:to-purple-900/10 border border-blue-200/60 dark:border-blue-800/40">
+              <div className="flex items-start gap-5 py-6">
+                <div className="text-5xl flex-shrink-0">📊</div>
+                <div className="flex-1">
+                  <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3 tracking-tight">
+                    Average U.S. Consumer Cost Impact
+                  </h3>
+                  <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+                    This analysis is based on average U.S. consumer spending patterns (weekly gas fill-up, $1,500 monthly rent, mixed eating habits, car transport).
+                  </p>
                 </div>
-                
-                {/* Divider */}
-                <div className="my-12 border-t border-gray-200 dark:border-gray-700"></div>
-                
-                {/* Actionable Insights */}
-                {signal.impactAnalysis.insights && signal.impactAnalysis.insights.length > 0 && (
-                  <div className="mb-12">
-                    <ActionableInsights insights={signal.impactAnalysis.insights} />
-                  </div>
-                )}
-                
-                {/* Predictions */}
-                {signal.impactAnalysis.predictions && signal.impactAnalysis.predictions.length > 0 && (
-                  <div className="mb-12">
-                    <Predictions predictions={signal.impactAnalysis.predictions} />
-                  </div>
-                )}
-                
-                {/* Savings Opportunities */}
-                {signal.impactAnalysis.savingsOpportunities && signal.impactAnalysis.savingsOpportunities.length > 0 && (
-                  <div className="mb-12">
-                    <SavingsOpportunities opportunities={signal.impactAnalysis.savingsOpportunities} />
-                  </div>
-                )}
-              </>
-            ) : (
-              <>
-                {/* Show setup prompt when pattern is not set */}
-                <Card className="mb-8 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-300 dark:border-blue-700">
-                  <div className="text-center py-8 md:py-12">
-                    <div className="text-5xl md:text-6xl mb-4">💡</div>
-                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3 tracking-tight">
-                      Unlock Personalized Cost Impact Analysis
-                    </h3>
-                    <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 mb-6 max-w-2xl mx-auto leading-relaxed">
-                      Tell us about your spending habits to see exactly how this week's economic changes affect your wallet.
-                    </p>
-                    <Link href="/account">
-                      <Button variant="primary" size="lg" className="min-h-[56px] px-8 text-lg font-semibold">
-                        Set Up Your Spending Pattern →
-                      </Button>
-                    </Link>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
-                      Takes less than 1 minute
-                    </p>
-                  </div>
-                </Card>
-              </>
+              </div>
+            </Card>
+            
+            {/* ROI Summary */}
+            <div className="mb-12">
+              <ROISummary
+                insights={signal.impactAnalysis.insights}
+                savingsOpportunities={signal.impactAnalysis.savingsOpportunities}
+              />
+            </div>
+            
+            {/* Impact Breakdown */}
+            <div className="mb-12">
+              <ImpactBreakdown
+                totalWeeklyChange={signal.impactAnalysis.totalWeeklyChange}
+                breakdown={signal.impactAnalysis.breakdown}
+                spendingPattern={null}
+                averageImpact={null}
+              />
+            </div>
+            
+            {/* Divider */}
+            <div className="my-16 border-t border-gray-200/60 dark:border-gray-700/60"></div>
+            
+            {/* Actionable Insights */}
+            {signal.impactAnalysis.insights && signal.impactAnalysis.insights.length > 0 && (
+              <div className="mb-12">
+                <ActionableInsights insights={signal.impactAnalysis.insights} />
+              </div>
             )}
+            
+            {/* Predictions */}
+            {signal.impactAnalysis.predictions && signal.impactAnalysis.predictions.length > 0 && (
+              <div className="mb-12">
+                <Predictions predictions={signal.impactAnalysis.predictions} />
+              </div>
+            )}
+            
+            {/* Savings Opportunities */}
+            {signal.impactAnalysis.savingsOpportunities && signal.impactAnalysis.savingsOpportunities.length > 0 && (
+              <div className="mb-12">
+                <SavingsOpportunities opportunities={signal.impactAnalysis.savingsOpportunities} />
+              </div>
+            )}
+            
+            {/* Trust Badge */}
+            <div className="mb-12">
+              <TrustBadge />
+            </div>
+          </>
+        )}
             
             {/* History Section - Full width below */}
             <div className="mt-8">

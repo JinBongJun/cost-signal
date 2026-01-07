@@ -24,14 +24,14 @@ Cost Signal is designed to **reduce unnecessary anxiety** by summarizing whether
 
 ## Signal Logic
 
-Each indicator produces a status: **OK**, **CAUTION**, or **RISK** (3 levels)
+Each indicator produces a status: **OK** or **RISK**
 
 ### Indicator Risk Conditions
 
-- **Gas Prices**: RISK if price rose >10% in one week OR has risen for 3+ consecutive weeks
+- **Gas Prices**: RISK if price rose >5% in one week OR has risen for 3+ consecutive weeks
 - **CPI**: RISK if MoM increase >0.5% OR has increased for 2+ consecutive months
-- **Interest Rates**: RISK if rate increased by >0.25% (Fed's typical rate change) OR has increased for 2+ consecutive months
-- **Unemployment**: RISK if unemployment increased by >0.3% in one month OR has increased for 2+ consecutive months
+- **Interest Rates**: RISK if rate has increased recently
+- **Unemployment**: RISK if unemployment has increased for 2+ consecutive months
 
 ### Overall Signal
 

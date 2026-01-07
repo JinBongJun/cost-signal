@@ -7,14 +7,10 @@ import { WeeklyImpact } from './impact-calculator';
  */
 export function generateActionableInsights(
   indicators: IndicatorData[],
-  spendingPattern: SpendingPattern | null,
+  spendingPattern: SpendingPattern,
   impact: WeeklyImpact
 ): ActionableInsight[] {
   const insights: ActionableInsight[] = [];
-
-  if (!spendingPattern) {
-    return insights;
-  }
 
   // Gas price insights
   const gasIndicator = indicators.find(ind => ind.indicator_type === 'gas');

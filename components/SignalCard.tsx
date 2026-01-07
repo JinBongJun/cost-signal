@@ -20,6 +20,7 @@ interface SignalCardProps {
       status?: 'ok' | 'caution' | 'risk'; // Optional for free tier
       locked?: boolean; // true for free tier locked indicators
       direction?: 'up' | 'down' | 'neutral'; // For free tier: direction only
+      updated_at?: string; // ISO date string
     }>;
   };
   tier: 'free' | 'paid';
@@ -101,12 +102,12 @@ export function SignalCard({
 
       {/* Explanation - Both tiers (basic for free, detailed AI for paid) */}
       {signal.explanation && (
-        <div className={`rounded-xl p-6 mb-8 animate-fade-in border ${
+        <div className={`rounded-2xl p-6 md:p-8 mb-8 animate-fade-in border ${
           tier === 'paid' 
-            ? 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800' 
-            : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+            ? 'bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-900/30 dark:to-slate-900/30 border-gray-200/60 dark:border-gray-800/40' 
+            : 'bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200/60 dark:border-blue-800/40'
         }`}>
-          <p className={`text-sm md:text-base leading-relaxed ${
+          <p className={`text-base md:text-lg leading-relaxed ${
             tier === 'paid'
               ? 'text-gray-700 dark:text-gray-300'
               : 'text-blue-800 dark:text-blue-200'
@@ -114,7 +115,7 @@ export function SignalCard({
             {signal.explanation}
           </p>
           {tier === 'free' && signal.explanation_type === 'basic' && (
-            <p className="text-blue-600 dark:text-blue-300 text-xs mt-3 italic">
+            <p className="text-blue-600 dark:text-blue-300 text-sm mt-4 font-medium">
               Want more detailed insights? Upgrade for AI-powered analysis with specific indicator breakdowns.
             </p>
           )}
@@ -123,16 +124,16 @@ export function SignalCard({
 
       {/* Individual Indicators - Both tiers (locked for free, unlocked for paid) */}
       {signal.indicators && signal.indicators.length > 0 && (
-        <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl md:text-2xl font-semibold">Indicator Details</h3>
+        <div className="mt-10 pt-10 border-t border-gray-200/60 dark:border-gray-700/60">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Indicator Details</h3>
             {tier === 'free' && (
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 🔒 Locked - Upgrade to unlock
               </span>
             )}
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {signal.indicators.map((indicator, idx) => {
               // Free tier: indicators are locked (no status, no values)
               // Paid tier: indicators are unlocked (full access)
@@ -166,8 +167,8 @@ export function SignalCard({
               return (
                 <div
                   key={idx}
-                  className={`rounded-xl p-6 md:p-8 border transition-all duration-200 relative overflow-hidden ${
-                    isLocked ? 'cursor-pointer hover:border-blue-400 dark:hover:border-blue-600' : 'hover:shadow-md hover:scale-[1.02]'
+                  className={`rounded-2xl p-6 md:p-7 border transition-all duration-300 relative overflow-hidden ${
+                    isLocked ? 'cursor-pointer hover:border-blue-400 dark:hover:border-blue-600' : 'hover:shadow-lg hover:-translate-y-1'
                   } ${statusColors[displayStatus]}`}
                   onClick={isLocked ? () => {
                     // Don't redirect if user is admin or has active subscription
@@ -181,9 +182,9 @@ export function SignalCard({
                     }
                   } : undefined}
                 >
-                  <div className="flex items-center justify-between mb-3 relative z-20">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-gray-700 dark:text-gray-300">
+                  <div className="flex items-center justify-between mb-4 relative z-20">
+                    <div className="flex items-center gap-2.5">
+                      <span className="font-bold text-base md:text-lg text-gray-900 dark:text-gray-100 tracking-tight">
                         {INDICATOR_LABELS[indicator.type] || indicator.type}
                       </span>
                       {DATA_SOURCES[indicator.type] && !isLocked && (
@@ -191,7 +192,7 @@ export function SignalCard({
                           href={DATA_SOURCES[indicator.type].url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                          className="text-xs px-2.5 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded-full hover:bg-blue-200 dark:hover:bg-blue-900/60 transition-all duration-200 font-medium"
                           title={DATA_SOURCES[indicator.type].fullName}
                           onClick={(e) => e.stopPropagation()}
                         >
@@ -222,11 +223,11 @@ export function SignalCard({
                   {!isLocked && indicator.value !== undefined ? (
                     <>
                       {/* Paid tier: Full value display */}
-                      <div className={`text-3xl font-bold mb-2 ${statusTextColors[displayStatus]} relative z-20`}>
+                      <div className={`text-4xl md:text-5xl font-bold mb-3 tracking-tight ${statusTextColors[displayStatus]} relative z-20`}>
                         {formatValue(indicator.type, indicator.value)}
                       </div>
                       {indicator.previous_value !== null && indicator.change_percent != null && (
-                        <div className={`text-sm font-medium relative z-20 ${
+                        <div className={`text-sm md:text-base font-semibold relative z-20 mb-3 ${
                           indicator.change_percent > 0
                             ? displayStatus === 'risk'
                               ? 'text-red-700 dark:text-red-300'
@@ -235,22 +236,41 @@ export function SignalCard({
                               : 'text-gray-600 dark:text-gray-400'
                             : 'text-gray-600 dark:text-gray-400'
                         }`}>
-                          {indicator.change_percent > 0 ? '↑' : indicator.change_percent < 0 ? '↓' : '→'} {indicator.change_percent > 0 ? '+' : ''}
-                          {indicator.change_percent.toFixed(2)}% from previous
+                          <span className="text-lg">
+                            {indicator.change_percent > 0 ? '↑' : indicator.change_percent < 0 ? '↓' : '→'}
+                          </span>
+                          <span className="ml-1">
+                            {indicator.change_percent > 0 ? '+' : ''}{indicator.change_percent.toFixed(2)}%
+                          </span>
+                          <span className="text-xs font-normal text-gray-500 dark:text-gray-400 ml-2">
+                            from previous
+                          </span>
                         </div>
                       )}
                       {DATA_SOURCES[indicator.type] && (
-                        <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 relative z-20">
-                          Data from{' '}
-                          <a
-                            href={DATA_SOURCES[indicator.type].url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="underline hover:text-gray-700 dark:hover:text-gray-300"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {DATA_SOURCES[indicator.type].fullName}
-                          </a>
+                        <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 relative z-20">
+                          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                            <div>
+                              <span>Source: </span>
+                              <a
+                                href={DATA_SOURCES[indicator.type].url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline hover:text-gray-700 dark:hover:text-gray-300 font-medium"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {DATA_SOURCES[indicator.type].name}
+                              </a>
+                              <span className="text-gray-400 dark:text-gray-500 ml-1">
+                                ({DATA_SOURCES[indicator.type].fullName})
+                              </span>
+                            </div>
+                            {indicator.updated_at && (
+                              <div className="text-xs">
+                                Updated: {new Date(indicator.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       )}
                     </>

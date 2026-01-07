@@ -32,12 +32,9 @@ export async function sendPushNotification(
 ): Promise<boolean> {
   try {
     if (!vapidPublicKey || !vapidPrivateKey) {
-      console.error('❌ VAPID keys not configured');
+      console.error('VAPID keys not configured');
       return false;
     }
-
-    console.log('📤 Sending push notification to:', subscription.endpoint.substring(0, 50) + '...');
-    console.log('📝 Payload:', payload.title);
 
     await webpush.sendNotification(
       {
@@ -50,21 +47,15 @@ export async function sendPushNotification(
       JSON.stringify(payload)
     );
 
-    console.log('✅ Push notification sent successfully');
     return true;
   } catch (error: any) {
     // If subscription is invalid, we should remove it
     if (error.statusCode === 410 || error.statusCode === 404) {
       const db = getDb();
       await db.deletePushSubscription(subscription.endpoint);
-      console.log('🗑️ Removed invalid subscription:', subscription.endpoint);
+      console.log('Removed invalid subscription:', subscription.endpoint);
     } else {
-      console.error('❌ Error sending push notification:', error);
-      console.error('Error details:', {
-        statusCode: error.statusCode,
-        message: error.message,
-        body: error.body,
-      });
+      console.error('Error sending push notification:', error);
     }
     return false;
   }

@@ -55,52 +55,59 @@ export function ActionableInsights({ insights }: ActionableInsightsProps) {
   };
 
   return (
-    <Card className="mb-8">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="text-2xl">💡</div>
-        <h3 className="text-xl md:text-2xl font-semibold tracking-tight">액션 가능한 인사이트</h3>
+    <Card className="mb-10">
+      <div className="flex items-center gap-4 mb-8">
+        <div className="text-4xl flex-shrink-0">💡</div>
+        <div className="flex-1">
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mb-2">
+            Actionable Insights
+          </h3>
+          <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+            Ways to save money in response to this week's economic changes
+          </p>
+        </div>
       </div>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-        이번 주 경제 변화에 대응하여 돈을 절약할 수 있는 방법입니다.
-      </p>
       
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {insights.map((insight) => {
           const colors = PRIORITY_COLORS[insight.priority];
           
           return (
             <div
               key={insight.id}
-              className={`rounded-xl p-5 border transition-all duration-200 hover:shadow-md ${colors.bg} ${colors.border}`}
+              className={`rounded-2xl p-6 border transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 ${colors.bg} ${colors.border}`}
             >
               <div className="flex items-start gap-4">
-                <div className="text-3xl flex-shrink-0">{insight.icon}</div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${colors.badge}`}>
+                <div className="text-4xl flex-shrink-0">{insight.icon}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${colors.badge}`}>
                       {insight.priority.toUpperCase()}
                     </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
                       {URGENCY_LABELS[insight.urgency]}
                     </span>
                   </div>
-                  <h4 className="font-semibold text-base mb-1 text-gray-900 dark:text-gray-100">
+                  <h4 className="font-bold text-lg mb-2 text-gray-900 dark:text-gray-100 tracking-tight">
                     {insight.title}
                   </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">
                     {insight.description}
                   </p>
-                  <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700 mb-3">
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/60 dark:border-gray-700/60 mb-4">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-relaxed">
                       {insight.action}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-green-600 dark:text-green-400">
-                      주간 절약: {formatCurrency(insight.potentialSavings)}
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-base font-bold text-green-600 dark:text-green-400">
+                      {formatCurrency(insight.potentialSavings)}
                     </span>
                     <span className="text-xs text-gray-500 dark:text-gray-400">
-                      (월 {formatCurrency(insight.potentialSavings * 4.33)})
+                      /week
+                    </span>
+                    <span className="text-xs text-gray-400 dark:text-gray-500">
+                      ({formatCurrency(insight.potentialSavings * 4.33)}/month)
                     </span>
                   </div>
                 </div>

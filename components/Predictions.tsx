@@ -55,48 +55,59 @@ export function Predictions({ predictions }: PredictionsProps) {
   }
 
   return (
-    <Card className="mb-8">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="text-2xl">🔮</div>
-        <h3 className="text-xl md:text-2xl font-semibold tracking-tight">다음 주 예측</h3>
+    <Card className="mb-10">
+      <div className="flex items-center gap-4 mb-8">
+        <div className="text-4xl flex-shrink-0">🔮</div>
+        <div className="flex-1">
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mb-2">
+            Next Week Predictions
+          </h3>
+          <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+            Expected changes for next week based on current trends
+          </p>
+        </div>
       </div>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-        현재 트렌드를 기반으로 한 다음 주 예상 변화입니다.
-      </p>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {predictions.map((prediction, idx) => {
           const colors = TIMING_COLORS[prediction.timing];
           
           return (
             <div
               key={idx}
-              className={`rounded-xl p-4 border transition-all duration-200 hover:shadow-sm ${colors.bg} ${colors.border}`}
+              className={`rounded-2xl p-6 border transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 ${colors.bg} ${colors.border}`}
             >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">{DIRECTION_ICONS[prediction.direction]}</span>
-                  <span className="font-semibold text-sm text-gray-900 dark:text-gray-100">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">{DIRECTION_ICONS[prediction.direction]}</span>
+                  <span className="font-bold text-base md:text-lg text-gray-900 dark:text-gray-100 tracking-tight">
                     {INDICATOR_LABELS[prediction.indicator]}
                   </span>
                 </div>
-                <span className={`text-xs font-bold px-2 py-1 rounded-full ${colors.badge}`}>
-                  {prediction.timing === 'optimal' ? '최적' : prediction.timing === 'good' ? '좋음' : '피하기'}
+                <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${colors.badge}`}>
+                  {prediction.timing === 'optimal' ? 'OPTIMAL' : prediction.timing === 'good' ? 'GOOD' : 'AVOID'}
                 </span>
               </div>
               
               {prediction.expectedChange !== 0 && (
-                <div className="mb-2">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    예상 변화: {prediction.expectedChange > 0 ? '+' : ''}{prediction.expectedChange.toFixed(1)}%
-                  </span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
-                    (신뢰도: {prediction.confidence === 'high' ? '높음' : prediction.confidence === 'medium' ? '중간' : '낮음'})
-                  </span>
+                <div className="mb-4 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-3 border border-gray-200/60 dark:border-gray-700/60">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Expected Change:
+                    </span>
+                    <span className="text-base font-bold text-gray-900 dark:text-gray-100">
+                      {prediction.expectedChange > 0 ? '+' : ''}{prediction.expectedChange.toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-gray-200/60 dark:border-gray-700/60">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      Confidence: <span className="font-semibold">{prediction.confidence === 'high' ? 'High' : prediction.confidence === 'medium' ? 'Medium' : 'Low'}</span>
+                    </span>
+                  </div>
                 </div>
               )}
               
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
                 {prediction.recommendation}
               </p>
             </div>

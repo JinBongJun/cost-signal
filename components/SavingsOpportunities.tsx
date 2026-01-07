@@ -53,63 +53,67 @@ export function SavingsOpportunities({ opportunities }: SavingsOpportunitiesProp
   };
 
   return (
-    <Card className="mb-8">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="text-2xl">💰</div>
-        <h3 className="text-xl md:text-2xl font-semibold tracking-tight">절약 기회</h3>
+    <Card className="mb-10">
+      <div className="flex items-center gap-4 mb-8">
+        <div className="text-4xl flex-shrink-0">💰</div>
+        <div className="flex-1">
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mb-2">
+            Savings Opportunities
+          </h3>
+          <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+            Amount you can save by making small changes to your spending patterns
+          </p>
+        </div>
       </div>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-        소비 패턴을 조금만 바꾸면 절약할 수 있는 금액입니다.
-      </p>
       
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {opportunities.map((opp) => {
           const colors = DIFFICULTY_COLORS[opp.difficulty];
           
           return (
             <div
               key={opp.id}
-              className={`rounded-xl p-5 border transition-all duration-200 hover:shadow-md ${colors.bg} ${colors.border}`}
+              className={`rounded-2xl p-6 border transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 ${colors.bg} ${colors.border}`}
             >
               <div className="flex items-start gap-4">
-                <div className="text-3xl flex-shrink-0">{CATEGORY_ICONS[opp.category]}</div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${colors.badge}`}>
-                      {opp.difficulty === 'easy' ? '쉬움' : opp.difficulty === 'medium' ? '보통' : '어려움'}
+                <div className="text-4xl flex-shrink-0">{CATEGORY_ICONS[opp.category]}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${colors.badge}`}>
+                      {opp.difficulty === 'easy' ? 'EASY' : opp.difficulty === 'medium' ? 'MEDIUM' : 'HARD'}
                     </span>
                   </div>
-                  <h4 className="font-semibold text-base mb-1 text-gray-900 dark:text-gray-100">
+                  <h4 className="font-bold text-lg mb-2 text-gray-900 dark:text-gray-100 tracking-tight">
                     {opp.title}
                   </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
                     {opp.description}
                   </p>
                   
-                  <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700 mb-3">
+                  <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/60 dark:border-gray-700/60 mb-4">
                     <div className="flex items-center justify-between text-sm">
-                      <div>
-                        <span className="text-gray-500 dark:text-gray-400">현재: </span>
-                        <span className="text-gray-700 dark:text-gray-300">{opp.currentPattern}</span>
+                      <div className="flex-1">
+                        <span className="text-xs text-gray-500 dark:text-gray-400 block mb-1">Current</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{opp.currentPattern}</span>
                       </div>
-                      <div className="text-gray-400">→</div>
-                      <div>
-                        <span className="text-gray-500 dark:text-gray-400">제안: </span>
-                        <span className="font-medium text-gray-900 dark:text-gray-100">{opp.suggestedChange}</span>
+                      <div className="text-2xl text-gray-300 dark:text-gray-600 mx-3">→</div>
+                      <div className="flex-1 text-right">
+                        <span className="text-xs text-gray-500 dark:text-gray-400 block mb-1">Suggested</span>
+                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{opp.suggestedChange}</span>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-4">
-                    <div>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">주간 절약</span>
-                      <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-3 border border-gray-200/60 dark:border-gray-700/60">
+                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400 block mb-1">Weekly</span>
+                      <p className="text-xl font-bold text-green-600 dark:text-green-400 tracking-tight">
                         {formatCurrency(opp.weeklySavings)}
                       </p>
                     </div>
-                    <div>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">월간 절약</span>
-                      <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                    <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-3 border border-gray-200/60 dark:border-gray-700/60">
+                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400 block mb-1">Monthly</span>
+                      <p className="text-xl font-bold text-green-600 dark:text-green-400 tracking-tight">
                         {formatCurrency(opp.monthlySavings)}
                       </p>
                     </div>
