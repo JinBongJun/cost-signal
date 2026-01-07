@@ -267,25 +267,11 @@ function HomeContent() {
       const userTier = subscriptionStatus?.tier ?? tier;
       const userIsAdmin = subscriptionStatus?.isAdmin ?? false;
       
-      // If user has subscription or is admin, always fetch paid tier
-      const actualTier = hasSub || userIsAdmin ? 'paid' : userTier;
-      
-      let response = await fetch(`/api/signal?tier=${actualTier}`, {
+      // Strategy: Always fetch free tier first to get isAdmin status
+      // Then upgrade to paid if admin or has subscription
+      let response = await fetch('/api/signal?tier=free', {
         cache: 'no-store',
       });
-      
-      // If paid tier fails (no subscription), fall back to free tier
-      if (!response.ok && actualTier === 'paid') {
-        console.log('Paid tier not available, falling back to free tier');
-        response = await fetch('/api/signal?tier=free', {
-          cache: 'no-store',
-        });
-        // Update state if paid tier access was denied
-        if (response.ok) {
-          setHasActiveSubscription(false);
-          setTier('free');
-        }
-      }
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -307,7 +293,40 @@ function HomeContent() {
         
         throw new Error(errorMessage);
       }
-      const data = await response.json();
+      
+      const freeData = await response.json();
+      const detectedAdmin = freeData.isAdmin || false;
+      
+      console.log('Free tier response - Admin check:', {
+        detectedAdmin,
+        userIsAdmin,
+        hasSub,
+        freeDataIsAdmin: freeData.isAdmin
+      });
+      
+      // If admin detected or has subscription, fetch paid tier
+      let data = freeData;
+      if (detectedAdmin || userIsAdmin || hasSub) {
+        console.log('Upgrading to paid tier - Admin:', detectedAdmin || userIsAdmin, 'Subscription:', hasSub);
+        const paidResponse = await fetch('/api/signal?tier=paid', {
+          cache: 'no-store',
+        });
+        
+        if (paidResponse.ok) {
+          data = await paidResponse.json();
+          // Ensure isAdmin is preserved from free tier check
+          if (detectedAdmin || userIsAdmin) {
+            data.isAdmin = true;
+          }
+        } else {
+          // If paid tier fails but user is admin, still use free tier data but mark as admin
+          if (detectedAdmin || userIsAdmin) {
+            console.log('Paid tier failed but user is admin - using free tier with admin privileges');
+            freeData.isAdmin = true; // Force admin status
+            data = freeData;
+          }
+        }
+      }
       
       // Debug: Log API response
       console.log('Signal API Response:', {
