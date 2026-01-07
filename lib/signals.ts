@@ -29,7 +29,8 @@ export async function evaluateGasPrice(currentValue: number, previousValue: numb
     // Check if all 3 recent weeks show increases
     let consecutiveIncreases = 0;
     for (let i = 0; i < recent.length - 1; i++) {
-      if (recent[i].previous_value !== null && recent[i].value > recent[i].previous_value) {
+      const item = recent[i];
+      if (item && item.previous_value !== null && item.value > item.previous_value) {
         consecutiveIncreases++;
       }
     }

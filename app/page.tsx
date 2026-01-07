@@ -756,8 +756,6 @@ function HomeContent() {
               <ImpactBreakdown
                 totalWeeklyChange={signal.impactAnalysis.totalWeeklyChange}
                 breakdown={signal.impactAnalysis.breakdown}
-                spendingPattern={null}
-                averageImpact={null}
               />
             </div>
             
@@ -791,19 +789,17 @@ function HomeContent() {
             </div>
           </>
         )}
-            
-            {/* History Section - Full width below */}
-            <div className="mt-8">
-              <HistorySection
-                history={history}
-                showHistory={showHistory}
-                onToggle={() => setShowHistory(!showHistory)}
-                formatDate={formatDate}
-                isLoading={historyLoading}
-              />
-            </div>
-          </>
-        )}
+
+        {/* History Section - Full width below */}
+        <div className="mt-8">
+          <HistorySection
+            history={history}
+            showHistory={showHistory}
+            onToggle={() => setShowHistory(!showHistory)}
+            formatDate={formatDate}
+            isLoading={historyLoading}
+          />
+        </div>
 
         <Footer />
       </div>

@@ -170,7 +170,7 @@ async function runWeeklyUpdate(forceUpdate: boolean = false) {
     }
 
     // Calculate overall signal
-    const { status: overallStatus, riskCount } = calculateOverallSignal(indicators);
+    const { status: overallStatus, riskCount } = calculateOverallSignal(indicators as any);
     console.log(`Overall signal: ${overallStatus.toUpperCase()} (${riskCount} risk indicators)`);
 
     // Generate explanation
