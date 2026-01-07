@@ -140,7 +140,20 @@ export function SignalCard({
               // Admin users always have access (even if tier is 'free' due to API response)
               // If user has active subscription, indicators should be unlocked
               // Admin or paid tier users should never see locked indicators
-              const isLocked = tier === 'free' && !signal.isAdmin && !hasActiveSubscription;
+              const effectiveTier = signal.isAdmin ? 'paid' : tier;
+              const isLocked = effectiveTier === 'free' && !signal.isAdmin && !hasActiveSubscription;
+              
+              // Debug logging
+              if (idx === 0) {
+                console.log('SignalCard - Indicator lock check:', {
+                  tier,
+                  effectiveTier,
+                  signalIsAdmin: signal.isAdmin,
+                  hasActiveSubscription,
+                  isLocked,
+                  indicatorLocked: indicator.locked
+                });
+              }
               
               // Free tier: always use gray colors (status hidden)
               // Paid tier: use status-based colors

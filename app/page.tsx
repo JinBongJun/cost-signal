@@ -310,13 +310,18 @@ function HomeContent() {
         hasImpactAnalysis: !!data.impactAnalysis,
         impactAnalysis: data.impactAnalysis,
         tier: subscriptionStatus?.tier || tier,
+        isAdmin: data.isAdmin,
+        currentTier: tier,
+        subscriptionStatus
       });
       
       // If user is admin, automatically set tier to paid (but not subscription status)
       if (data.isAdmin) {
-        console.log('✅ Admin user detected in signal response');
+        console.log('✅ Admin user detected in signal response - forcing tier to paid');
         setTier('paid');
         setHasActiveSubscription(false); // Admin doesn't need subscription
+      } else {
+        console.log('❌ Not admin - isAdmin:', data.isAdmin, 'tier:', tier);
       }
       
       // Ensure minimum loading time for better UX
