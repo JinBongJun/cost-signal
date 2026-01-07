@@ -184,10 +184,20 @@ function HomeContent() {
         });
         if (response.ok) {
           const data = await response.json();
-          setHasActiveSubscription(true);
-          // Only update tier if it's currently free (avoid infinite loop)
-          setTier((currentTier) => currentTier === 'free' ? 'paid' : currentTier);
-          return { hasSubscription: true, isAdmin: data.isAdmin || false, tier: 'paid' };
+          const isAdmin = data.isAdmin || false;
+          
+          // If admin, grant paid access without subscription
+          if (isAdmin) {
+            console.log('✅ Admin access detected - granting paid tier');
+            setHasActiveSubscription(false); // Admin doesn't need subscription
+            setTier((currentTier) => currentTier === 'free' ? 'paid' : currentTier);
+            return { hasSubscription: false, isAdmin: true, tier: 'paid' };
+          } else {
+            // Regular user with subscription
+            setHasActiveSubscription(true);
+            setTier((currentTier) => currentTier === 'free' ? 'paid' : currentTier);
+            return { hasSubscription: true, isAdmin: false, tier: 'paid' };
+          }
         } else {
           const errorData = await response.json().catch(() => ({}));
           console.log('Paid tier access denied:', errorData.error || response.status);
@@ -302,10 +312,11 @@ function HomeContent() {
         tier: subscriptionStatus?.tier || tier,
       });
       
-      // If user is admin, automatically set tier to paid and subscription status
+      // If user is admin, automatically set tier to paid (but not subscription status)
       if (data.isAdmin) {
+        console.log('✅ Admin user detected in signal response');
         setTier('paid');
-        setHasActiveSubscription(true);
+        setHasActiveSubscription(false); // Admin doesn't need subscription
       }
       
       // Ensure minimum loading time for better UX
