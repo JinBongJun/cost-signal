@@ -25,19 +25,54 @@ export async function GET(request: NextRequest) {
     // Check if user is admin for frontend (needed for both free and paid tiers)
     let userIsAdmin = false;
     const user = await getCurrentUser();
+    
+    console.log('Signal API - User check:', {
+      hasUser: !!user,
+      userId: user ? (user as any).id : null,
+      userEmail: user ? (user as any).email : null,
+      ADMIN_EMAILS: process.env.ADMIN_EMAILS || 'NOT SET',
+      ADMIN_EMAILS_LENGTH: (process.env.ADMIN_EMAILS || '').length
+    });
+    
     if (user) {
       const userId = (user as any).id;
+      const userEmail = (user as any).email;
+      
       if (userId) {
         const { isAdmin } = await import('@/lib/auth');
         userIsAdmin = await isAdmin(userId);
         
-        console.log('Signal API - Admin check:', {
+        console.log('Signal API - Admin check result:', {
           userId,
-          userEmail: (user as any).email,
+          userEmail,
           userIsAdmin,
-          ADMIN_EMAILS: process.env.ADMIN_EMAILS || 'NOT SET'
+          ADMIN_EMAILS: process.env.ADMIN_EMAILS || 'NOT SET',
+          ADMIN_EMAILS_ARRAY: (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase())
         });
+      } else {
+        console.log('Signal API - No userId found in user object');
       }
+      
+      // Also try direct email check as fallback
+      if (userEmail && !userIsAdmin) {
+        const adminEmailsRaw = process.env.ADMIN_EMAILS || '';
+        const adminEmails = adminEmailsRaw.split(',').map(email => email.trim().toLowerCase()).filter(email => email.length > 0);
+        const emailLower = userEmail.toLowerCase();
+        const directEmailMatch = adminEmails.includes(emailLower);
+        
+        console.log('Signal API - Direct email check:', {
+          userEmail: emailLower,
+          adminEmails,
+          directEmailMatch
+        });
+        
+        if (directEmailMatch) {
+          userIsAdmin = true;
+          console.log('✅ Admin detected via direct email match');
+        }
+      }
+    } else {
+      console.log('Signal API - No user found (not authenticated)');
     }
 
     // Check authentication for paid tier
