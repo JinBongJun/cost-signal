@@ -275,7 +275,23 @@ function HomeContent() {
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to fetch signal');
+        const errorMessage = errorData.error || 'Failed to fetch signal';
+        
+        // If it's a 404 (no data), show a helpful message instead of error
+        if (response.status === 404) {
+          setSignal({
+            week_start: new Date().toISOString().split('T')[0],
+            overall_status: 'ok',
+            risk_count: 0,
+            explanation: 'Signal data is being prepared. Please check back soon.',
+            explanation_type: 'basic',
+            indicators: [],
+          });
+          setLoading(false);
+          return;
+        }
+        
+        throw new Error(errorMessage);
       }
       const data = await response.json();
       

@@ -98,10 +98,16 @@ export async function GET(request: NextRequest) {
       signal = await db.getLatestWeeklySignal();
       if (!signal) {
         console.error('No signal found in database');
-        return NextResponse.json(
-          { error: 'No signal data available yet' },
-          { status: 404 }
-        );
+        // Return a default signal structure instead of 404 to prevent frontend errors
+        return NextResponse.json({
+          week_start: new Date().toISOString().split('T')[0],
+          overall_status: 'ok' as const,
+          risk_count: 0,
+          explanation: 'Signal data is being prepared. Please check back soon.',
+          explanation_type: 'basic' as const,
+          isAdmin: userIsAdmin,
+          indicators: [],
+        });
       }
     }
 
