@@ -202,7 +202,7 @@ export async function GET(request: NextRequest) {
         risk_count: signal.risk_count,
         explanation: basicExplanation, // Basic template-based explanation
         explanation_type: 'basic', // Indicate this is a basic explanation
-        isAdmin: userIsAdmin, // Include admin status for frontend
+        isAdmin: userIsAdmin, // Include admin status for frontend (even for free tier)
         // Return indicators with direction only (no values, no percentages) for free tier
         indicators: indicators.map(ind => {
           // Calculate direction from change_percent
